@@ -1,22 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { ArrowLeft, ArrowRight, Bookmark, BookOpen, Globe2, Grid2X2, Lightbulb, MapPin, Search, UsersRound, Zap } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
-type CaseStudy = {
-  id?: number;
-  slug?: string;
-  title: string;
-  place: string;
-  type: string;
-  category: string;
-  summary: string;
-  metric: string;
-  pdfUrl?: string;
-};
+type CaseStudy = { slug?: string; title: string; place: string; type: string; category: string; summary: string; metric: string; pdfUrl?: string; imageUrl?: string; href?: string };
 
 const caseStudies: CaseStudy[] = [
-  { title: "Mondragon: democratic ownership at scale", place: "Basque Country, Spain", type: "Cooperative federation", category: "Work & ownership", summary: "A worker-owned network that connects manufacturing, finance, education, and research through shared governance.", metric: "80,000+ worker-members" },
+  { title: "Mondragon: democratic ownership at scale", place: "Basque Country, Spain", type: "Cooperative federation", category: "Work & ownership", summary: "A worker-owned network that connects manufacturing, finance, education, and research through shared governance.", metric: "80,000+ workers · 200+ members" },
   { title: "Community energy in Samsø", place: "Samsø, Denmark", type: "Renewable energy cooperative", category: "Climate & place", summary: "Residents turned local renewable infrastructure into a shared asset, keeping energy value and decisions close to the island.", metric: "100% renewable electricity" },
   { title: "The Grameen model of collective finance", place: "Bangladesh", type: "Community finance", category: "Finance & inclusion", summary: "Group-based lending demonstrates how trust, peer support, and small-scale capital can widen economic participation.", metric: "Millions reached through microfinance" },
   { title: "Cooperative care in Emilia-Romagna", place: "Italy", type: "Social cooperative", category: "Care & wellbeing", summary: "Social cooperatives combine professional care with member participation and strong local public partnerships.", metric: "Care delivered through local networks" },
@@ -24,79 +15,51 @@ const caseStudies: CaseStudy[] = [
   { title: "Preston: community wealth building", place: "Lancashire, United Kingdom", type: "Local economic strategy", category: "Local development", summary: "Anchor institutions redirect procurement and investment toward local suppliers, cooperatives, and community ownership.", metric: "More local spending retained" },
 ];
 
-const faCaseStudies: CaseStudy[] = [
-  { title: "موندراگون: مالکیت دموکراتیک در مقیاس بزرگ", place: "سرزمین باسک، اسپانیا", type: "فدراسیون تعاونی", category: "کار و مالکیت", summary: "شبکه‌ای متعلق به کارکنان که تولید، امور مالی، آموزش و پژوهش را از طریق حکمرانی مشترک به هم پیوند می‌دهد.", metric: "بیش از ۸۰٬۰۰۰ عضوِ شاغل" },
-  { title: "انرژی اجتماعی در سامسو", place: "سامسو، دانمارک", type: "تعاونی انرژی تجدیدپذیر", category: "اقلیم و مکان", summary: "ساکنان زیرساخت انرژی تجدیدپذیر محلی را به دارایی مشترک تبدیل کردند تا ارزش و تصمیم‌گیری انرژی در جزیره باقی بماند.", metric: "برق صددرصد تجدیدپذیر" },
-  { title: "الگوی گرامین برای تأمین مالی جمعی", place: "بنگلادش", type: "تأمین مالی اجتماعی", category: "مالی و مشارکت", summary: "وام‌دهی گروهی نشان می‌دهد اعتماد، حمایت همتا و سرمایه کوچک‌مقیاس چگونه مشارکت اقتصادی را گسترش می‌دهد.", metric: "دسترسی میلیون‌ها نفر به تأمین مالی خرد" },
-  { title: "مراقبت تعاونی در امیلیا-رومانیا", place: "ایتالیا", type: "تعاونی اجتماعی", category: "مراقبت و رفاه", summary: "تعاونی‌های اجتماعی مراقبت حرفه‌ای را با مشارکت اعضا و همکاری نیرومند با نهادهای عمومی محلی ترکیب می‌کنند.", metric: "ارائه مراقبت از طریق شبکه‌های محلی" },
-  { title: "جمع‌آوران پسماند و معیشت چرخشی", place: "بلو هوریزونته، برزیل", type: "تعاونی بازیافت", category: "محیط زیست و معیشت", summary: "جمع‌آوران سازمان‌یافته پسماند شرایط کار را بهبود می‌دهند و ارزش اجتماعی و زیست‌محیطی بازیافت را آشکار می‌کنند.", metric: "اقتصاد چرخشی همراه با کار شایسته" },
-  { title: "پرستون: ساخت ثروت اجتماعی", place: "لنکشر، بریتانیا", type: "راهبرد اقتصادی محلی", category: "توسعه محلی", summary: "نهادهای لنگر خرید و سرمایه‌گذاری را به سوی تأمین‌کنندگان محلی، تعاونی‌ها و مالکیت اجتماعی هدایت می‌کنند.", metric: "ماندگاری بیشتر هزینه‌کرد در اقتصاد محلی" },
-];
-
-function localizeCount(value: number, locale: "en" | "fa") {
-  return new Intl.NumberFormat(locale === "fa" ? "fa-IR" : "en-US").format(value);
-}
+function localizeCount(value: number, locale: "en" | "fa") { return new Intl.NumberFormat(locale === "fa" ? "fa-IR" : "en-US").format(value); }
 
 export default function CaseStudiesHub({ locale = "en" }: { locale?: "en" | "fa" }) {
   const isPersian = locale === "fa";
-  const fallbackStudies = isPersian ? faCaseStudies : caseStudies;
   const [remoteStudies, setRemoteStudies] = useState<CaseStudy[] | null>(null);
+  const [activeCategory, setActiveCategory] = useState(isPersian ? "همه" : "All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const fallbackStudies = caseStudies;
   useEffect(() => {
     const wordpressUrl = process.env.NEXT_PUBLIC_WORDPRESS_URL?.replace(/\/$/, "");
     if (!wordpressUrl) return;
-    fetch(`${wordpressUrl}/wp-json/sse/v1/case-studies?locale=${locale}`)
-      .then((response) => response.ok ? response.json() : Promise.reject(new Error("Case studies request failed")))
-      .then((items: CaseStudy[]) => setRemoteStudies(items))
-      .catch(() => setRemoteStudies(null));
+    fetch(`${wordpressUrl}/wp-json/sse/v1/case-studies?locale=${locale}`).then((response) => response.ok ? response.json() : Promise.reject(new Error("Case studies request failed"))).then((items: CaseStudy[]) => setRemoteStudies(items)).catch(() => setRemoteStudies(null));
   }, [locale]);
   const studies = remoteStudies && remoteStudies.length > 0 ? remoteStudies : fallbackStudies;
   const allCategory = isPersian ? "همه" : "All";
-  const [activeCategory, setActiveCategory] = useState(allCategory);
   const categories = [allCategory, ...Array.from(new Set(studies.map((study) => study.category)))];
-  const visibleStudies = useMemo(() => activeCategory === allCategory ? studies : studies.filter((study) => study.category === activeCategory), [activeCategory, allCategory, studies]);
+  const visibleStudies = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    return studies.filter((study) => (activeCategory === allCategory || study.category === activeCategory) && (!query || [study.title, study.place, study.type, study.category, study.summary].some((value) => value.toLowerCase().includes(query))));
+  }, [activeCategory, allCategory, searchQuery, studies]);
+  const path = (english: string, persian: string) => isPersian ? persian : english;
+  const imageForStudy = (study: CaseStudy, index: number) => study.imageUrl || ["/pics/o1.jpg", "/pics/o2.jpg", "/pics/o3.jpg", "/pics/o6.jpg", "/pics/o4.jpg", "/pics/o5.jpg"][index % 6];
+  const metricIcon = (study: CaseStudy) => study.category === "Climate & place" ? Zap : study.category === "Care & wellbeing" ? UsersRound : study.category === "Local development" ? ArrowRight : Globe2;
 
-  return (
-    <main className="case-page" dir={isPersian ? "rtl" : "ltr"}>
-      <style>{`
-        .case-page { --ink:#182527; --muted:#617174; --paper:#fffdf8; --line:#d9e4df; --teal:#0d6961; --coral:#e46852; min-height:100vh; padding:32px clamp(18px,5vw,76px) 72px; color:var(--ink); background:radial-gradient(circle at 90% 0%,#d9eee7 0,transparent 32%),linear-gradient(145deg,#f5f0e6,#edf5f1); font-family:"Vazirmatn",Tahoma,Arial,sans-serif; }
-        .case-shell { max-width:1280px; margin:0 auto; }
-        .case-nav { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:68px; }
-        .case-brand { color:var(--ink); font-weight:800; text-decoration:none; letter-spacing:.04em; }
-        .case-back { color:var(--teal); text-decoration:none; font-size:14px; font-weight:700; }
-        .case-hero { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(280px,.7fr); gap:48px; align-items:end; margin-bottom:54px; }
-        .case-kicker { color:var(--coral); font-size:12px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; }
-        .case-hero h1 { max-width:760px; margin:12px 0 18px; font-size:clamp(42px,7vw,92px); line-height:.95; letter-spacing:-.06em; }
-        .case-hero p { max-width:650px; margin:0; color:var(--muted); font-size:18px; line-height:1.8; }
-        .case-signal { padding:24px; border-left:4px solid var(--coral); background:rgba(255,253,248,.72); }
-        .case-signal strong { display:block; margin-bottom:8px; color:var(--teal); font-size:28px; }
-        .case-signal span { color:var(--muted); line-height:1.6; }
-        .case-toolbar { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px; }
-        .case-filter { padding:9px 14px; border:1px solid var(--line); border-radius:999px; color:var(--teal); background:rgba(255,255,255,.55); cursor:pointer; font:inherit; }
-        .case-filter.active,.case-filter:hover { color:#fff; border-color:var(--teal); background:var(--teal); }
-        .case-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
-        .case-card { display:flex; flex-direction:column; min-height:300px; padding:24px; border:1px solid var(--line); background:var(--paper); box-shadow:0 18px 34px rgba(30,70,60,.08); transition:transform .2s ease,box-shadow .2s ease; }
-        .case-card:hover { transform:translateY(-5px); box-shadow:0 24px 42px rgba(30,70,60,.14); }
-        .case-card-top { display:flex; justify-content:space-between; gap:12px; color:var(--coral); font-size:12px; font-weight:800; }
-        .case-card h2 { margin:30px 0 10px; font-size:24px; line-height:1.2; }
-        .case-place { margin:0 0 14px; color:var(--teal); font-size:13px; font-weight:800; }
-        .case-card p { margin:0; color:var(--muted); line-height:1.7; }
-        .case-metric { margin-top:auto; padding-top:24px; color:var(--ink); font-size:13px; font-weight:800; }
-        .case-pdf { display:inline-block; margin-top:16px; color:var(--teal); font-size:13px; font-weight:800; text-decoration:none; }
-        .case-footer { display:flex; flex-wrap:wrap; justify-content:space-between; gap:18px; margin-top:52px; padding-top:22px; border-top:1px solid var(--line); color:var(--muted); }
-        .case-footer a { color:var(--teal); font-weight:800; text-decoration:none; }
-        @media(max-width:900px){.case-hero{grid-template-columns:1fr;gap:24px}.case-grid{grid-template-columns:repeat(2,1fr)}}
-        @media(max-width:580px){.case-page{padding:22px 16px 48px}.case-nav{margin-bottom:48px}.case-hero h1{font-size:54px}.case-grid{grid-template-columns:1fr}.case-card{min-height:260px}}
-      `}</style>
-      <div className="case-shell">
-        <nav className="case-nav"><Link className="case-brand" href={isPersian ? "/fa" : "/en"}>{isPersian ? "اقتصاد اجتماعی / یادداشت‌های میدانی" : "SSE / FIELD NOTES"}</Link><Link className="case-back" href={isPersian ? "/fa" : "/en"}>{isPersian ? "بازگشت به دانشنامه" : "Back to encyclopedia"}</Link></nav>
-        <header className="case-hero">
-          <div><div className="case-kicker">{isPersian ? "کتابخانه‌ای زنده از تجربه‌ها" : "A living library of practice"}</div><h1>{isPersian ? "مرکز مطالعات موردی" : "Case Studies Hub"}</h1><p>{isPersian ? "با سازمان‌ها و جوامعی آشنا شوید که همبستگی را به نظام‌هایی پایدار برای کار، مراقبت، اقدام اقلیمی و رونق محلی تبدیل می‌کنند." : "Meet the organizations and communities turning solidarity into durable systems of work, care, climate action, and local prosperity."}</p></div>
-          <div className="case-signal"><strong>{localizeCount(studies.length, locale)} {isPersian ? "یادداشت میدانی" : "field notes"}</strong><span>{isPersian ? "نقطه‌های آغازینِ گردآوری‌شده برای پژوهشگران، کنشگران، تأمین‌کنندگان مالی و هر کسی که برای ساخت اقتصادی دموکراتیک‌تر تلاش می‌کند." : "Curated starting points for researchers, organizers, funders, and anyone building a more democratic economy."}</span></div>
-        </header>
-        <div className="case-toolbar" aria-label={isPersian ? "فیلتر مطالعات موردی" : "Filter case studies"}>{categories.map((category) => <button className={`case-filter ${activeCategory === category ? "active" : ""}`} key={category} type="button" onClick={() => setActiveCategory(category)}>{category}</button>)}</div>
-        <section className="case-grid" aria-live="polite">{visibleStudies.map((study) => <article className="case-card" key={study.slug ?? study.title}><div className="case-card-top"><span>{study.type}</span><span>↗</span></div><h2>{study.title}</h2><p className="case-place">{study.place}</p><p>{study.summary}</p><div className="case-metric">{study.metric}</div>{study.pdfUrl && <a className="case-pdf" href={study.pdfUrl} target="_blank" rel="noreferrer">{isPersian ? "دریافت PDF مطالعه" : "Download case study PDF"}</a>}</article>)}</section>
-        <footer className="case-footer"><span>{isPersian ? "با رشد این مرکز، روایت‌های بیشتری افزوده خواهد شد." : "More stories will be added as the hub grows."}</span><Link href={isPersian ? "/fa/impact-calculator" : "/en/impact-calculator"}>{isPersian ? "اثرگذاری فعالیت خود را بسنجید ←" : "Measure the impact of your own work →"}</Link></footer>
+  return <main className="case-page" dir={isPersian ? "rtl" : "ltr"}>
+    <style>{`.case-page{--text:#f2f7fb;--accent:#6de8d7;min-height:100vh;color:var(--text);background:linear-gradient(90deg,rgba(3,20,34,.9),rgba(5,25,42,.7),rgba(3,17,30,.82)),url('/homepage/case-studies.jpg') center/cover fixed;font-family:'DM Sans','Inter',Arial,sans-serif}.case-app{display:grid;grid-template-columns:265px minmax(0,1fr);min-height:100vh;background:linear-gradient(180deg,rgba(3,16,29,.22),rgba(2,13,25,.75))}.case-sidebar{display:flex;flex-direction:column;gap:30px;padding:28px 16px 24px;border-right:1px solid rgba(161,209,239,.14);background:rgba(5,27,46,.72);backdrop-filter:blur(18px)}.case-logo{display:flex;align-items:center;gap:12px;padding:8px;color:var(--text);text-decoration:none}.case-logo-mark{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;color:#062a35;background:var(--accent);font-size:24px}.case-logo strong,.case-logo small,.case-side-nav strong,.case-side-nav small,.case-promo strong,.case-promo small{display:block}.case-logo small{margin-top:4px;color:#abc4d9;font-size:9px;letter-spacing:.14em}.case-side-nav{display:grid;gap:7px}.case-side-nav a{display:flex;align-items:center;gap:12px;padding:11px 10px;border:1px solid transparent;border-radius:12px;color:#c5d6e4;text-decoration:none}.case-side-nav a.active,.case-side-nav a:hover{border-color:rgba(159,211,245,.18);background:rgba(81,140,192,.35);color:#fff}.case-side-icon{display:grid;place-items:center;width:38px;height:38px;flex:none;border-radius:11px;background:rgba(133,183,227,.1)}.case-side-nav strong{font-size:12px}.case-side-nav small{margin-top:4px;color:#91afc7;font-size:9px}.case-promo{display:flex;align-items:center;gap:10px;margin-top:auto;padding:14px 11px;border:1px solid rgba(155,207,239,.15);border-radius:12px;background:rgba(67,120,165,.2);color:#e5f2fa;text-decoration:none}.case-promo i{width:11px;height:11px;border-radius:50%;background:var(--accent)}.case-promo small{margin-top:4px;color:#9ab8cf;font-size:9px;line-height:1.4}.case-version{padding:0 8px;color:#8ca7ba;font-size:8px;letter-spacing:.12em}.case-content{min-width:0;padding:24px 3.1vw 28px}.case-topbar{display:flex;justify-content:flex-end;gap:14px;min-height:44px}.case-search,.case-back{display:flex;align-items:center;gap:10px;border:1px solid rgba(158,209,240,.2);border-radius:22px;color:#cce0ee;background:rgba(47,91,127,.27);box-shadow:inset 0 1px rgba(255,255,255,.08);backdrop-filter:blur(12px)}.case-search{width:275px;padding:0 13px}.case-search input{min-width:0;flex:1;border:0;outline:0;background:transparent;color:#eaf4fa;font:inherit;font-size:10px}.case-search input::placeholder{color:#b8cad8}.case-search kbd{padding:3px 6px;border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#c4d6e4;font-size:9px}.case-back{padding:0 16px;color:#eaf5fb;text-decoration:none;font-size:10px;white-space:nowrap}.case-heading{display:grid;grid-template-columns:minmax(0,1fr) 318px;gap:40px;align-items:end;margin:9px 0 27px}.case-kicker{color:#c9ddec;font-size:10px;font-weight:700;letter-spacing:.13em}.case-heading h1{margin:14px 0 11px;font-size:clamp(42px,4.6vw,66px);line-height:.98;letter-spacing:-.045em}.case-heading h1 span{color:var(--accent)}.case-heading p{max-width:560px;margin:0;color:#bdd0df;font-size:14px;line-height:1.45}.case-signal{display:flex;gap:13px;align-items:flex-start;padding:20px 17px;border:1px solid rgba(155,207,239,.22);border-radius:13px;background:rgba(27,70,105,.57);box-shadow:0 14px 28px rgba(0,9,19,.16);backdrop-filter:blur(13px)}.case-signal:before{content:'';flex:none;width:3px;height:65px;border-radius:4px;background:var(--accent)}.case-signal strong,.case-signal span{display:block}.case-signal strong{margin-bottom:9px;font-size:18px}.case-signal span{color:#bed2e1;font-size:10px;line-height:1.45}.case-toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}.case-filter{padding:9px 16px;border:1px solid rgba(155,207,239,.2);border-radius:999px;color:#d2e3ee;background:rgba(36,78,111,.35);cursor:pointer;font:inherit;font-size:10px}.case-filter.active,.case-filter:hover{border-color:var(--accent);color:#07303b;background:var(--accent);box-shadow:0 0 18px rgba(109,232,215,.18)}.case-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}.case-card{display:block;overflow:hidden;min-width:0;border:1px solid rgba(155,207,239,.18);border-radius:15px;background:linear-gradient(180deg,rgba(25,69,102,.76),rgba(7,32,54,.87));color:inherit;text-decoration:none;box-shadow:0 16px 28px rgba(0,9,18,.25),inset 0 1px rgba(255,255,255,.06);transition:transform .2s ease,border-color .2s ease}.case-card:hover{transform:translateY(-3px);border-color:rgba(109,232,215,.45)}.case-card-image{position:relative;height:100px;margin:8px 8px 0;overflow:hidden;border-radius:11px;background:#173c58}.case-card-image:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,18,29,.06),rgba(3,20,34,.25))}.case-card-image img{width:100%;height:100%;object-fit:cover}.case-badge{position:absolute;z-index:1;top:8px;left:8px;padding:5px 10px;border-radius:999px;color:#133950;background:#b7d6ff;font-size:9px;font-weight:700}.case-card:nth-child(3n+2) .case-badge{background:#8ce2d4}.case-card:nth-child(3n) .case-badge{background:#f2d287}.case-card:nth-child(4) .case-badge{background:#ff9f9c}.case-card-image>svg{position:absolute;z-index:2;top:11px;right:10px;color:#edf8ff}.case-card-body{padding:10px 10px 12px}.case-card-title{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.case-card h2{margin:0;font-size:18px;line-height:1.08;letter-spacing:-.02em}.case-card-title>svg{flex:none;margin-top:2px;color:#d8e9f3}.case-place{display:flex;align-items:center;gap:6px;margin:8px 0;color:#c3d7e5;font-size:10px}.case-card p{margin:0;color:#c0d2df;font-size:10px;line-height:1.45}.case-metric{display:flex;align-items:center;gap:9px;margin-top:12px;color:#dcebf4;font-size:10px}.case-metric svg{flex:none}.case-footer{display:flex;justify-content:space-between;gap:18px;margin-top:27px;color:#9db7ca;font-size:10px}.case-footer a{display:flex;align-items:center;gap:6px;color:var(--accent);text-decoration:none}@media(max-width:1050px){.case-app{grid-template-columns:220px 1fr}.case-heading{grid-template-columns:1fr}.case-signal{max-width:360px}.case-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:680px){.case-app{display:block}.case-sidebar{position:relative;min-height:auto;padding:14px 14px 10px;border-right:0;border-bottom:1px solid rgba(161,209,239,.14)}.case-side-nav{display:flex;overflow:auto}.case-side-nav a{flex:none}.case-side-nav a:not(.active){display:none}.case-promo,.case-version{display:none}.case-content{padding:15px 14px 80px}.case-topbar{justify-content:stretch}.case-search{flex:1}.case-back{padding:0 10px}.case-heading{margin-top:25px}.case-heading h1{font-size:45px}.case-grid{grid-template-columns:1fr}.case-card-image{height:145px}.case-footer{flex-direction:column}}`}</style>
+    <div className="case-app">
+      <aside className="case-sidebar">
+        <Link className="case-logo" href={path("/en", "/fa")}><img src="/pics/logo 2 w.png" alt="SSE" style={{ width: 170, height: "auto" }} /></Link>
+        <nav className="case-side-nav">
+          <Link className="active" href="#case-studies"><span className="case-side-icon"><Grid2X2 size={19} /></span><span><strong>Case Studies</strong><small>Browse {studies.length} field notes</small></span></Link>
+          <Link href={path("/en/archive", "/fa/archive")}><span className="case-side-icon"><BookOpen size={19} /></span><span><strong>Encyclopedia</strong><small>Reports & papers</small></span></Link>
+          <Link href={path("/en/country-explorer", "/fa/country-explorer")}><span className="case-side-icon"><Globe2 size={19} /></span><span><strong>SSE Atlas</strong><small>Explore by focus</small></span></Link>
+          <Link href={path("/en/impact-calculator", "/fa/impact-calculator")}><span className="case-side-icon"><Lightbulb size={19} /></span><span><strong>Impact Calculator</strong><small>Measure social impact</small></span></Link>
+          <a className="case-side-item" aria-label="Marginalia"><span className="case-side-icon"><Bookmark size={19} /></span><span><strong>Marginalia</strong><small>Your collection</small></span></a>
+        </nav>
+        <span className="case-version">SSE FIELD NOTES<br />v2.4.0</span>
+      </aside>
+      <div className="case-content" id="case-studies">
+        <div className="case-topbar"><label className="case-search"><Search size={15} /><input type="search" placeholder="Search case studies..." aria-label="Search case studies" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} /><kbd>⌘ K</kbd></label><Link className="case-back" href={path("/en", "/fa")}><ArrowLeft size={15} /> Back to encyclopedia</Link></div>
+        <header className="case-heading"><div><div className="case-kicker">SSE / FIELD NOTES</div><h1>Solidarity <span>Experiences</span></h1><p>Real-world examples of how organizations and communities are building more resilient, inclusive and sustainable systems.</p></div><div className="case-signal"><div><strong>{localizeCount(studies.length, locale)} field notes</strong><span>Curated case studies for researchers, organizers, funders, and anyone building a more democratic economy.</span></div></div></header>
+        <div className="case-toolbar" aria-label="Filter case studies">{categories.map((category) => <button className={`case-filter ${activeCategory === category ? "active" : ""}`} key={category} type="button" onClick={() => setActiveCategory(category)}>{category}</button>)}</div>
+        <section className="case-grid" aria-live="polite">{visibleStudies.map((study) => { const Icon = metricIcon(study); const card = <><div className="case-card-image"><img src={imageForStudy(study, studies.indexOf(study))} alt="" /><span className="case-badge">{study.type}</span><ArrowRight size={17} /></div><div className="case-card-body"><div className="case-card-title"><h2>{study.title}</h2><ArrowRight size={18} /></div><div className="case-place"><MapPin size={13} /> {study.place}</div><p>{study.summary}</p><div className="case-metric"><Icon size={14} /> {study.metric}</div></div></>; return study.href ? <Link className="case-card" href={study.href} key={study.slug ?? study.title}>{card}</Link> : <article className="case-card" key={study.slug ?? study.title}>{card}</article>; })}</section>
+        <footer className="case-footer"><span>More stories will be added as the hub grows.</span></footer>
       </div>
-    </main>
-  );
+    </div>
+  </main>;
 }

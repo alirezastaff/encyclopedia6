@@ -1,0 +1,405 @@
+I want you to recreate the provided reference image as a highly accurate
+App-Like Desktop Dashboard Interface.
+
+The reference image is the SOURCE OF TRUTH for the visual design and geometry.
+
+Do NOT create a dashboard that is merely "inspired by" the image.
+Reproduce the visual composition, proportions, spacing, hierarchy and density
+of the reference as closely as possible.
+
+==================================================
+1. REFERENCE IMAGE & GEOMETRY
+==================================================
+
+Treat the reference image as a measured UI specification.
+
+Before implementing the page, analyze:
+
+- viewport dimensions
+- overall page proportions
+- header height
+- sidebar width
+- content area dimensions
+- card widths and heights
+- grid columns and rows
+- gaps between components
+- internal padding
+- margins
+- typography scale
+- icon sizes
+- chart dimensions
+- border radius
+- borders
+- shadows
+- alignment
+- vertical rhythm
+- horizontal rhythm
+
+Preserve the relative proportions of the reference.
+
+Do not allow flexbox, grid, auto sizing, or content-based sizing
+to unintentionally distort the proportions shown in the reference.
+
+When necessary, use explicit dimensions, CSS variables, min/max constraints,
+aspect ratios, and calculated viewport-based dimensions.
+
+==================================================
+2. APP-LIKE DESKTOP UI
+==================================================
+
+The desktop version should feel like a native application rather than
+a conventional vertically scrolling website.
+
+The interface should behave visually like:
+
+- VS Code
+- Figma
+- Linear
+- modern desktop productivity applications
+
+The dashboard should occupy the available viewport.
+
+Use:
+
+height: 100vh;
+
+or an equivalent viewport-based layout.
+
+Avoid designing the page as a document that continues vertically.
+
+The main application shell should have:
+
+- fixed viewport height
+- controlled internal regions
+- stable navigation
+- stable header
+- responsive content grid
+- controlled overflow
+
+Do NOT allow the entire page to scroll vertically.
+
+==================================================
+3. SINGLE-SCREEN / NO VERTICAL SCROLL
+==================================================
+
+This is extremely important.
+
+The entire desktop dashboard must fit inside the initial viewport.
+
+There must be NO document-level vertical scrolling.
+
+The user should be able to see the complete dashboard without scrolling.
+
+Use a structure similar to:
+
+App Shell
+ ├── Header
+ ├── Sidebar
+ └── Main Content
+      └── Responsive Grid
+
+The application itself should occupy:
+
+100vh
+
+and the main dashboard content should dynamically fit inside
+the remaining available height.
+
+Do NOT solve this by simply hiding overflow while allowing content
+to be cut off.
+
+Instead, calculate the available space correctly.
+
+For example:
+
+viewport height
+- header height
+- internal padding
+= available dashboard height
+
+The grid and its children must fit inside that available height.
+
+==================================================
+4. VIEWPORT-BASED SCALING
+==================================================
+
+The desktop dashboard must behave similarly to VS Code's interface.
+
+The reference image represents a target visual scale.
+
+When the viewport becomes smaller or larger, the UI should scale
+proportionally rather than allowing individual components to become
+randomly stretched.
+
+Use a combination of:
+
+- vw
+- vh
+- rem
+- clamp()
+- min()
+- max()
+- CSS variables
+- aspect-ratio
+- calculated dimensions
+
+where appropriate.
+
+The goal is to preserve the visual relationships between components.
+
+For example:
+
+If the reference contains a card that occupies approximately 20%
+of the available content width, preserve that relationship rather than
+giving the card an arbitrary fixed width.
+
+Similarly, vertical dimensions should respond to viewport height.
+
+The layout should feel like a desktop application being zoomed,
+not like a website being reflowed.
+
+IMPORTANT:
+
+Do not make every element independently responsive.
+
+The UI should scale as a coordinated visual system.
+
+==================================================
+5. RESPONSIVE GRID
+==================================================
+
+The dashboard must use a responsive grid.
+
+However, responsiveness must NOT destroy the visual composition
+of the reference.
+
+The desktop reference should be treated as the primary composition.
+
+Use CSS Grid where appropriate.
+
+Example concept:
+
+grid-template-columns:
+repeat(..., minmax(0, 1fr));
+
+But choose the actual grid structure based on the reference image.
+
+Cards should maintain:
+
+- consistent proportions
+- consistent gaps
+- consistent alignment
+- consistent visual density
+
+Avoid excessive whitespace.
+
+The dashboard should make efficient use of the available viewport.
+
+==================================================
+6. NO UNNECESSARY VERTICAL SPACE
+==================================================
+
+One of the most important requirements:
+
+Do not create large empty areas simply because a container has
+extra height.
+
+The reference image has a deliberate information density.
+
+Preserve that density.
+
+If the viewport changes, redistribute available space intelligently
+within the existing layout rather than introducing large empty areas.
+
+Cards and sections should expand or contract within reasonable limits.
+
+==================================================
+7. MOBILE RESPONSIVENESS
+==================================================
+
+The application must also work on mobile devices.
+
+However, mobile responsiveness should be implemented as a deliberate
+layout transformation rather than simply shrinking the desktop UI.
+
+Desktop:
+
+- sidebar
+- header
+- multi-column dashboard
+- dense application layout
+
+Mobile:
+
+- compact header
+- collapsible or transformed navigation
+- single-column or appropriately reduced grid
+- touch-friendly controls
+- readable typography
+- no horizontal overflow
+- no accidental page-level vertical scrolling if the design can
+  reasonably fit within the viewport
+
+Use responsive breakpoints where appropriate.
+
+The desktop reference MUST remain the primary visual reference.
+
+Do not alter the desktop composition merely to make the mobile
+implementation easier.
+
+==================================================
+8. RESPONSIVE BEHAVIOR
+==================================================
+
+Think of the interface as an application viewport rather than
+a traditional web page.
+
+The hierarchy should be:
+
+Viewport
+   ↓
+Application Shell
+   ↓
+Header / Navigation / Content
+   ↓
+Responsive Grid
+   ↓
+Components
+
+Each layer should adapt to the available viewport.
+
+Avoid uncontrolled content growth.
+
+Use:
+
+min-width: 0;
+min-height: 0;
+
+where necessary to prevent grid/flex children from forcing
+the application beyond the viewport.
+
+==================================================
+9. OVERFLOW RULES
+==================================================
+
+There should be:
+
+NO document-level vertical scrolling on desktop.
+
+Avoid:
+
+body {
+    overflow-y: auto;
+}
+
+for the main dashboard experience.
+
+Instead, control overflow at the application level.
+
+The application should remain inside the viewport.
+
+If an individual component genuinely contains more content than
+its allocated area, handle that locally rather than making the
+entire dashboard scroll.
+
+Do not use overflow: hidden as a shortcut to conceal incorrectly
+sized content.
+
+The layout itself must fit correctly.
+
+==================================================
+10. TYPOGRAPHY
+==================================================
+
+Typography must also follow the reference.
+
+Match:
+
+- font size
+- font weight
+- line height
+- letter spacing
+- text hierarchy
+- label density
+
+Do not compensate for incorrect layout dimensions by making text
+artificially small.
+
+Text should remain readable at the intended desktop viewport.
+
+==================================================
+11. IMPLEMENTATION STRATEGY
+==================================================
+
+Before modifying the code:
+
+1. Inspect the existing project.
+2. Identify the relevant page and components.
+3. Inspect the reference image.
+4. Determine the reference viewport.
+5. Break the reference into measurable regions.
+6. Establish CSS variables for the main dimensions.
+7. Build the application shell.
+8. Build the responsive grid.
+9. Implement the components.
+10. Compare the result against the reference.
+11. Correct dimensions and proportions.
+12. Test multiple viewport sizes.
+13. Verify that desktop has no vertical page scrolling.
+14. Verify mobile behavior.
+
+Do not stop after the first visually similar implementation.
+
+Iterate until the geometry is as close to the reference as reasonably
+possible.
+
+==================================================
+12. PRIORITY ORDER
+==================================================
+
+When making implementation decisions, follow this priority:
+
+1. Reference image geometry
+2. Overall proportions
+3. Single-screen viewport behavior
+4. App-like desktop experience
+5. Responsive scaling
+6. Grid integrity
+7. Typography
+8. Mobile responsiveness
+9. Visual details
+
+Do not sacrifice the desktop reference geometry merely because
+a generic responsive pattern is easier to implement.
+
+==================================================
+FINAL REQUIREMENT
+==================================================
+
+The final result should feel like the SAME application shown in
+the reference image, not a redesigned interpretation of it.
+
+At the target desktop viewport:
+
+- the entire dashboard must be visible
+- no vertical page scrolling
+- proportions must match the reference
+- spacing must match the reference
+- typography must match the reference
+- grid structure must match the reference
+- component dimensions must match the reference
+- the interface must feel like a desktop application
+
+At other desktop viewport sizes:
+
+- the UI should scale intelligently
+- proportions should remain coherent
+- the application should continue fitting within the viewport
+
+On mobile:
+
+- the interface should transform responsively
+- no horizontal overflow
+- controls remain usable
+- content remains readable
+- the desktop design should not be unnecessarily compromised
