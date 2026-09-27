@@ -1081,7 +1081,7 @@ html:has(.reference-home) body {
   backdrop-filter: blur(0) brightness(1);
   -webkit-backdrop-filter: blur(0) brightness(1);
   cursor: default;
-  transition: opacity 900ms cubic-bezier(.22, .61, .36, 1) 120ms, backdrop-filter 1050ms cubic-bezier(.22, .61, .36, 1) 120ms, background 900ms ease 120ms;
+  transition: opacity 1000ms cubic-bezier(.22, .61, .36, 1), backdrop-filter 1000ms cubic-bezier(.22, .61, .36, 1), -webkit-backdrop-filter 1000ms cubic-bezier(.22, .61, .36, 1);
 }
 
 .reference-focus-scrim.active {
@@ -1089,38 +1089,37 @@ html:has(.reference-home) body {
   pointer-events: auto;
   backdrop-filter: blur(9px) brightness(.68) saturate(.72);
   -webkit-backdrop-filter: blur(9px) brightness(.68) saturate(.72);
+  transition-delay: 120ms;
 }
 
-.reference-spotlight-scrim {
-  position: fixed;
-  z-index: 20;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
+.reference-home.spotlight-active .reference-header {
+  z-index: 19;
 }
 
-.reference-spotlight-region {
-  position: absolute;
-  display: block;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: linear-gradient(125deg, rgba(4, 24, 27, .52), rgba(26, 61, 57, .34) 52%, rgba(32, 39, 34, .54));
-  backdrop-filter: blur(9px) brightness(.68) saturate(.72);
-  -webkit-backdrop-filter: blur(9px) brightness(.68) saturate(.72);
-  cursor: default;
-  pointer-events: auto;
+.reference-feature.newsletter-feature,
+.reference-home .reference-categories.about-panel {
+  transition: border-color 1050ms cubic-bezier(.22, .61, .36, 1) 80ms, box-shadow 1050ms cubic-bezier(.22, .61, .36, 1) 80ms;
 }
 
-.reference-search.focus-spotlight {
+.reference-feature.newsletter-feature.focus-spotlight,
+.reference-home .reference-categories.about-panel.focus-spotlight {
+  transition-delay: 170ms;
+}
+
+.reference-search.focus-spotlight,
+.reference-search.spotlight-raised {
   z-index: 21;
 }
 
 .reference-feature.newsletter-feature.focus-spotlight,
 .reference-categories.about-panel.focus-spotlight {
-  z-index: 21;
   border-color: rgba(255, 226, 139, .98) !important;
   box-shadow: inset 0 1px rgba(255, 255, 255, .45), 0 0 0 1px rgba(255, 223, 133, .58), 0 0 26px rgba(255, 214, 106, .62), 0 0 58px rgba(255, 214, 106, .38), 0 16px 40px rgba(0, 0, 0, .28) !important;
+}
+
+.reference-feature.newsletter-feature.spotlight-raised,
+.reference-categories.about-panel.spotlight-raised {
+  z-index: 21;
 }
 
 .about-panel .about-scroll-content {
@@ -1186,12 +1185,30 @@ html:has(.reference-home) body {
     grid-row: 4;
     min-height: 150px;
   }
+
+  .reference-home .reference-feature.newsletter-feature.spotlight-raised {
+    position: fixed !important;
+    top: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: 50% !important;
+    display: grid !important;
+    width: min(420px, calc(100vw - 32px)) !important;
+    max-height: calc(100dvh - 32px);
+    height: auto !important;
+    overflow: auto;
+    transform: translate(-50%, -50%);
+    z-index: 21;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .reference-card,
   .reference-card img,
   .reference-focus-scrim,
+  .reference-feature.newsletter-feature,
+  .reference-home .reference-categories.about-panel,
+  .feature-spotlight-trigger,
   .reference-search .knowledge-search,
   .reference-search .search-smart-button {
     transition-duration: .01ms !important;
