@@ -60,9 +60,15 @@ export default async function FaHomePage() {
         .search-submit { display:grid; place-items:center; flex:none; width:43px; height:43px; border:0; border-radius:50%; background:var(--green); color:#fff; cursor:pointer; }
         .search-feedback { margin:0; color:var(--green); font-size:12px; font-weight:700; }
         .knowledge-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:10px; }
-        .knowledge-card { position:relative; min-height:220px; overflow:hidden; border-radius:16px; background:#174a45; color:#fff; text-align:right; }
+        .knowledge-card { position:relative; min-height:220px; overflow:hidden; border:1px solid rgba(255,255,255,.16); border-radius:16px; background:#174a45; color:#fff; text-align:right; transition:transform .28s ease,border-color .28s ease,box-shadow .28s ease; }
         .knowledge-card:after { content:''; position:absolute; inset:0; background:linear-gradient(-90deg,rgba(2,24,23,.86),rgba(2,24,23,.2)); }
-        .knowledge-card img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform:scaleX(-1); }
+        .knowledge-card:after { transition:opacity .28s ease; }
+        .knowledge-card img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform:scaleX(-1); transition:transform .55s cubic-bezier(.2,.7,.2,1),filter .28s ease; }
+        .knowledge-card:hover, .knowledge-card:focus-within { transform:translateY(-4px); border-color:rgba(198,255,226,.95); box-shadow:0 0 0 1px rgba(198,255,226,.28),0 0 26px rgba(93,255,197,.42),0 18px 36px rgba(2,35,29,.3); }
+        .knowledge-card:hover:after, .knowledge-card:focus-within:after { opacity:.72; }
+        .knowledge-card:hover img, .knowledge-card:focus-within img { transform:scaleX(-1) scale(1.045); filter:brightness(1.16) saturate(1.12); }
+        .knowledge-card:hover .card-icon, .knowledge-card:focus-within .card-icon { box-shadow:0 0 18px rgba(144,255,218,.8); }
+        @media (prefers-reduced-motion:reduce) { .knowledge-card, .knowledge-card:after, .knowledge-card img { transition:none; } }
         .knowledge-card .card-content { position:relative; z-index:2; display:flex; flex-direction:column; align-items:flex-start; min-height:220px; padding:20px 22px 18px; }
         .card-large { grid-column:span 3; min-height:250px; }
         .card-large .card-content { min-height:250px; }

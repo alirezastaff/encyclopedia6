@@ -1,26 +1,38 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, Sparkles } from "lucide-react";
 
 type KnowledgeSearchProps = {
   locale: "fa" | "en";
+  smartSearchActive?: boolean;
+  onSmartSearchToggle?: () => void;
 };
 
-export default function KnowledgeSearch({ locale }: KnowledgeSearchProps) {
+export default function KnowledgeSearch({
+  locale,
+  smartSearchActive = false,
+  onSmartSearchToggle,
+}: KnowledgeSearchProps) {
   const [query, setQuery] = useState("");
-  const [submittedQuery, setSubmittedQuery] = useState("");
+  const [searchMessage, setSearchMessage] = useState("");
   const isFa = locale === "fa";
+
+  function announceSearch() {
+    setSearchMessage(isFa ? "موتور جست‌وجو درحال توسعه است." : "Search is currently under development.");
+  }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (query.trim()) setSubmittedQuery(query.trim());
+    announceSearch();
   }
 
   return (
     <div className="knowledge-search-wrap">
-      <form className="knowledge-search" onSubmit={handleSubmit}>
-        <Search className="search-glass" aria-hidden="true" />
+      <form className={`knowledge-search${smartSearchActive ? " smart-active" : ""}`} onSubmit={handleSubmit}>
+        <button className="search-glass-button" type="button" aria-label={isFa ? "جست‌وجو" : "Search"} onClick={announceSearch}>
+          <Search className="search-glass" aria-hidden="true" />
+        </button>
         <input
           className="search-placeholder"
           value={query}
@@ -29,14 +41,20 @@ export default function KnowledgeSearch({ locale }: KnowledgeSearchProps) {
           aria-label={isFa ? "جست‌وجو" : "Search"}
           dir={isFa ? "rtl" : "ltr"}
         />
-        <span className="search-divider" aria-hidden="true" />
-        <span className="search-filter">{isFa ? "همه محتوا　⌄" : "All content　⌄"}</span>
-        <span className="search-divider" aria-hidden="true" />
-        <span className="search-filter">{isFa ? "همه دسته‌ها　⌄" : "All categories　⌄"}</span>
+        <button
+          className={`search-smart-button${smartSearchActive ? " active" : ""}`}
+          type="button"
+          aria-label={isFa ? "جست‌وجوی هوشمند" : "Smart search"}
+          aria-pressed={smartSearchActive}
+          title={isFa ? "جست‌وجوی هوشمند" : "Smart search"}
+          onClick={onSmartSearchToggle}
+        >
+          <Sparkles aria-hidden="true" />
+        </button>
       </form>
-      {submittedQuery && (
-        <p className="search-feedback" role="status">
-          {isFa ? "ماشین جست‌وجوی پیشرفته در حال توسعه است." : "The advanced search engine is currently in development."}
+      {searchMessage && (
+        <p className="search-feedback" role="status" dir={isFa ? "rtl" : "ltr"}>
+          {searchMessage}
         </p>
       )}
     </div>

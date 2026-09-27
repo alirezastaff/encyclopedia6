@@ -452,7 +452,7 @@ html:has(.reference-home) body {
 }
 
 .reference-hero {
-  transform: translateY(-19px);
+  top: -19px;
 }
 
 .reference-hero > .reference-kicker,
@@ -469,27 +469,165 @@ html:has(.reference-home) body {
   z-index: 3;
 }
 
-.reference-feature .reference-feature-tag,
-.reference-feature h2,
-.reference-feature p {
-  display: none !important;
+.reference-feature.newsletter-feature {
+  top: 28px !important;
+  bottom: 7px;
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  overflow: hidden;
+  padding: 12px clamp(22px, 1.8vw, 26px);
+  border-color: rgba(232, 255, 241, 0.35);
+  background: linear-gradient(145deg, rgba(15, 68, 67, 0.74), rgba(41, 103, 88, 0.52));
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.24), 0 18px 38px rgba(4, 33, 35, 0.24);
+  text-align: left;
 }
 
-.reference-feature::before {
-  content: "What Is a Knowledge Platform?";
-  display: block;
-  margin-bottom: 12px;
+.newsletter-feature .newsletter-kicker {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 2px;
+  color: #c6f1d2;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+}
+
+.reference-feature.newsletter-feature h2 {
+  margin: 0 0 1px;
   color: #f5fff8;
-  font: normal 23px/1.05 'DM Serif Display', Georgia, serif;
+  font: normal 18px/1.05 'DM Serif Display', Georgia, serif;
 }
 
-.reference-feature::after {
-  content: "A space for bringing together, exploring, and sharing knowledge, research, experiences, and ideas related to the social and solidarity economy.";
+.newsletter-feature .newsletter-description {
   display: block;
-  color: rgba(247, 255, 250, 0.88);
-  font-size: 11px;
-  line-height: 1.45;
-  text-align: justify;
+  max-width: none;
+  margin: 0;
+  color: rgba(247, 255, 250, 0.82);
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.newsletter-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 6px 8px;
+  margin-top: 3px;
+}
+
+.newsletter-form label {
+  grid-column: 1 / -1;
+  color: rgba(247, 255, 250, 0.9);
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.newsletter-form input {
+  width: 100%;
+  min-width: 0;
+  height: 36px;
+  padding: 0 11px;
+  border: 1px solid rgba(235, 255, 245, 0.3);
+  border-radius: 7px;
+  outline: none;
+  color: #f5fff8;
+  background: rgba(3, 34, 37, 0.34);
+  font: 11px 'DM Sans', sans-serif;
+  transition: border-color 180ms ease, background 180ms ease;
+}
+
+.newsletter-form input::placeholder {
+  color: rgba(239, 255, 245, 0.54);
+}
+
+.newsletter-form input:focus-visible {
+  border-color: #b8edca;
+  background: rgba(3, 34, 37, 0.5);
+}
+
+.newsletter-form button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: auto;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 7px;
+  color: #123f3e;
+  background: #c5efd2;
+  font: 600 11px 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: background 180ms ease, transform 180ms ease;
+}
+
+.newsletter-form button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: #e2f8e8;
+}
+
+.newsletter-form button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.newsletter-form .newsletter-feedback {
+  grid-column: 1 / -1;
+  display: block;
+  min-height: 12px;
+  max-width: none;
+  margin: 0;
+  color: #d8f4df;
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+@media (max-width: 680px) {
+  .reference-feature.newsletter-feature {
+    position: relative !important;
+    inset: auto !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    width: min(100%, 380px) !important;
+    height: auto;
+    min-height: 0;
+    margin: 16px auto 0;
+    padding: 16px;
+  }
+}
+
+@media (max-height: 800px) and (min-width: 681px) {
+  .newsletter-feature .newsletter-description {
+    display: none;
+  }
+
+  .reference-feature.newsletter-feature h2 {
+    font-size: 16px;
+    line-height: 1.08;
+  }
+
+  .reference-feature.newsletter-feature {
+    padding-top: 11px;
+    padding-bottom: 11px;
+  }
+
+  .newsletter-form {
+    row-gap: 4px;
+    margin-top: 2px;
+  }
+
+  .newsletter-form input,
+  .newsletter-form button {
+    height: 32px;
+    min-height: 32px;
+  }
+
+  .newsletter-form .newsletter-feedback {
+    min-height: 0;
+  }
 }
 
 .reference-hero > p:not(.reference-kicker) {
@@ -501,26 +639,58 @@ html:has(.reference-home) body {
 }
 
 .reference-categories .reference-category-tag,
-.reference-categories h2,
-.reference-categories ul {
+.reference-categories > h2,
+.reference-categories > ul {
   display: none !important;
 }
 
-.reference-categories::before {
-  content: "A Different Perspective on the Economy";
-  display: block;
-  margin-bottom: 12px;
+.reference-categories {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.reference-home .reference-categories {
+  border-color: rgba(235, 255, 245, 0.42);
+  background: linear-gradient(145deg, rgba(11, 39, 40, 0.82), rgba(19, 58, 55, 0.7)) !important;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.28), 0 14px 28px rgba(3, 27, 29, 0.24);
+  backdrop-filter: blur(18px) saturate(135%);
+  -webkit-backdrop-filter: blur(18px) saturate(135%);
+}
+
+.about-scroll-content {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow-y: auto;
+  padding: 0 5px 8px 0;
+  overscroll-behavior: contain;
+  scrollbar-color: rgba(245, 255, 248, 0.48) transparent;
+  scrollbar-width: thin;
+  scroll-behavior: smooth;
+}
+
+.about-scroll-content h2 {
+  display: block !important;
+  margin: 0 0 12px;
   color: #f5fff8;
   font: normal 22px/1.08 'DM Serif Display', Georgia, serif;
 }
 
-.reference-categories::after {
-  content: "The economy is more than what we encounter in economics textbooks or market charts. This platform brings together diverse ideas, research, real-world experiences, and innovative examples to broaden your understanding of how economies work. Here, you can discover different approaches and experiences, learn about a wide range of topics, explore real-world examples of the social and solidarity economy, and engage with others in developing knowledge and shaping the conversation around it.";
+.about-scroll-content p {
   display: block;
-  color: rgba(248, 255, 251, 0.88);
+  margin: 0 0 14px;
+  color: rgba(250, 255, 252, 0.94);
   font-size: 10px;
   line-height: 1.55;
   text-align: justify;
+  overflow-wrap: anywhere;
+}
+
+.about-scroll-content p:last-child {
+  margin-bottom: 0;
 }
 
 .reference-card .card-body {
@@ -570,6 +740,27 @@ html:has(.reference-home) body {
   box-shadow: inset 0 1px rgba(255, 255, 255, 0.38), 0 8px 22px rgba(4, 34, 33, 0.2) !important;
   backdrop-filter: blur(18px) saturate(145%);
   -webkit-backdrop-filter: blur(18px) saturate(145%);
+  transition: border-color 1400ms cubic-bezier(.16, 1, .3, 1) 160ms, box-shadow 1400ms cubic-bezier(.16, 1, .3, 1) 160ms, background 1400ms cubic-bezier(.16, 1, .3, 1) 160ms;
+}
+
+.reference-header {
+  position: relative;
+  z-index: 22;
+}
+
+.reference-shell:before {
+  filter: brightness(1) saturate(1);
+  transition: filter 1600ms cubic-bezier(.16, 1, .3, 1) 160ms;
+}
+
+.reference-shell:has(.knowledge-search.smart-active):before {
+  filter: brightness(.48) saturate(.86);
+}
+
+.reference-search .knowledge-search.smart-active {
+  border-color: rgba(220, 255, 246, .95) !important;
+  background: rgba(8, 39, 44, .72) !important;
+  box-shadow: inset 0 1px rgba(255, 255, 255, .5), 0 0 0 1px rgba(189, 255, 237, .36), 0 0 16px rgba(112, 239, 207, .35), 0 0 42px rgba(112, 239, 207, .26) !important;
 }
 
 .reference-search .search-placeholder {
@@ -609,8 +800,118 @@ html:has(.reference-home) body {
   color: #e2f9ec;
 }
 
+.reference-search .search-glass-button {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  color: #e2f9ec;
+  background: transparent;
+  cursor: pointer;
+}
+
+.reference-search .search-glass-button:focus-visible {
+  outline: 2px solid #e2f9ec;
+  outline-offset: 3px;
+}
+
+.reference-search .search-placeholder.search-notice-active,
+.reference-search .search-placeholder.search-notice-active::placeholder {
+  color: #ff7373 !important;
+  opacity: 1;
+}
+
+.reference-search .search-submit {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid rgba(235, 255, 245, 0.45);
+  border-radius: 50%;
+  color: #e2f9ec;
+  background: rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: color 220ms ease, background 220ms ease, box-shadow 220ms ease, transform 220ms ease;
+}
+
+.reference-search .search-submit svg {
+  width: 15px;
+  height: 15px;
+}
+
+.reference-search .search-submit:hover,
+.reference-search .search-submit.active {
+  color: #fff;
+  background: rgba(116, 226, 201, 0.22);
+  box-shadow: 0 0 0 1px rgba(154, 255, 228, 0.18), inset 0 0 10px rgba(255, 255, 255, 0.14);
+}
+
+.reference-search .search-submit.active {
+  transform: rotate(8deg);
+}
+
 .reference-home .reference-tools > svg {
   display: none;
+}
+
+.reference-home .reference-languages {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 76px;
+  padding: 3px;
+  border: 1px solid rgba(235, 255, 247, 0.38);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(235, 255, 247, 0.2), rgba(123, 183, 171, 0.08));
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.32), 0 8px 18px rgba(3, 34, 35, 0.16);
+  backdrop-filter: blur(16px) saturate(145%);
+  -webkit-backdrop-filter: blur(16px) saturate(145%);
+  isolation: isolate;
+}
+
+.reference-home .reference-languages::before {
+  position: absolute;
+  inset: 3px auto 3px 3px;
+  width: calc(50% - 3px);
+  content: "";
+  border: 1px solid rgba(255, 255, 255, 0.48);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.48), rgba(135, 225, 204, 0.25));
+  box-shadow: 0 3px 10px rgba(3, 38, 39, 0.24), inset 0 1px rgba(255, 255, 255, 0.48);
+  transition: transform 380ms cubic-bezier(.22, .61, .36, 1);
+  z-index: 0;
+}
+
+.reference-home .reference-languages.switching::before {
+  transform: translateX(100%);
+}
+
+.reference-home .reference-languages > span,
+.reference-home .reference-languages > a {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 50%;
+  min-height: 24px;
+  padding: 0 8px;
+  color: rgba(247, 255, 251, 0.66);
+  font-size: 9px;
+  text-decoration: none;
+  transition: color 240ms ease;
+  z-index: 1;
+}
+
+.reference-home .reference-languages > span.active,
+.reference-home .reference-languages > a:hover {
+  color: #fff;
+}
+
+.reference-home .reference-languages > span.active {
+  border-radius: 0;
+  background: transparent;
 }
 
 @media (min-width: 681px) {
@@ -621,7 +922,8 @@ html:has(.reference-home) body {
   .reference-grid {
     height: calc(100% + 38px);
     margin-top: 0;
-    transform: translateY(-38px);
+    position: relative;
+    top: -38px;
   }
 
   .reference-categories {
@@ -640,6 +942,260 @@ html:has(.reference-home) body {
 
   .reference-search .knowledge-search-wrap {
     width: 100% !important;
+  }
+}
+
+.reference-card {
+  transition: transform 620ms cubic-bezier(.2, .75, .25, 1), border-color 620ms ease, box-shadow 720ms ease;
+  transform-origin: center;
+}
+
+.reference-card img {
+  transition: transform 900ms cubic-bezier(.2, .75, .25, 1), filter 700ms ease;
+}
+
+.reference-card:hover,
+.reference-card:focus-within {
+  z-index: 2;
+  transform: translateY(-5px) scale(1.012);
+  border-color: rgba(255, 225, 142, .94);
+  box-shadow: 0 0 0 1px rgba(255, 225, 142, .56), 0 18px 38px rgba(3, 25, 26, .38), 0 0 30px rgba(255, 213, 110, .3), inset 0 1px rgba(255, 255, 255, .3);
+}
+
+.reference-card:hover img,
+.reference-card:focus-within img {
+  transform: scale(1.055);
+  filter: saturate(1.12) brightness(1.06);
+}
+
+.reference-search .search-glass-button {
+  display: grid;
+  place-items: center;
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  color: #e2f9ec;
+  background: transparent;
+  cursor: pointer;
+}
+
+.reference-search .search-smart-button {
+  display: grid;
+  place-items: center;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(255, 255, 255, .42);
+  border-radius: 50%;
+  color: #f3fff7;
+  background: rgba(255, 255, 255, .1);
+  cursor: pointer;
+  transition: color 700ms ease, background 700ms ease, border-color 700ms ease, box-shadow 850ms ease, transform 700ms ease;
+}
+
+.reference-search .search-smart-button svg {
+  width: 15px;
+  height: 15px;
+}
+
+.reference-search .search-smart-button:hover,
+.reference-search .search-smart-button.active {
+  transform: rotate(12deg);
+  border-color: rgba(255, 230, 157, .9);
+  color: #fff3c6;
+  background: rgba(255, 217, 111, .2);
+  box-shadow: 0 0 18px rgba(255, 216, 116, .45);
+}
+
+.reference-search .knowledge-search.smart-active {
+  border-color: rgba(255, 229, 154, .98) !important;
+  background: rgba(53, 48, 29, .82) !important;
+  box-shadow: inset 0 1px rgba(255, 255, 255, .52), 0 0 0 1px rgba(255, 222, 134, .5), 0 0 22px rgba(255, 213, 103, .64), 0 0 54px rgba(255, 213, 103, .36) !important;
+}
+
+.reference-search .search-feedback {
+  position: absolute;
+  top: calc(100% + 7px);
+  left: 14px;
+  z-index: 1;
+  margin: 0;
+  padding: 7px 11px;
+  border: 1px solid rgba(235, 255, 245, .3);
+  border-radius: 8px;
+  color: #fff;
+  background: rgba(8, 37, 39, .82);
+  box-shadow: 0 8px 22px rgba(3, 24, 25, .2);
+  font-size: 10px;
+  backdrop-filter: blur(12px);
+}
+
+.reference-search .search-feedback[dir="ltr"] {
+  direction: ltr;
+  text-align: left;
+}
+
+.newsletter-kicker {
+  justify-content: space-between;
+}
+
+.newsletter-kicker > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.feature-spotlight-trigger {
+  display: grid;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  padding: 0;
+  border: 1px solid rgba(235, 255, 245, .38);
+  border-radius: 50%;
+  color: #e5f9e9;
+  background: rgba(255, 255, 255, .08);
+  cursor: pointer;
+  transition: color 600ms ease, background 600ms ease, box-shadow 700ms ease;
+}
+
+.feature-spotlight-trigger:hover,
+.feature-spotlight-trigger[aria-pressed="true"] {
+  color: #fff0b6;
+  background: rgba(255, 218, 120, .18);
+  box-shadow: 0 0 14px rgba(255, 218, 120, .38);
+}
+
+.reference-focus-scrim {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: linear-gradient(125deg, rgba(4, 24, 27, .52), rgba(26, 61, 57, .34) 52%, rgba(32, 39, 34, .54));
+  opacity: 0;
+  pointer-events: none;
+  backdrop-filter: blur(0) brightness(1);
+  -webkit-backdrop-filter: blur(0) brightness(1);
+  cursor: default;
+  transition: opacity 900ms cubic-bezier(.22, .61, .36, 1) 120ms, backdrop-filter 1050ms cubic-bezier(.22, .61, .36, 1) 120ms, background 900ms ease 120ms;
+}
+
+.reference-focus-scrim.active {
+  opacity: 1;
+  pointer-events: auto;
+  backdrop-filter: blur(9px) brightness(.68) saturate(.72);
+  -webkit-backdrop-filter: blur(9px) brightness(.68) saturate(.72);
+}
+
+.reference-spotlight-scrim {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.reference-spotlight-region {
+  position: absolute;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: linear-gradient(125deg, rgba(4, 24, 27, .52), rgba(26, 61, 57, .34) 52%, rgba(32, 39, 34, .54));
+  backdrop-filter: blur(9px) brightness(.68) saturate(.72);
+  -webkit-backdrop-filter: blur(9px) brightness(.68) saturate(.72);
+  cursor: default;
+  pointer-events: auto;
+}
+
+.reference-search.focus-spotlight {
+  z-index: 21;
+}
+
+.reference-feature.newsletter-feature.focus-spotlight,
+.reference-categories.about-panel.focus-spotlight {
+  z-index: 21;
+  border-color: rgba(255, 226, 139, .98) !important;
+  box-shadow: inset 0 1px rgba(255, 255, 255, .45), 0 0 0 1px rgba(255, 223, 133, .58), 0 0 26px rgba(255, 214, 106, .62), 0 0 58px rgba(255, 214, 106, .38), 0 16px 40px rgba(0, 0, 0, .28) !important;
+}
+
+.about-panel .about-scroll-content {
+  scrollbar-color: rgba(255, 226, 139, .62) transparent;
+}
+
+.about-panel .about-scroll-content::-webkit-scrollbar {
+  width: 5px;
+}
+
+.about-panel .about-scroll-content::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  background: rgba(255, 226, 139, .52);
+}
+
+.search-glass-button:focus-visible,
+.search-smart-button:focus-visible,
+.feature-spotlight-trigger:focus-visible {
+  outline: 2px solid #ffe28b;
+  outline-offset: 3px;
+}
+
+@media (max-width: 680px) {
+  .reference-home .reference-header {
+    gap: 6px;
+    padding-inline: 8px !important;
+  }
+
+  .reference-home .reference-logo {
+    width: 74px !important;
+    max-width: 74px;
+  }
+
+  .reference-home .reference-nav {
+    display: flex !important;
+    justify-content: flex-end;
+    gap: 5px;
+    min-width: 0;
+  }
+
+  .reference-home .reference-nav a {
+    justify-content: center;
+    min-width: 0;
+    font-size: 7px;
+    white-space: normal;
+  }
+
+  .reference-home .reference-tools {
+    gap: 5px;
+  }
+
+  .reference-home .reference-languages {
+    min-width: 56px;
+  }
+
+  .reference-home .reference-grid {
+    grid-template-rows: repeat(3, 180px) minmax(150px, 180px) !important;
+  }
+
+  .reference-home .reference-categories.about-panel {
+    display: flex !important;
+    grid-column: 1 / span 2;
+    grid-row: 4;
+    min-height: 150px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reference-card,
+  .reference-card img,
+  .reference-focus-scrim,
+  .reference-search .knowledge-search,
+  .reference-search .search-smart-button {
+    transition-duration: .01ms !important;
+    transition-delay: 0ms !important;
   }
 }
 
