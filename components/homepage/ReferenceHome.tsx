@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, BookOpen, Calculator, FilePenLine, Globe2, Layers3, Mail, Search, UsersRound } from "lucide-react";
 import KnowledgeSearch from "@/components/homepage/KnowledgeSearch";
@@ -14,11 +14,32 @@ const cards = [
 ] as const;
 
 export default function ReferenceHome() {
+  type NavItem = "home" | "about" | "subscription";
   const [focusTarget, setFocusTarget] = useState<"search" | "about" | "subscription" | null>(null);
   const [visualFocusTarget, setVisualFocusTarget] = useState<"search" | "about" | "subscription" | null>(null);
+  const [activeNavItem, setActiveNavItem] = useState<NavItem>("home");
+  const [navIndicator, setNavIndicator] = useState({ left: 0, width: 0 });
   const [subscriptionMessage, setSubscriptionMessage] = useState("");
   const [isSubscribing, setIsSubscribing] = useState(false);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+  const navRef = useRef<HTMLElement | null>(null);
+  const navItemRefs = useRef<Record<NavItem, HTMLAnchorElement | null>>({ home: null, about: null, subscription: null });
+
+  useLayoutEffect(() => {
+    const nav = navRef.current;
+    const activeLink = navItemRefs.current[activeNavItem];
+    if (!nav || !activeLink) return;
+
+    function updateIndicator() {
+      const navBounds = nav.getBoundingClientRect();
+      const linkBounds = activeLink.getBoundingClientRect();
+      setNavIndicator({ left: linkBounds.left - navBounds.left, width: linkBounds.width });
+    }
+
+    updateIndicator();
+    window.addEventListener("resize", updateIndicator);
+    return () => window.removeEventListener("resize", updateIndicator);
+  }, [activeNavItem]);
 
   useEffect(() => {
     function preventZoomShortcut(event: KeyboardEvent) {
@@ -174,13 +195,21 @@ export default function ReferenceHome() {
     @media(max-width:900px){.reference-shell{padding-inline:20px}.reference-nav{gap:17px}.reference-nav a{font-size:10px}.reference-logo{width:190px}.reference-feature{width:235px}.reference-card .card-body{padding:12px}.reference-card h2{font-size:21px}}
     @media(max-width:680px){.reference-home{min-height:100dvh;overflow:auto}.reference-shell{grid-template-rows:46px auto 44px auto;gap:9px;min-height:100dvh;height:auto;padding:10px}.reference-header{padding:0 12px;border-radius:12px}.reference-logo{width:155px}.reference-nav{display:none}.reference-tools{margin-left:auto}.reference-languages span{padding:5px 8px;font-size:9px}.reference-tools>svg{width:16px}.reference-hero{padding:18px 12px 10px;min-height:150px}.reference-hero h1{font-size:clamp(35px,10vw,52px)}.reference-hero p{max-width:285px;font-size:10px}.reference-kicker{margin-bottom:10px;font-size:7px;letter-spacing:2px}.reference-feature{display:none}.reference-search .knowledge-search-wrap{width:100%}.reference-search .knowledge-search{height:40px}.reference-search .search-filter,.reference-search .search-divider{display:none}.reference-search .search-submit{width:31px;height:31px}.reference-grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,180px);gap:7px}.reference-card.encyclopedia{grid-column:1/span 2;grid-row:1}.reference-card.marginalia,.reference-card.atlas,.reference-card.experiences,.reference-card.impact{grid-column:auto;grid-row:auto}.reference-categories{display:none}.reference-card .card-body{padding:10px}.reference-card .card-label{max-width:calc(100% - 28px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:7px}.reference-card h2{margin-top:6px;font-size:17px}.reference-card p{display:none}.reference-card .card-button{padding:5px 8px;font-size:8px}}
   `}</style>
+      <style>{`
+        .reference-nav{position:relative}
+        .reference-nav a,.reference-nav a:first-child{border-bottom:0;transition:color 180ms ease}
+        .reference-nav a.active{color:#fff}
+        .reference-nav-indicator{position:absolute;left:0;bottom:0;height:2px;background:#c9f1d7;pointer-events:none;transition:left 320ms cubic-bezier(.2,.75,.25,1),width 320ms cubic-bezier(.2,.75,.25,1)}
+        @media(prefers-reduced-motion:reduce){.reference-nav a,.reference-nav-indicator{transition:none}}
+      `}</style>
       <div className="reference-shell">
         <header className="reference-header">
           <Link href="/en"><img className="reference-logo" src="/homepage/logo-2-w.png" alt="SSE Knowledge Platform" /></Link>
-          <nav className="reference-nav" aria-label="Main navigation">
-            <Link href="/en">Home</Link>
-            <a href="#about-us" onClick={(event) => { event.preventDefault(); if (toggleSpotlight("about", event.currentTarget) && window.innerWidth <= 680) document.getElementById("about-us")?.scrollIntoView({ behavior: "smooth", block: "center" }); }}>About Us</a>
-            <a href="#subscription" onClick={(event) => { event.preventDefault(); toggleSpotlight("subscription", event.currentTarget); }}>Follow Us</a>
+          <nav ref={navRef} className="reference-nav" aria-label="Main navigation">
+            <Link ref={(element) => { navItemRefs.current.home = element; }} className={activeNavItem === "home" ? "active" : ""} href="/en" onClick={() => setActiveNavItem("home")}>Home</Link>
+            <a ref={(element) => { navItemRefs.current.about = element; }} className={activeNavItem === "about" ? "active" : ""} href="#about-us" onClick={(event) => { event.preventDefault(); setActiveNavItem("about"); if (toggleSpotlight("about", event.currentTarget) && window.innerWidth <= 680) document.getElementById("about-us")?.scrollIntoView({ behavior: "smooth", block: "center" }); }}>About Us</a>
+            <a ref={(element) => { navItemRefs.current.subscription = element; }} className={activeNavItem === "subscription" ? "active" : ""} href="#subscription" onClick={(event) => { setActiveNavItem("subscription"); event.preventDefault(); toggleSpotlight("subscription", event.currentTarget); }}>Follow Us</a>
+            <span className="reference-nav-indicator" aria-hidden="true" style={{ left: navIndicator.left, width: navIndicator.width }} />
           </nav>
           <div className="reference-tools">
             <div className="reference-languages"><span className="active">EN</span><Link href="/fa"><span>FA</span></Link></div>

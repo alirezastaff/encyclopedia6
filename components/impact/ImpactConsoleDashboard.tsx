@@ -1317,21 +1317,21 @@ function Overview({ form, result }: { form: Form; result: Result }) {
           <div className="metric-pill">
             <div className="metric-icon social"><Users size={14} /></div>
             <div>
-              <strong>{form.beneficiaries.toLocaleString()}</strong>
+              <strong>{form.beneficiaries.toLocaleString("en-US")}</strong>
               <small>People reached</small>
             </div>
           </div>
           <div className="metric-pill">
             <div className="metric-icon economic"><BriefcaseBusiness size={14} /></div>
             <div>
-              <strong>{form.jobs.toLocaleString()}</strong>
+              <strong>{form.jobs.toLocaleString("en-US")}</strong>
               <small>Jobs created</small>
             </div>
           </div>
           <div className="metric-pill">
             <div className="metric-icon environmental"><Recycle size={14} /></div>
             <div>
-              <strong>{`${form.waste.toLocaleString()} kg`}</strong>
+              <strong>{`${form.waste.toLocaleString("en-US")} kg`}</strong>
               <small>Waste recovered</small>
             </div>
           </div>
@@ -1343,21 +1343,21 @@ function Overview({ form, result }: { form: Form; result: Result }) {
           <div className="snapshot-item">
             <div className="metric-icon social"><Users size={14} /></div>
             <div className="meta">
-              <strong>{form.beneficiaries.toLocaleString()}</strong>
+              <strong>{form.beneficiaries.toLocaleString("en-US")}</strong>
               <small>People reached</small>
             </div>
           </div>
           <div className="snapshot-item">
             <div className="metric-icon economic"><BriefcaseBusiness size={14} /></div>
             <div className="meta">
-              <strong>{form.jobs.toLocaleString()}</strong>
+              <strong>{form.jobs.toLocaleString("en-US")}</strong>
               <small>Jobs created</small>
             </div>
           </div>
           <div className="snapshot-item">
             <div className="metric-icon environmental"><Recycle size={14} /></div>
             <div className="meta">
-              <strong>{`${form.waste.toLocaleString()} kg`}</strong>
+              <strong>{`${form.waste.toLocaleString("en-US")} kg`}</strong>
               <small>Waste recovered</small>
             </div>
           </div>
