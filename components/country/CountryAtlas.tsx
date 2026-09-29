@@ -9,14 +9,15 @@ import {
   ArrowDownUp,
   ArrowLeft,
   ArrowRight,
-  Bookmark,
   Check,
   ChevronDown,
   Compass,
   Globe2,
   Layers3,
+  Maximize2,
   MapPinned,
   Minus,
+  Minimize2,
   Plus,
   Search,
   Share2,
@@ -56,6 +57,7 @@ type CountryProfile = {
 
 type Region = "North America" | "South America" | "Europe" | "Asia" | "Africa" | "Oceania";
 type AtlasView = "all" | "profiles" | "compare" | "themes";
+type ProfilePanelSize = "compact" | "default" | "expanded";
 
 const mapFile = "/maps/world-countries.geojson";
 const regions: Region[] = ["North America", "South America", "Europe", "Asia", "Africa", "Oceania"];
@@ -297,6 +299,7 @@ export default function CountryAtlas() {
   const [countries, setCountries] = useState<Country[]>([]);
   const [profiles, setProfiles] = useState<CountryProfile[]>(countryArticles);
   const [selectedId, setSelectedId] = useState("USA");
+  const [profilePanelSize, setProfilePanelSize] = useState<ProfilePanelSize>("compact");
   const [center, setCenter] = useState<[number, number]>([0, 20]);
   const [zoom, setZoom] = useState(1);
   const [query, setQuery] = useState("");
@@ -306,7 +309,6 @@ export default function CountryAtlas() {
   const [compareId, setCompareId] = useState("");
   const [hoveredCountry, setHoveredCountry] = useState<{ country: Country; name: string; x: number; y: number } | null>(null);
   const [mapError, setMapError] = useState(false);
-  const [savedIds, setSavedIds] = useState<string[]>([]);
   const [activeSection, setActiveSection] = useState("overview");
   const [sections, setSections] = useState<Array<{ id: string; title: string }>>([{ id: "overview", title: "Overview" }]);
   const [shareMessage, setShareMessage] = useState("");
@@ -434,23 +436,29 @@ export default function CountryAtlas() {
     setHoveredCountry(null);
   }
 
-  function toggleSaved() {
-    const next = savedIds.includes(selectedId) ? savedIds.filter((id) => id !== selectedId) : [...savedIds, selectedId];
-    setSavedIds(next);
-  }
-
   function changeView(view: AtlasView) {
     setActiveView((current) => current === view && view === "compare" ? "all" : view);
     if (view !== "compare") setCompareId("");
   }
 
   function scrollToSection(id: string) {
+    const root = articleScrollRef.current;
+    if (!root) {
+      setActiveSection(id);
+      return;
+    }
     if (id === "overview") {
-      articleScrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+      root.scrollTo({ top: 0, behavior: "smooth" });
     } else if (id === "sources") {
-      document.getElementById("atlas-sources")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      const sourcesElement = root.querySelector<HTMLElement>("#atlas-sources");
+      if (sourcesElement) {
+        root.scrollTo({ top: sourcesElement.offsetTop - 14, behavior: "smooth" });
+      }
     } else {
-      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      const sectionElement = root.querySelector<HTMLElement>(`#${id}`);
+      if (sectionElement) {
+        root.scrollTo({ top: sectionElement.offsetTop - 14, behavior: "smooth" });
+      }
     }
     setActiveSection(id);
   }
@@ -509,12 +517,6 @@ export default function CountryAtlas() {
           <span className={styles.brandMark}><Globe2 size={19} strokeWidth={1.5} /></span>
           <span className={styles.brandName}>Social and Solidarity<br />Economy Atlas</span>
         </Link>
-        <nav className={styles.primaryNav} aria-label="Main navigation">
-          <Link className={styles.navActive} href="/en/country-explorer" aria-current="page">Explore</Link>
-          <Link href="/en#about">About</Link>
-          <Link href="/en/impact-calculator">Insights</Link>
-          <Link href="/en/archive">Resources</Link>
-        </nav>
         <div className={styles.headerTools}>
           <CountrySearch
             className={styles.headerSearch}
@@ -647,11 +649,47 @@ export default function CountryAtlas() {
           <div className={styles.railFooter}><span>RESEARCH ATLAS</span><span>v. 1.0</span></div>
         </aside>
 
-        <section className={styles.profilePanel} aria-label={`${selectedName} country profile`} aria-live="polite" key={selectedId}>
+        <section
+          className={`${styles.profilePanel} ${profilePanelSize === "compact" ? styles.profilePanelCompact : profilePanelSize === "expanded" ? styles.profilePanelExpanded : ""}`}
+          aria-label={`${selectedName} country profile`}
+          aria-live="polite"
+          key={selectedId}
+        >
           <div className={styles.profileHero}>
             <Image className={styles.heroImage} src={selectedImage} loader={countryImageLoader} alt={`${selectedName}, documentary landscape`} width={1200} height={480} sizes="(max-width: 760px) 100vw, 43vw" quality={82} loading="lazy" onError={(event) => { event.currentTarget.style.visibility = "hidden"; }} />
             <div className={styles.heroOverlay} />
-            <div className={styles.heroTopline}><span>COUNTRY PROFILE <i /> ATLAS / 01</span><button type="button" onClick={toggleSaved} aria-label={savedIds.includes(selectedId) ? `Remove ${selectedName} from saved countries` : `Save ${selectedName}`} aria-pressed={savedIds.includes(selectedId)} title={savedIds.includes(selectedId) ? "Saved" : "Save country"}><Bookmark size={16} fill={savedIds.includes(selectedId) ? "currentColor" : "none"} /></button></div>
+            <div className={styles.heroTopline}>
+              <span>COUNTRY PROFILE <i /> ATLAS / 01</span>
+              <div className={styles.panelControls} aria-label="Profile panel size">
+                <button
+                  type="button"
+                  onClick={() => setProfilePanelSize("compact")}
+                  aria-label="Make profile panel smaller"
+                  aria-pressed={profilePanelSize === "compact"}
+                  title="Make profile panel smaller"
+                >
+                  <Minus size={15} aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setProfilePanelSize("default")}
+                  aria-label="Restore profile panel size"
+                  aria-pressed={profilePanelSize === "default"}
+                  title="Restore profile panel size"
+                >
+                  <Minimize2 size={14} aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setProfilePanelSize("expanded")}
+                  aria-label="Expand profile to the edge of the World Atlas sidebar"
+                  aria-pressed={profilePanelSize === "expanded"}
+                  title="Expand profile to the edge of the World Atlas sidebar"
+                >
+                  <Maximize2 size={15} aria-hidden="true" />
+                </button>
+              </div>
+            </div>
             <div className={styles.heroHeading}><CountryFlag country={selectedCountry} className={styles.flag} /><h2>{selectedName}</h2></div>
             <div className={styles.heroMeta}>
               <span>{selectedRegion}</span>
