@@ -20,6 +20,10 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Country comparison
+
+The Country Explorer's comparative view works without an API key: it compares themes and published indicators locally. To generate a full AI comparative study, it sends both published country articles to Gemini and displays five or six analytical paragraphs plus a qualitative evidence map with source excerpts. Enable this option with a Gemini API key in the server environment or deployment secrets under `GEMINI_API_KEY`, then restart or redeploy the application. Keep this key server-side; do not prefix it with `NEXT_PUBLIC_`, commit it to the repository, or share it in chat. If no key is configured, local comparisons remain available.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

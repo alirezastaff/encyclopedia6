@@ -21,6 +21,7 @@ import {
   Plus,
   Search,
   Share2,
+  Sparkles,
 } from "lucide-react";
 import { ComposableMap, Geography, Geographies, Marker, ZoomableGroup } from "react-simple-maps";
 import countryArticles from "@/data/country-articles.json";
@@ -53,6 +54,19 @@ type CountryProfile = {
   longitude?: number;
   statistics?: unknown;
   sources?: unknown;
+};
+
+type EvidenceCoverage = "Strong" | "Some" | "Not mentioned";
+type AiComparisonResult = {
+  title: string;
+  paragraphs: string[];
+  evidenceMap: Array<{
+    topic: string;
+    firstCoverage: EvidenceCoverage;
+    secondCoverage: EvidenceCoverage;
+    firstEvidence: string;
+    secondEvidence: string;
+  }>;
 };
 
 type Region = "North America" | "South America" | "Europe" | "Asia" | "Africa" | "Oceania";
@@ -193,6 +207,33 @@ function displayStatistics(value: unknown): Array<{ label: string; value: string
   return [];
 }
 
+function isAiComparisonResult(value: unknown): value is AiComparisonResult {
+  if (!value || typeof value !== "object") return false;
+  const result = value as Record<string, unknown>;
+  if (
+    typeof result.title !== "string"
+    || !Array.isArray(result.paragraphs)
+    || result.paragraphs.length < 5
+    || result.paragraphs.length > 6
+    || result.paragraphs.some((paragraph) => typeof paragraph !== "string" || paragraph.trim().split(/\s+/).length < 40)
+    || !Array.isArray(result.evidenceMap)
+    || result.evidenceMap.length < 3
+    || result.evidenceMap.length > 6
+  ) return false;
+
+  return result.evidenceMap.every((item) => {
+    if (!item || typeof item !== "object") return false;
+    const evidence = item as Record<string, unknown>;
+    const validCoverage = (coverage: unknown) =>
+      coverage === "Strong" || coverage === "Some" || coverage === "Not mentioned";
+    return typeof evidence.topic === "string"
+      && validCoverage(evidence.firstCoverage)
+      && validCoverage(evidence.secondCoverage)
+      && typeof evidence.firstEvidence === "string"
+      && typeof evidence.secondEvidence === "string";
+  });
+}
+
 function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character] || character);
 }
@@ -207,6 +248,13 @@ function profileForCountry(country: Country, profiles: CountryProfile[]): Countr
   const id = countryId(country);
   return profiles.find((profile) => profile.id.toUpperCase() === id.toUpperCase())
     || profiles.find((profile) => profile.name.toLowerCase() === countryName(country).toLowerCase());
+}
+
+function profileThemes(profile?: CountryProfile): string[] {
+  const text = `${profile?.title || ""} ${profile?.summary || ""} ${profile?.article || ""}`.toLowerCase();
+  return Object.entries(themeTerms)
+    .filter(([, terms]) => terms.some((term) => text.includes(term)))
+    .map(([theme]) => theme);
 }
 
 function CountrySearch({
@@ -307,6 +355,11 @@ export default function CountryAtlas() {
   const [activeView, setActiveView] = useState<AtlasView>("all");
   const [activeTheme, setActiveTheme] = useState(themes[0]);
   const [compareId, setCompareId] = useState("");
+  const [aiAvailable, setAiAvailable] = useState<boolean | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiInsight, setAiInsight] = useState<AiComparisonResult | null>(null);
+  const [aiError, setAiError] = useState("");
+  const [aiStatusError, setAiStatusError] = useState("");
   const [hoveredCountry, setHoveredCountry] = useState<{ country: Country; name: string; x: number; y: number } | null>(null);
   const [mapError, setMapError] = useState(false);
   const [activeSection, setActiveSection] = useState("overview");
@@ -349,6 +402,22 @@ export default function CountryAtlas() {
     return () => { active = false; };
   }, []);
 
+  useEffect(() => {
+    let active = true;
+    fetch("/api/country-comparison")
+      .then(async (response) => {
+        if (!response.ok) throw new Error("AI availability could not be checked.");
+        const data: unknown = await response.json();
+        if (active && data && typeof data === "object" && "aiAvailable" in data && typeof data.aiAvailable === "boolean") {
+          setAiAvailable(data.aiAvailable);
+        } else {
+          throw new Error("AI availability response was invalid.");
+        }
+      })
+      .catch(() => { if (active) setAiStatusError("AI availability could not be checked; free local comparison remains available."); });
+    return () => { active = false; };
+  }, []);
+
   const selectedCountry = countries.find((country) => countryId(country) === selectedId)
     || ({ id: selectedId, name: profiles.find((profile) => profile.id === selectedId)?.name || "United States of America" } as Country);
   const profile = profileForCountry(selectedCountry, profiles);
@@ -361,6 +430,25 @@ export default function CountryAtlas() {
   const stats = displayStatistics(profile?.statistics);
   const articleHtml = articleMarkup(profile?.article);
   const activeCompareProfile = profiles.find((item) => item.id.toUpperCase() === compareId.toUpperCase());
+  const activeCompareCountry = countries.find((country) => countryId(country).toUpperCase() === compareId.toUpperCase());
+  const activeCompareName = activeCompareProfile?.name || (activeCompareCountry ? countryName(activeCompareCountry) : "");
+  const sharedThemes = profileThemes(profile).filter((theme) => profileThemes(activeCompareProfile).includes(theme));
+  const selectedOnlyThemes = profileThemes(profile).filter((theme) => !profileThemes(activeCompareProfile).includes(theme));
+  const compareOnlyThemes = profileThemes(activeCompareProfile).filter((theme) => !profileThemes(profile).includes(theme));
+  const compareStats = displayStatistics(activeCompareProfile?.statistics);
+  const comparableStatistics = [
+    ...stats,
+    ...(typeof selectedCountry.properties?.POP_EST === "number"
+      ? [{ label: "Estimated population", value: new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 }).format(selectedCountry.properties.POP_EST) }]
+      : []),
+  ].flatMap((stat) => {
+    const match = compareStats.find((item) => item.label.trim().toLowerCase() === stat.label.trim().toLowerCase())
+      || (stat.label === "Estimated population" && typeof activeCompareCountry?.properties?.POP_EST === "number"
+        ? { label: stat.label, value: new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 }).format(activeCompareCountry.properties.POP_EST) }
+        : undefined);
+    return match ? [{ label: stat.label, first: stat.value, second: match.value }] : [];
+  });
+
 
   const regionCounts = useMemo(() => regions.map((region) => ({
     region,
@@ -420,9 +508,11 @@ export default function CountryAtlas() {
   function selectCountry(country: Country, shouldFly = true) {
     const id = countryId(country);
     if (activeView === "compare" && id !== selectedId) {
-      setCompareId(id);
+      chooseCompareCountry(id);
       return;
     }
+    setAiInsight(null);
+    setAiError("");
     setSelectedId(id);
     setActiveSection("overview");
     if (shouldFly) {
@@ -437,8 +527,67 @@ export default function CountryAtlas() {
   }
 
   function changeView(view: AtlasView) {
-    setActiveView((current) => current === view && view === "compare" ? "all" : view);
-    if (view !== "compare") setCompareId("");
+    const nextView = activeView === view && view === "compare" ? "all" : view;
+    setActiveView(nextView);
+    if (nextView !== "compare") {
+      setCompareId("");
+      setAiInsight(null);
+      setAiError("");
+    }
+  }
+
+  function chooseCompareCountry(id: string) {
+    setCompareId(id);
+    setAiInsight(null);
+    setAiError("");
+  }
+
+  async function requestAiComparison() {
+    if (!profile || !activeCompareProfile) {
+      setAiError("Select two countries with published articles to generate a comparative study.");
+      return;
+    }
+    setAiLoading(true);
+    setAiError("");
+    try {
+      const response = await fetch("/api/country-comparison", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          first: {
+            id: selectedId,
+            name: selectedName,
+            summary: profile.summary || "",
+            article: profile.article || "",
+            statistics: stats,
+            population: selectedCountry.properties?.POP_EST,
+          },
+          second: {
+            id: compareId,
+            name: activeCompareProfile.name,
+            summary: activeCompareProfile.summary || "",
+            article: activeCompareProfile.article || "",
+            statistics: compareStats,
+            population: activeCompareCountry?.properties?.POP_EST,
+          },
+        }),
+      });
+      const data: unknown = await response.json();
+      if (!response.ok) {
+        const message = data && typeof data === "object" && "error" in data && typeof data.error === "string"
+          ? data.error
+          : "The AI comparison could not be generated.";
+        throw new Error(message);
+      }
+      if (!data || typeof data !== "object" || !("comparison" in data) || !isAiComparisonResult(data.comparison)) {
+        throw new Error("The AI service returned an invalid comparison.");
+      }
+      setAiInsight(data.comparison);
+    } catch (error) {
+      setAiError(error instanceof Error ? error.message : "The AI comparison could not be generated.");
+    } finally {
+      setAiLoading(false);
+    }
   }
 
   function scrollToSection(id: string) {
@@ -708,14 +857,103 @@ export default function CountryAtlas() {
           {activeView === "compare" ? (
             <div className={styles.compareBar}>
               <span><ArrowDownUp size={14} /> Compare this profile with</span>
-              <select aria-label="Select a country to compare" value={compareId} onChange={(event) => setCompareId(event.target.value)}>
+              <select aria-label="Select a country to compare" value={compareId} onChange={(event) => chooseCompareCountry(event.target.value)}>
                 <option value="">Choose a country</option>
                 {featuredCountries.filter(({ country }) => countryId(country) !== selectedId).map(({ country }) => <option value={countryId(country)} key={countryId(country)}>{countryName(country)}</option>)}
               </select>
-              {activeCompareProfile ? <span className={styles.compareSummary}>{activeCompareProfile.name}: {activeCompareProfile.summary}</span> : null}
+              <span className={styles.compareSummary}>{activeCompareProfile ? "Choose a country to see evidence-based similarities and differences." : "Select a published country profile to begin."}</span>
             </div>
           ) : null}
 
+          {activeView === "compare" ? (
+            <div className={styles.compareWorkspace}>
+              {activeCompareProfile || activeCompareCountry ? (
+                <>
+                  <section className={styles.aiPanel} aria-live="polite">
+                    <div className={styles.aiPanelHeading}>
+                      <div>
+                        <span className={styles.articleEyebrow}><Sparkles size={12} /> COMPARATIVE INTELLIGENCE</span>
+                        <h3>{aiInsight?.title || "Evidence-based comparative study"}</h3>
+                        <p>Read both full country articles and generate a six-paragraph study with a cited evidence chart.</p>
+                      </div>
+                      {profile && activeCompareProfile && aiAvailable ? (
+                        <button className={styles.generateComparisonButton} type="button" onClick={requestAiComparison} disabled={aiLoading}>
+                          {aiLoading ? "Reading both articles…" : <><Sparkles size={14} /> Generate comparison</>}
+                        </button>
+                      ) : null}
+                    </div>
+                    {aiInsight ? (
+                      <div className={styles.aiStudy}>
+                        <div className={styles.aiParagraphs}>
+                          {aiInsight.paragraphs.map((paragraph, index) => <p key={`${index}-${paragraph.slice(0, 24)}`}>{paragraph}</p>)}
+                        </div>
+                        <section className={styles.evidenceChart} aria-label="Qualitative evidence comparison chart">
+                          <div className={styles.evidenceChartHeading}>
+                            <div><span className={styles.articleEyebrow}>ARTICLE-BASED, QUALITATIVE</span><h4>Comparative evidence map</h4></div>
+                            <div className={styles.evidenceLegend}><span><i className={styles.coverageStrong} />Strong</span><span><i className={styles.coverageSome} />Some</span><span><i className={styles.coverageAbsent} />Not mentioned</span></div>
+                          </div>
+                          <div className={styles.evidenceChartHeader}><span>Topic</span><span>{selectedName}</span><span>{activeCompareName}</span></div>
+                          {aiInsight.evidenceMap.map((item) => (
+                            <div className={styles.evidenceChartRow} key={item.topic}>
+                              <strong>{item.topic}</strong>
+                              {[{ coverage: item.firstCoverage, quote: item.firstEvidence }, { coverage: item.secondCoverage, quote: item.secondEvidence }].map(({ coverage, quote }, index) => (
+                                <div className={styles.evidenceCell} key={`${item.topic}-${index}`}>
+                                  <span className={`${styles.coverageMarker} ${coverage === "Strong" ? styles.coverageStrong : coverage === "Some" ? styles.coverageSome : styles.coverageAbsent}`}>{coverage}</span>
+                                  <small>{quote ? `“${quote}”` : "No direct evidence identified in the article."}</small>
+                                </div>
+                              ))}
+                            </div>
+                          ))}
+                        </section>
+                      </div>
+                    ) : (
+                      <div className={styles.localInsights}>
+                        <p>{sharedThemes.length ? `Both country profiles connect social and solidarity economy with ${sharedThemes.join(", ")}.` : "Select Generate comparison to receive a full article-based comparative study."}</p>
+                        <p>The study uses both complete published articles. Its evidence map quotes the source text; it is qualitative, not a numerical score.</p>
+                      </div>
+                    )}
+                    {!profile && activeCompareProfile ? <p className={styles.aiFootnote}>Select a country with a published article to compare these profiles.</p> : null}
+                    {!activeCompareProfile ? <p className={styles.aiFootnote}>No published article is available for {activeCompareName}, so an article-based comparative study cannot be generated.</p> : null}
+                    {activeCompareProfile && aiAvailable === false ? <p className={styles.aiFootnote}>Free local comparison is active. Generative AI is not configured on this server.</p> : null}
+                    {aiStatusError ? <p className={styles.aiFootnote} role="status">{aiStatusError}</p> : null}
+                    {aiError ? <p className={styles.aiError} role="alert">{aiError}</p> : null}
+                  </section>
+                  <div className={styles.compareCountries}>
+                    {[{ name: selectedName, profile }, { name: activeCompareName, profile: activeCompareProfile }].map(({ name, profile: countryProfile }) => (
+                      <article className={styles.compareCountryCard} key={name}>
+                        <span className={styles.articleEyebrow}>COUNTRY PROFILE</span>
+                        <h3>{name}</h3>
+                        <p>{countryProfile?.summary || "No published summary is available for this country."}</p>
+                      </article>
+                    ))}
+                  </div>
+                  <section className={styles.compareSection}>
+                    <div className={styles.compareSectionHeading}><span className={styles.articleEyebrow}>A SHARED LENS</span><h3>Common ground</h3></div>
+                    {sharedThemes.length ? (
+                      <div className={styles.compareTags}>{sharedThemes.map((theme) => <span key={theme}>{theme}</span>)}</div>
+                    ) : <p className={styles.compareEmpty}>The published profiles do not identify a shared theme yet.</p>}
+                  </section>
+                  <section className={styles.compareSection}>
+                    <div className={styles.compareSectionHeading}><span className={styles.articleEyebrow}>DISTINCTIVE FOCUS</span><h3>Different strengths</h3></div>
+                    <div className={styles.compareDifferenceGrid}>
+                      <div><strong>{selectedName}</strong><div className={styles.compareTags}>{selectedOnlyThemes.length ? selectedOnlyThemes.map((theme) => <span key={theme}>{theme}</span>) : <small>No unique themes identified</small>}</div></div>
+                      <div><strong>{activeCompareName}</strong><div className={styles.compareTags}>{compareOnlyThemes.length ? compareOnlyThemes.map((theme) => <span key={theme}>{theme}</span>) : <small>No unique themes identified</small>}</div></div>
+                    </div>
+                  </section>
+                  <section className={styles.compareSection}>
+                    <div className={styles.compareSectionHeading}><span className={styles.articleEyebrow}>PUBLISHED DATA</span><h3>Comparable indicators</h3></div>
+                    {comparableStatistics.length ? (
+                      <div className={styles.compareMetrics}>
+                        {comparableStatistics.map((stat) => <div className={styles.compareMetric} key={stat.label}><strong>{stat.label}</strong><span>{stat.first}</span><span>{stat.second}</span></div>)}
+                      </div>
+                    ) : <p className={styles.compareEmpty}>No matching indicators are published for both countries.</p>}
+                  </section>
+                </>
+              ) : (
+                <div className={styles.comparePrompt}><ArrowDownUp size={22} /><h3>Choose a country to compare</h3><p>Compare published country profiles to uncover shared themes, distinct approaches, and any indicators available in both profiles.</p></div>
+              )}
+            </div>
+          ) : (
           <div className={styles.articleWorkspace}>
             <aside className={styles.articleRail} aria-label="Article navigation and related topics">
               <span className={styles.tocLabel}>IN THIS PROFILE</span>
@@ -746,6 +984,7 @@ export default function CountryAtlas() {
               <div className={styles.articleEndnote}><span>SEMRG</span><p>Research produced and maintained by the Social Economy Media Research Group.</p></div>
             </div>
           </div>
+          )}
         </section>
 
         <div className={styles.carouselDock}>
