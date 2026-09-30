@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { KeyboardEvent, MouseEvent } from "react";
+import type { CSSProperties, KeyboardEvent, MouseEvent } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { geoCentroid } from "d3-geo";
@@ -348,6 +348,7 @@ export default function CountryAtlas() {
   const [profiles, setProfiles] = useState<CountryProfile[]>(countryArticles);
   const [selectedId, setSelectedId] = useState("USA");
   const [profilePanelSize, setProfilePanelSize] = useState<ProfilePanelSize>("compact");
+  const [profileFontScale, setProfileFontScale] = useState(140);
   const [center, setCenter] = useState<[number, number]>([0, 20]);
   const [zoom, setZoom] = useState(1);
   const [query, setQuery] = useState("");
@@ -371,6 +372,26 @@ export default function CountryAtlas() {
   const draggedCarousel = useRef(false);
   const articleScrollRef = useRef<HTMLDivElement>(null);
   const articleContentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (profilePanelSize !== "expanded") return;
+
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    const previousBodyOverflow = document.body.style.overflow;
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+
+    function handleKeyDown(event: globalThis.KeyboardEvent) {
+      if (event.key === "Escape") setProfilePanelSize("default");
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      document.body.style.overflow = previousBodyOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [profilePanelSize]);
 
   useEffect(() => {
     let active = true;
@@ -427,11 +448,26 @@ export default function CountryAtlas() {
     ? [profile.longitude, profile.latitude]
     : pointForCountry(selectedCountry);
   const selectedImage = imageForCountry(selectedId);
+  const profilePanelStyle: CSSProperties & { "--profile-font-scale": number } = {
+    "--profile-font-scale": profileFontScale / 100,
+  };
   const stats = displayStatistics(profile?.statistics);
   const articleHtml = articleMarkup(profile?.article);
   const activeCompareProfile = profiles.find((item) => item.id.toUpperCase() === compareId.toUpperCase());
   const activeCompareCountry = countries.find((country) => countryId(country).toUpperCase() === compareId.toUpperCase());
   const activeCompareName = activeCompareProfile?.name || (activeCompareCountry ? countryName(activeCompareCountry) : "");
+  const canGenerateComparison = Boolean(profile?.article && activeCompareProfile?.article && aiAvailable);
+  const comparisonAvailabilityMessage = !profile?.article
+    ? "This country does not have a published article for AI comparison."
+    : !compareId
+      ? "Choose another country to prepare an article-based comparison."
+      : !activeCompareProfile?.article
+        ? "The selected country does not have a published article for AI comparison."
+        : aiAvailable === null
+          ? aiStatusError || "Checking AI availability…"
+          : aiAvailable
+            ? "Both articles are ready for an AI comparison."
+            : "Generative AI is not configured on this server.";
   const sharedThemes = profileThemes(profile).filter((theme) => profileThemes(activeCompareProfile).includes(theme));
   const selectedOnlyThemes = profileThemes(profile).filter((theme) => !profileThemes(activeCompareProfile).includes(theme));
   const compareOnlyThemes = profileThemes(activeCompareProfile).filter((theme) => !profileThemes(profile).includes(theme));
@@ -469,7 +505,7 @@ export default function CountryAtlas() {
     }).map(countryId));
   }, [activeRegion, activeTheme, activeView, countries, profiles]);
 
-    const mapFeatureCollection = useMemo(() => ({ type: "FeatureCollection" as const, features: countries as never }), [countries]);
+  const mapFeatureCollection = useMemo(() => ({ type: "FeatureCollection" as const, features: countries as never }), [countries]);
 
   const featuredCountries = useMemo(() => profiles.flatMap((item) => {
     const country = countries.find((entry) => countryId(entry).toUpperCase() === item.id.toUpperCase());
@@ -771,16 +807,6 @@ export default function CountryAtlas() {
             onSelect={selectCountry}
           />
           <div className={styles.railSection}>
-            <div className={styles.sectionLabel}>Regions <span>{countries.length} countries</span></div>
-            <div className={styles.regionList}>
-              {regionCounts.map(({ region, count }) => (
-                <button className={`${styles.regionButton} ${activeRegion === region ? styles.regionActive : ""}`} key={region} type="button" aria-pressed={activeRegion === region} onClick={() => setActiveRegion((current) => current === region ? null : region)}>
-                  <span className={styles.regionIndicator} />{region}<small>{count}</small>
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className={styles.railSection}>
             <div className={styles.sectionLabel}>View</div>
             <div className={styles.viewList}>
               <button className={activeView === "all" ? styles.viewActive : ""} type="button" aria-pressed={activeView === "all"} onClick={() => changeView("all")}><Globe2 size={14} />All countries</button>
@@ -794,12 +820,23 @@ export default function CountryAtlas() {
               </div>
             ) : null}
           </div>
+          <div className={styles.railSection}>
+            <div className={styles.sectionLabel}>Regions <span>{countries.length} countries</span></div>
+            <div className={styles.regionList}>
+              {regionCounts.map(({ region, count }) => (
+                <button className={`${styles.regionButton} ${activeRegion === region ? styles.regionActive : ""}`} key={region} type="button" aria-pressed={activeRegion === region} onClick={() => setActiveRegion((current) => current === region ? null : region)}>
+                  <span className={styles.regionIndicator} />{region}<small>{count}</small>
+                </button>
+              ))}
+            </div>
+          </div>
           <div className={styles.railNote}><span>✳</span><p>Stronger communities.<br />More inclusive economies.<br /><em>A sustainable future.</em></p></div>
           <div className={styles.railFooter}><span>RESEARCH ATLAS</span><span>v. 1.0</span></div>
         </aside>
 
         <section
           className={`${styles.profilePanel} ${profilePanelSize === "compact" ? styles.profilePanelCompact : profilePanelSize === "expanded" ? styles.profilePanelExpanded : ""}`}
+          style={profilePanelStyle}
           aria-label={`${selectedName} country profile`}
           aria-live="polite"
           key={selectedId}
@@ -809,33 +846,63 @@ export default function CountryAtlas() {
             <div className={styles.heroOverlay} />
             <div className={styles.heroTopline}>
               <span>COUNTRY PROFILE <i /> ATLAS / 01</span>
-              <div className={styles.panelControls} aria-label="Profile panel size">
+              <div className={styles.panelControls} aria-label="Profile display controls">
                 <button
                   type="button"
-                  onClick={() => setProfilePanelSize("compact")}
-                  aria-label="Make profile panel smaller"
-                  aria-pressed={profilePanelSize === "compact"}
-                  title="Make profile panel smaller"
+                  className={styles.comparisonToggle}
+                  onClick={() => changeView("compare")}
+                  aria-label={activeView === "compare" ? "Return to country profile" : "Open country comparison"}
+                  aria-pressed={activeView === "compare"}
+                  title={activeView === "compare" ? "Return to country profile" : "Open country comparison"}
+                >
+                  <ArrowDownUp size={15} aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  className={styles.fontDecrease}
+                  onClick={() => setProfileFontScale((scale) => Math.max(80, scale - 10))}
+                  aria-label={`Decrease profile text size${profileFontScale <= 80 ? " (minimum size)" : ` (${profileFontScale - 10}%)`}`}
+                  disabled={profileFontScale <= 80}
+                  title="Decrease profile text size"
                 >
                   <Minus size={15} aria-hidden="true" />
                 </button>
                 <button
                   type="button"
-                  onClick={() => setProfilePanelSize("default")}
-                  aria-label="Restore profile panel size"
-                  aria-pressed={profilePanelSize === "default"}
-                  title="Restore profile panel size"
+                  className={styles.fontIncrease}
+                  onClick={() => setProfileFontScale((scale) => Math.min(180, scale + 10))}
+                  aria-label={`Increase profile text size${profileFontScale >= 180 ? " (maximum size)" : ` (${profileFontScale + 10}%)`}`}
+                  disabled={profileFontScale >= 180}
+                  title="Increase profile text size"
+                >
+                  <Plus size={15} aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  className={styles.panelSizeToggle}
+                  onClick={() => setProfilePanelSize((size) => size === "compact" ? "default" : "compact")}
+                  aria-label={profilePanelSize === "compact" ? "Restore profile panel size" : "Make profile panel smaller"}
+                  aria-pressed={profilePanelSize === "compact"}
+                  title={profilePanelSize === "compact" ? "Restore profile panel size" : "Make profile panel smaller"}
                 >
                   <Minimize2 size={14} aria-hidden="true" />
                 </button>
                 <button
                   type="button"
-                  onClick={() => setProfilePanelSize("expanded")}
-                  aria-label="Expand profile to the edge of the World Atlas sidebar"
+                  className={styles.expandProfile}
+                  onClick={() => {
+                    if (profilePanelSize === "expanded") {
+                      setProfilePanelSize("default");
+                    } else {
+                      setProfileFontScale((scale) => Math.max(140, scale));
+                      setProfilePanelSize("expanded");
+                    }
+                  }}
+                  aria-label={profilePanelSize === "expanded" ? "Exit full-screen profile" : "Expand profile to full screen"}
                   aria-pressed={profilePanelSize === "expanded"}
-                  title="Expand profile to the edge of the World Atlas sidebar"
+                  title={profilePanelSize === "expanded" ? "Exit full-screen profile" : "Expand profile to full screen"}
                 >
-                  <Maximize2 size={15} aria-hidden="true" />
+                  {profilePanelSize === "expanded" ? <Minimize2 size={15} aria-hidden="true" /> : <Maximize2 size={15} aria-hidden="true" />}
                 </button>
               </div>
             </div>
@@ -861,7 +928,16 @@ export default function CountryAtlas() {
                 <option value="">Choose a country</option>
                 {featuredCountries.filter(({ country }) => countryId(country) !== selectedId).map(({ country }) => <option value={countryId(country)} key={countryId(country)}>{countryName(country)}</option>)}
               </select>
-              <span className={styles.compareSummary}>{activeCompareProfile ? "Choose a country to see evidence-based similarities and differences." : "Select a published country profile to begin."}</span>
+              <span className={styles.compareSummary} role="status">{comparisonAvailabilityMessage}</span>
+              <button
+                className={styles.generateComparisonButton}
+                type="button"
+                onClick={requestAiComparison}
+                disabled={!canGenerateComparison || aiLoading}
+                title={comparisonAvailabilityMessage}
+              >
+                {aiLoading ? "Reading both articles…" : <><Sparkles size={14} /> Generate comparison</>}
+              </button>
             </div>
           ) : null}
 
@@ -876,11 +952,6 @@ export default function CountryAtlas() {
                         <h3>{aiInsight?.title || "Evidence-based comparative study"}</h3>
                         <p>Read both full country articles and generate a six-paragraph study with a cited evidence chart.</p>
                       </div>
-                      {profile && activeCompareProfile && aiAvailable ? (
-                        <button className={styles.generateComparisonButton} type="button" onClick={requestAiComparison} disabled={aiLoading}>
-                          {aiLoading ? "Reading both articles…" : <><Sparkles size={14} /> Generate comparison</>}
-                        </button>
-                      ) : null}
                     </div>
                     {aiInsight ? (
                       <div className={styles.aiStudy}>
@@ -954,36 +1025,36 @@ export default function CountryAtlas() {
               )}
             </div>
           ) : (
-          <div className={styles.articleWorkspace}>
-            <aside className={styles.articleRail} aria-label="Article navigation and related topics">
-              <span className={styles.tocLabel}>IN THIS PROFILE</span>
-              <nav className={styles.toc} aria-label="Country article sections">
-                {sections.map((section) => <button className={activeSection === section.id ? styles.tocActive : ""} type="button" key={section.id} aria-current={activeSection === section.id ? "location" : undefined} onClick={() => scrollToSection(section.id)}><span />{section.title}</button>)}
-              </nav>
-              <div className={styles.relatedTopics}><span className={styles.tocLabel}>RELATED THEMES</span>{themes.slice(0, 4).map((theme) => <button type="button" key={theme} onClick={() => { setActiveView("themes"); setActiveTheme(theme); }}>{theme}</button>)}</div>
-              <button className={styles.shareButton} type="button" onClick={shareCountry}><Share2 size={14} />Share profile</button>
-              {shareMessage ? <span className={styles.shareStatus} role="status">{shareMessage}</span> : null}
-            </aside>
-            <div className={styles.articleScroll} ref={articleScrollRef} key={`${selectedId}-article`}>
-              <div className={styles.articleIntro}>
-                <span className={styles.articleEyebrow}>SOCIAL & SOLIDARITY ECONOMY</span>
-                <h3>{profile?.title || selectedName}</h3>
-                {profile?.summary ? <p className={styles.articleSummary}>{profile.summary}</p> : null}
+            <div className={styles.articleWorkspace}>
+              <aside className={styles.articleRail} aria-label="Article navigation and related topics">
+                <span className={styles.tocLabel}>IN THIS PROFILE</span>
+                <nav className={styles.toc} aria-label="Country article sections">
+                  {sections.map((section) => <button className={activeSection === section.id ? styles.tocActive : ""} type="button" key={section.id} aria-current={activeSection === section.id ? "location" : undefined} onClick={() => scrollToSection(section.id)}><span />{section.title}</button>)}
+                </nav>
+                <div className={styles.relatedTopics}><span className={styles.tocLabel}>RELATED THEMES</span>{themes.slice(0, 4).map((theme) => <button type="button" key={theme} onClick={() => { setActiveView("themes"); setActiveTheme(theme); }}>{theme}</button>)}</div>
+                <button className={styles.shareButton} type="button" onClick={shareCountry}><Share2 size={14} />Share profile</button>
+                {shareMessage ? <span className={styles.shareStatus} role="status">{shareMessage}</span> : null}
+              </aside>
+              <div className={styles.articleScroll} ref={articleScrollRef} key={`${selectedId}-article`}>
+                <div className={styles.articleIntro}>
+                  <span className={styles.articleEyebrow}>SOCIAL & SOLIDARITY ECONOMY</span>
+                  <h3>{profile?.title || selectedName}</h3>
+                  {profile?.summary ? <p className={styles.articleSummary}>{profile.summary}</p> : null}
+                </div>
+                {profile?.article ? (
+                  <div className={styles.articleCopy} ref={articleContentRef} dangerouslySetInnerHTML={{ __html: articleHtml }} />
+                ) : (
+                  <div className={styles.articleUnavailable}><span>RESEARCH NOTE</span><p>A country profile has not yet been published for this location. Browse another place or return to all countries.</p></div>
+                )}
+                {profile?.sources ? (
+                  <section className={styles.sources} id="atlas-sources">
+                    <span className={styles.articleEyebrow}>RESEARCH TRAIL</span><h4>Sources</h4>
+                    {Array.isArray(profile.sources) ? <ul>{profile.sources.map((source, index) => <li key={index}>{typeof source === "string" ? source : JSON.stringify(source)}</li>)}</ul> : <p>{typeof profile.sources === "string" ? profile.sources : JSON.stringify(profile.sources)}</p>}
+                  </section>
+                ) : null}
+                <div className={styles.articleEndnote}><span>SEMRG</span><p>Research produced and maintained by the Social Economy Media Research Group.</p></div>
               </div>
-              {profile?.article ? (
-                <div className={styles.articleCopy} ref={articleContentRef} dangerouslySetInnerHTML={{ __html: articleHtml }} />
-              ) : (
-                <div className={styles.articleUnavailable}><span>RESEARCH NOTE</span><p>A country profile has not yet been published for this location. Browse another place or return to all countries.</p></div>
-              )}
-              {profile?.sources ? (
-                <section className={styles.sources} id="atlas-sources">
-                  <span className={styles.articleEyebrow}>RESEARCH TRAIL</span><h4>Sources</h4>
-                  {Array.isArray(profile.sources) ? <ul>{profile.sources.map((source, index) => <li key={index}>{typeof source === "string" ? source : JSON.stringify(source)}</li>)}</ul> : <p>{typeof profile.sources === "string" ? profile.sources : JSON.stringify(profile.sources)}</p>}
-                </section>
-              ) : null}
-              <div className={styles.articleEndnote}><span>SEMRG</span><p>Research produced and maintained by the Social Economy Media Research Group.</p></div>
             </div>
-          </div>
           )}
         </section>
 
