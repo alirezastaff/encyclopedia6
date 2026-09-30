@@ -130,13 +130,14 @@ span.tooltipFlag { display: grid; place-items: center; font-size: 14px; }
 .railSection { padding: 9px 0 8px; border-top: 1px solid rgba(190, 220, 204, .13); }
 .sectionLabel { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; color: #d9e4d9; font-size: 8px; font-weight: 600; }
 .sectionLabel > span { color: #80968b; font-size: 7px; font-weight: 400; }
-.regionList, .viewList { display: grid; gap: 2px; }
-.regionButton { display: grid; height: 24px; grid-template-columns: 9px 1fr auto; align-items: center; gap: 8px; border: 0; padding: 0 6px; color: #a7b8ad; background: transparent; cursor: pointer; text-align: left; font: 9px "DM Sans", sans-serif; transition: color .18s, background .18s; }
+.regionList { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; }
+.viewList { display: grid; gap: 2px; }
+.regionButton { display: grid; height: 22px; grid-template-columns: 9px 1fr auto; align-items: center; gap: 6px; border: 0; padding: 0 4px; color: #a7b8ad; background: transparent; cursor: pointer; text-align: left; font: 8px "DM Sans", sans-serif; transition: color .18s, background .18s; }
 .regionButton:hover, .regionActive { color: #edf3e8; background: rgba(185, 220, 190, .08); }
 .regionIndicator { width: 5px; height: 5px; border: 1px solid rgba(182, 216, 190, .52); border-radius: 50%; }
 .regionActive .regionIndicator { background: #b7d8b8; box-shadow: 0 0 7px rgba(183, 216, 184, .55); }
-.regionButton small { color: #81958a; font-size: 8px; font-variant-numeric: tabular-nums; }
-.viewList button { display: flex; height: 26px; align-items: center; gap: 9px; border: 0; padding: 0 6px; color: #a3b5aa; background: transparent; cursor: pointer; text-align: left; font: 9px "DM Sans", sans-serif; transition: color .18s, background .18s; }
+.regionButton small { color: #81958a; font-size: 7px; font-variant-numeric: tabular-nums; }
+.viewList button { display: flex; height: 30px; align-items: center; gap: 9px; border: 0; padding: 0 6px; color: #a3b5aa; background: transparent; cursor: pointer; text-align: left; font: 11px "DM Sans", sans-serif; transition: color .18s, background .18s; }
 .viewList button svg { color: #839c8d; }
 .viewList button:hover, .viewList .viewActive { color: #ebf1e6; background: rgba(185, 220, 190, .08); }
 .viewList .viewActive svg { color: #bed9ba; }

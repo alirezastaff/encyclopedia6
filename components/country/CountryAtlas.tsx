@@ -809,10 +809,10 @@ export default function CountryAtlas() {
           <div className={styles.railSection}>
             <div className={styles.sectionLabel}>View</div>
             <div className={styles.viewList}>
-              <button className={activeView === "all" ? styles.viewActive : ""} type="button" aria-pressed={activeView === "all"} onClick={() => changeView("all")}><Globe2 size={14} />All countries</button>
-              <button className={activeView === "profiles" ? styles.viewActive : ""} type="button" aria-pressed={activeView === "profiles"} onClick={() => changeView("profiles")}><MapPinned size={14} />Published profiles</button>
-              <button className={activeView === "compare" ? styles.viewActive : ""} type="button" aria-pressed={activeView === "compare"} onClick={() => changeView("compare")}><ArrowDownUp size={14} />Comparative view</button>
-              <button className={activeView === "themes" ? styles.viewActive : ""} type="button" aria-pressed={activeView === "themes"} onClick={() => changeView("themes")}><Layers3 size={14} />Explore by theme</button>
+              <button className={activeView === "all" ? styles.viewActive : ""} type="button" aria-pressed={activeView === "all"} onClick={() => changeView("all")}><Globe2 size={16} />All countries</button>
+              <button className={activeView === "profiles" ? styles.viewActive : ""} type="button" aria-pressed={activeView === "profiles"} onClick={() => changeView("profiles")}><MapPinned size={16} />Published profiles</button>
+              <button className={activeView === "compare" ? styles.viewActive : ""} type="button" aria-pressed={activeView === "compare"} onClick={() => changeView("compare")}><ArrowDownUp size={16} />Comparative view</button>
+              <button className={activeView === "themes" ? styles.viewActive : ""} type="button" aria-pressed={activeView === "themes"} onClick={() => changeView("themes")}><Layers3 size={16} />Explore by theme</button>
             </div>
             {activeView === "themes" ? (
               <div className={styles.themePicker} aria-label="Filter by theme">
@@ -923,7 +923,7 @@ export default function CountryAtlas() {
 
           {activeView === "compare" ? (
             <div className={styles.compareBar}>
-              <span><ArrowDownUp size={14} /> Compare this profile with</span>
+              <span><ArrowDownUp size={16} /> Compare this profile with</span>
               <select aria-label="Select a country to compare" value={compareId} onChange={(event) => chooseCompareCountry(event.target.value)}>
                 <option value="">Choose a country</option>
                 {featuredCountries.filter(({ country }) => countryId(country) !== selectedId).map(({ country }) => <option value={countryId(country)} key={countryId(country)}>{countryName(country)}</option>)}
