@@ -2,7 +2,8 @@
 
 import { FormEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, BookOpen, Calculator, FilePenLine, Globe2, Layers3, Mail, Search, UsersRound } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowRight, BookOpen, Calculator, FilePenLine, Globe2, Mail, Search, UsersRound } from "lucide-react";
 import KnowledgeSearch from "@/components/homepage/KnowledgeSearch";
 
 const cards = [
@@ -14,6 +15,7 @@ const cards = [
 ] as const;
 
 export default function ReferenceHome() {
+  const router = useRouter();
   type NavItem = "home" | "about" | "subscription";
   const [focusTarget, setFocusTarget] = useState<"search" | "about" | "subscription" | null>(null);
   const [visualFocusTarget, setVisualFocusTarget] = useState<"search" | "about" | "subscription" | null>(null);
@@ -21,6 +23,8 @@ export default function ReferenceHome() {
   const [navIndicator, setNavIndicator] = useState({ left: 0, width: 0 });
   const [subscriptionMessage, setSubscriptionMessage] = useState("");
   const [isSubscribing, setIsSubscribing] = useState(false);
+  const [isLanguageSwitching, setIsLanguageSwitching] = useState(false);
+  const languageSwitchTimerRef = useRef<number | null>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const navRef = useRef<HTMLElement | null>(null);
   const navItemRefs = useRef<Record<NavItem, HTMLAnchorElement | null>>({ home: null, about: null, subscription: null });
@@ -69,6 +73,10 @@ export default function ReferenceHome() {
       document.removeEventListener("gesturechange", preventGestureZoom);
       document.removeEventListener("gestureend", preventGestureZoom);
     };
+  }, []);
+
+  useEffect(() => () => {
+    if (languageSwitchTimerRef.current !== null) window.clearTimeout(languageSwitchTimerRef.current);
   }, []);
 
   useEffect(() => {
@@ -209,7 +217,20 @@ export default function ReferenceHome() {
             <span className="reference-nav-indicator" aria-hidden="true" style={{ left: navIndicator.left, width: navIndicator.width }} />
           </nav>
           <div className="reference-tools">
-            <div className="reference-languages"><span className="active">EN</span><Link href="/fa"><span>FA</span></Link></div>
+            <div className={`reference-languages${isLanguageSwitching ? " switching" : ""}`}>
+              <span className="active">EN</span>
+              <Link
+                href="/fa"
+                onClick={(event) => {
+                  event.preventDefault();
+                  if (isLanguageSwitching) return;
+                  setIsLanguageSwitching(true);
+                  languageSwitchTimerRef.current = window.setTimeout(() => router.push("/fa"), 380);
+                }}
+              >
+                <span>FA</span>
+              </Link>
+            </div>
             <Search aria-hidden="true" />
           </div>
         </header>
@@ -221,9 +242,6 @@ export default function ReferenceHome() {
           <aside id="subscription" className={`reference-feature newsletter-feature${focusTarget === "subscription" ? " focus-spotlight" : ""}${visualFocusTarget === "subscription" ? " spotlight-raised" : ""}`}>
             <div className="newsletter-kicker">
               <span><Mail size={13} aria-hidden="true" /> Subscription</span>
-              <button className="feature-spotlight-trigger" type="button" aria-label="Highlight subscription" aria-pressed={focusTarget === "subscription"} onClick={(event) => toggleSpotlight("subscription", event.currentTarget)}>
-                <Layers3 size={14} aria-hidden="true" />
-              </button>
             </div>
             <h2>Ideas and research, delivered.</h2>
             <p className="newsletter-description">Get occasional updates from our social economy research.</p>
@@ -256,6 +274,8 @@ export default function ReferenceHome() {
               <h2>About Us</h2>
               <p>We are an independent research institute dedicated to the social economy. We study its ideas, institutions, and practices, and make this knowledge accessible to researchers, practitioners, and the wider public.</p>
               <p>Our work promotes social economy concepts across Iran and internationally. Through research, collaboration, and open exchange, we contribute to a more inclusive and sustainable future.</p>
+              <p>We connect scholarship with lived experience, bringing together researchers, educators, community organizations, and practitioners who are working to build economies rooted in cooperation, dignity, and shared responsibility. By documenting local initiatives and examining the structures that support them, we help make practical knowledge visible and useful.</p>
+              <p>Our platform is a growing space for thoughtful inquiry and public exchange. We publish accessible research, highlight solidarity experiences, and create pathways for new conversations about how communities can shape fairer systems. We believe that knowledge becomes most powerful when it is shared openly and put into dialogue with the people it is meant to serve.</p>
             </div>
           </aside>
         </section>
