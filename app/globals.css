@@ -813,6 +813,25 @@ html:has(.reference-home) .reference-shell::before {
   background: url('/t7e.png') center / cover no-repeat !important;
 }
 
+html:has(.reference-home) .reference-background-blur {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  -webkit-backdrop-filter: blur(13px) saturate(1.12);
+  backdrop-filter: blur(13px) saturate(1.12);
+}
+
+html:has(.reference-home) .reference-background-blur-bottom {
+  -webkit-mask-image: linear-gradient(to top, #000 0%, #000 16%, rgba(0, 0, 0, 0.88) 32%, transparent 68%);
+  mask-image: linear-gradient(to top, #000 0%, #000 16%, rgba(0, 0, 0, 0.88) 32%, transparent 68%);
+}
+
+html:has(.reference-home) .reference-background-blur-title {
+  -webkit-mask-image: radial-gradient(ellipse 50% 72% at 0% 0%, #000 0%, rgba(0, 0, 0, 0.84) 35%, transparent 100%);
+  mask-image: radial-gradient(ellipse 50% 72% at 0% 0%, #000 0%, rgba(0, 0, 0, 0.84) 35%, transparent 100%);
+}
+
 .reference-search .search-filter {
   flex: 0 0 auto;
   padding: 0 10px;

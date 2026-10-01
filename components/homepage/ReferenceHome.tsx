@@ -208,6 +208,8 @@ export default function ReferenceHome() {
         @media(prefers-reduced-motion:reduce){.reference-nav a,.reference-nav-indicator{transition:none}}
       `}</style>
       <div className="reference-shell">
+        <div className="reference-background-blur reference-background-blur-bottom" aria-hidden="true" />
+        <div className="reference-background-blur reference-background-blur-title" aria-hidden="true" />
         <header className="reference-header">
           <Link href="/en"><img className="reference-logo" src="/homepage/logo-2-w.png" alt="SSE Knowledge Platform" /></Link>
           <nav ref={navRef} className="reference-nav" aria-label="Main navigation">
