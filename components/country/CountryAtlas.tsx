@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, KeyboardEvent, MouseEvent } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { geoCentroid } from "d3-geo";
 import {
@@ -10,7 +9,6 @@ import {
   ArrowLeft,
   ArrowRight,
   Check,
-  ChevronDown,
   Compass,
   Globe2,
   Layers3,
@@ -18,10 +16,12 @@ import {
   MapPinned,
   Minus,
   Minimize2,
+  Moon,
   Plus,
   Search,
   Share2,
   Sparkles,
+  Sun,
 } from "lucide-react";
 import { ComposableMap, Geography, Geographies, Marker, ZoomableGroup } from "react-simple-maps";
 import countryArticles from "@/data/country-articles.json";
@@ -349,6 +349,7 @@ export default function CountryAtlas() {
   const [selectedId, setSelectedId] = useState("USA");
   const [profilePanelSize, setProfilePanelSize] = useState<ProfilePanelSize>("compact");
   const [profileFontScale, setProfileFontScale] = useState(140);
+  const [profileLightMode, setProfileLightMode] = useState(false);
   const [center, setCenter] = useState<[number, number]>([0, 20]);
   const [zoom, setZoom] = useState(1);
   const [query, setQuery] = useState("");
@@ -382,7 +383,14 @@ export default function CountryAtlas() {
     document.body.style.overflow = "hidden";
 
     function handleKeyDown(event: globalThis.KeyboardEvent) {
-      if (event.key === "Escape") setProfilePanelSize("default");
+      if (event.key === "Escape") {
+        setProfilePanelSize("default");
+        setProfileLightMode(false);
+        setActiveView("all");
+        setCompareId("");
+        setAiInsight(null);
+        setAiError("");
+      }
     }
 
     window.addEventListener("keydown", handleKeyDown);
@@ -572,6 +580,12 @@ export default function CountryAtlas() {
     }
   }
 
+  function exitExpandedProfile() {
+    setProfilePanelSize("default");
+    setProfileLightMode(false);
+    changeView("all");
+  }
+
   function chooseCompareCountry(id: string) {
     setCompareId(id);
     setAiInsight(null);
@@ -697,26 +711,6 @@ export default function CountryAtlas() {
 
   return (
     <main className={styles.atlas} dir="ltr" lang="en">
-      <header className={styles.topbar}>
-        <Link className={styles.brand} href="/en" aria-label="Social and Solidarity Economy Atlas home">
-          <span className={styles.brandMark}><Globe2 size={19} strokeWidth={1.5} /></span>
-          <span className={styles.brandName}>Social and Solidarity<br />Economy Atlas</span>
-        </Link>
-        <div className={styles.headerTools}>
-          <CountrySearch
-            className={styles.headerSearch}
-            compact
-            label="Search for a country..."
-            query={query}
-            countries={countries}
-            selectedId={selectedId}
-            onQueryChange={setQuery}
-            onSelect={selectCountry}
-          />
-          <Link className={styles.language} href="/fa/country-explorer" aria-label="Switch language to Persian">EN <ChevronDown size={13} /></Link>
-        </div>
-      </header>
-
       <section className={styles.atlasStage} aria-label="Interactive world atlas">
         <div className={styles.mapSurface} ref={mapRef}>
           {mapError ? <div className={styles.mapMessage}>The world boundary data could not be loaded.</div> : countries.length === 0 ? (
@@ -835,7 +829,7 @@ export default function CountryAtlas() {
         </aside>
 
         <section
-          className={`${styles.profilePanel} ${profilePanelSize === "compact" ? styles.profilePanelCompact : profilePanelSize === "expanded" ? styles.profilePanelExpanded : ""}`}
+          className={`${styles.profilePanel} ${profilePanelSize === "compact" ? styles.profilePanelCompact : profilePanelSize === "expanded" ? styles.profilePanelExpanded : ""} ${profilePanelSize === "expanded" && profileLightMode ? styles.profilePanelLight : ""}`}
           style={profilePanelStyle}
           aria-label={`${selectedName} country profile`}
           aria-live="polite"
@@ -857,30 +851,44 @@ export default function CountryAtlas() {
                 >
                   <ArrowDownUp size={15} aria-hidden="true" />
                 </button>
-                <button
-                  type="button"
-                  className={styles.fontDecrease}
-                  onClick={() => setProfileFontScale((scale) => Math.max(80, scale - 10))}
-                  aria-label={`Decrease profile text size${profileFontScale <= 80 ? " (minimum size)" : ` (${profileFontScale - 10}%)`}`}
-                  disabled={profileFontScale <= 80}
-                  title="Decrease profile text size"
-                >
-                  <Minus size={15} aria-hidden="true" />
-                </button>
-                <button
-                  type="button"
-                  className={styles.fontIncrease}
-                  onClick={() => setProfileFontScale((scale) => Math.min(180, scale + 10))}
-                  aria-label={`Increase profile text size${profileFontScale >= 180 ? " (maximum size)" : ` (${profileFontScale + 10}%)`}`}
-                  disabled={profileFontScale >= 180}
-                  title="Increase profile text size"
-                >
-                  <Plus size={15} aria-hidden="true" />
-                </button>
+                {profilePanelSize === "expanded" ? (
+                  <>
+                    <button
+                      type="button"
+                      className={styles.fontDecrease}
+                      onClick={() => setProfileFontScale((scale) => Math.max(80, scale - 10))}
+                      aria-label={`Decrease profile text size${profileFontScale <= 80 ? " (minimum size)" : ` (${profileFontScale - 10}%)`}`}
+                      disabled={profileFontScale <= 80}
+                      title="Decrease profile text size"
+                    >
+                      <Minus size={15} aria-hidden="true" />
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.fontIncrease}
+                      onClick={() => setProfileFontScale((scale) => Math.min(180, scale + 10))}
+                      aria-label={`Increase profile text size${profileFontScale >= 180 ? " (maximum size)" : ` (${profileFontScale + 10}%)`}`}
+                      disabled={profileFontScale >= 180}
+                      title="Increase profile text size"
+                    >
+                      <Plus size={15} aria-hidden="true" />
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.lightModeToggle}
+                      onClick={() => setProfileLightMode((isLight) => !isLight)}
+                      aria-label={profileLightMode ? "Switch to dark reading theme" : "Switch to light reading theme"}
+                      aria-pressed={profileLightMode}
+                      title={profileLightMode ? "Switch to dark reading theme" : "Switch to light reading theme"}
+                    >
+                      {profileLightMode ? <Moon size={15} aria-hidden="true" /> : <Sun size={15} aria-hidden="true" />}
+                    </button>
+                  </>
+                ) : null}
                 <button
                   type="button"
                   className={styles.panelSizeToggle}
-                  onClick={() => setProfilePanelSize((size) => size === "compact" ? "default" : "compact")}
+                  onClick={() => profilePanelSize === "expanded" ? exitExpandedProfile() : setProfilePanelSize((size) => size === "compact" ? "default" : "compact")}
                   aria-label={profilePanelSize === "compact" ? "Restore profile panel size" : "Make profile panel smaller"}
                   aria-pressed={profilePanelSize === "compact"}
                   title={profilePanelSize === "compact" ? "Restore profile panel size" : "Make profile panel smaller"}
@@ -892,7 +900,7 @@ export default function CountryAtlas() {
                   className={styles.expandProfile}
                   onClick={() => {
                     if (profilePanelSize === "expanded") {
-                      setProfilePanelSize("default");
+                      exitExpandedProfile();
                     } else {
                       setProfileFontScale((scale) => Math.max(140, scale));
                       setProfilePanelSize("expanded");
@@ -1026,12 +1034,11 @@ export default function CountryAtlas() {
             </div>
           ) : (
             <div className={styles.articleWorkspace}>
-              <aside className={styles.articleRail} aria-label="Article navigation and related topics">
+              <aside className={styles.articleRail} aria-label="Article navigation">
                 <span className={styles.tocLabel}>IN THIS PROFILE</span>
                 <nav className={styles.toc} aria-label="Country article sections">
                   {sections.map((section) => <button className={activeSection === section.id ? styles.tocActive : ""} type="button" key={section.id} aria-current={activeSection === section.id ? "location" : undefined} onClick={() => scrollToSection(section.id)}><span />{section.title}</button>)}
                 </nav>
-                <div className={styles.relatedTopics}><span className={styles.tocLabel}>RELATED THEMES</span>{themes.slice(0, 4).map((theme) => <button type="button" key={theme} onClick={() => { setActiveView("themes"); setActiveTheme(theme); }}>{theme}</button>)}</div>
                 <button className={styles.shareButton} type="button" onClick={shareCountry}><Share2 size={14} />Share profile</button>
                 {shareMessage ? <span className={styles.shareStatus} role="status">{shareMessage}</span> : null}
               </aside>

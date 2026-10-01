@@ -74,18 +74,14 @@ export default function ReferenceHome() {
   useEffect(() => {
     if (!focusTarget) return;
     function closeOnEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") setFocusTarget(null);
+      if (event.key === "Escape") {
+        setFocusTarget(null);
+        setVisualFocusTarget(null);
+      }
     }
     document.addEventListener("keydown", closeOnEscape);
     return () => document.removeEventListener("keydown", closeOnEscape);
   }, [focusTarget]);
-
-  useEffect(() => {
-    if (focusTarget || !visualFocusTarget) return;
-    const exitDuration = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 20 : 1200;
-    const timeout = window.setTimeout(() => setVisualFocusTarget(null), exitDuration);
-    return () => window.clearTimeout(timeout);
-  }, [focusTarget, visualFocusTarget]);
 
   useEffect(() => {
     if (!visualFocusTarget) {
@@ -152,6 +148,7 @@ export default function ReferenceHome() {
   function toggleSpotlight(target: "search" | "about" | "subscription", trigger?: HTMLElement) {
     if (focusTarget === target) {
       setFocusTarget(null);
+      setVisualFocusTarget(null);
       return false;
     }
     if (!focusTarget) {
@@ -268,7 +265,10 @@ export default function ReferenceHome() {
           tabIndex={visualFocusTarget ? 0 : -1}
           aria-hidden={!visualFocusTarget}
           aria-label="Close spotlight"
-          onClick={() => setFocusTarget(null)}
+          onClick={() => {
+            setFocusTarget(null);
+            setVisualFocusTarget(null);
+          }}
         />
       </div>
     </main>;
