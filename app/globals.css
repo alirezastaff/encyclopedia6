@@ -1332,6 +1332,151 @@ html.dark-mode .nav a {
 .marginal-form label { color:#463934; }.marginal-form input,.marginal-form select,.marginal-form textarea,.marginal-toolbar input,.marginal-toolbar select { border-color:#d9c9c0; background:#fffdfa; color:var(--ink); }.marginal-form input:focus,.marginal-form select:focus,.marginal-form textarea:focus { border-color:var(--red); box-shadow:0 0 0 3px rgba(148,29,39,.1); }.marginal-identity { color:#6f5d55; }.marginal-message.success { color:#28603d; background:#eaf5ed; }.marginal-message.error { color:#922b31; background:#fbeceb; }
 .marginal-count,.marginal-search span,.marginal-post-actions button { color:var(--red); }.marginal-search { border-color:#d9c9c0; background:#fffdfa; }.marginal-search input::placeholder { color:#a39189; }.marginal-post-meta strong { color:#3b302c; }.marginal-handle,.marginal-post-meta time { color:#907d75; }.marginal-post-meta .marginal-type { color:var(--red); border-color:#e0beba; background:#fff4f1; }.marginal-post-content { color:#3b302c; }.marginal-pinned { border-color:#e5c6bf; border-right-color:var(--red); background:var(--red-soft); color:var(--ink); }.marginal-pinned span,.marginal-pinned i { color:var(--red); }.marginal-pinned strong { color:#4e2727; }.marginal-post:hover { background:#fffaf6; }.marginal-replies { border-color:#dec9c1; }.marginal-reply { background:#f8f2ed; }.marginal-reply strong { color:#4e3a35; }.marginal-reply p { color:#5e504a; }.marginal-reply-form { border-color:var(--line); }.marginal-empty { border-color:#cebdb4; color:#756a64; }.marginal-empty strong { color:#4e3a35; }
 
+/* Light glass finish for the Persian social feed; layout rules stay above. */
+.marginal-page {
+  --ink: #302725;
+  --muted: #756965;
+  --red: #982a34;
+  --red-deep: #7d1017;
+  --red-soft: rgba(152, 42, 52, 0.075);
+  --line: rgba(116, 78, 66, 0.2);
+  color-scheme: light;
+  background: linear-gradient(118deg, #f1e8e8 0%, #f7f3ef 38%, #e9f0ed 70%, #f2eae6 100%);
+}
+
+.marginal-page .marginal-sidebar,
+.marginal-page .marginal-main-column {
+  border-color: var(--line);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.68), rgba(255, 253, 250, 0.32));
+  -webkit-backdrop-filter: blur(24px) saturate(145%);
+  backdrop-filter: blur(24px) saturate(145%);
+}
+
+.marginal-page .marginal-sidebar {
+  box-shadow: inset -1px 0 rgba(255, 255, 255, 0.82), 8px 0 30px rgba(93, 58, 46, 0.06);
+}
+
+.marginal-page .marginal-main-column {
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.78), 0 14px 48px rgba(93, 58, 46, 0.075);
+}
+
+.marginal-page .marginal-sidebar-note {
+  border-color: rgba(152, 42, 52, 0.14);
+  background: rgba(255, 255, 255, 0.48);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.72);
+}
+
+.marginal-page .marginal-nav a:hover,
+.marginal-page .marginal-nav a.active {
+  background: rgba(152, 42, 52, 0.075);
+}
+
+.marginal-page .marginal-topbar {
+  border-color: var(--line);
+  background: rgba(255, 253, 250, 0.72);
+  box-shadow: 0 1px rgba(255, 255, 255, 0.68);
+  -webkit-backdrop-filter: blur(22px) saturate(145%);
+  backdrop-filter: blur(22px) saturate(145%);
+}
+
+.marginal-page .marginal-tabs {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.marginal-page .marginal-tabs button:hover,
+.marginal-page .marginal-tabs button.active {
+  background: rgba(255, 255, 255, 0.56);
+}
+
+.marginal-page .marginal-compose {
+  border-bottom-color: rgba(152, 42, 52, 0.09);
+  background: linear-gradient(125deg, rgba(255, 255, 255, 0.58), rgba(255, 253, 250, 0.28));
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.82);
+  -webkit-backdrop-filter: blur(16px) saturate(130%);
+  backdrop-filter: blur(16px) saturate(130%);
+}
+
+.marginal-page .marginal-composer-text {
+  border-color: rgba(116, 78, 66, 0.17);
+  background: rgba(255, 255, 255, 0.34);
+}
+
+.marginal-page .marginal-form input,
+.marginal-page .marginal-form select,
+.marginal-page .marginal-form textarea,
+.marginal-page .marginal-toolbar input,
+.marginal-page .marginal-toolbar select,
+.marginal-page .marginal-reply-form textarea {
+  border-color: rgba(116, 78, 66, 0.2);
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.marginal-page .marginal-form input:focus,
+.marginal-page .marginal-form select:focus,
+.marginal-page .marginal-form textarea:focus,
+.marginal-page .marginal-toolbar input:focus,
+.marginal-page .marginal-toolbar select:focus,
+.marginal-page .marginal-reply-form textarea:focus {
+  border-color: rgba(152, 42, 52, 0.58);
+  box-shadow: 0 0 0 3px rgba(152, 42, 52, 0.1), inset 0 1px rgba(255, 255, 255, 0.8);
+}
+
+.marginal-page .marginal-search {
+  border-color: rgba(116, 78, 66, 0.2);
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.marginal-page .marginal-feed {
+  background: transparent;
+}
+
+.marginal-page .marginal-post {
+  border-color: var(--line);
+  background: rgba(255, 255, 255, 0.34);
+  -webkit-backdrop-filter: blur(16px) saturate(130%);
+  backdrop-filter: blur(16px) saturate(130%);
+}
+
+.marginal-page .marginal-post:hover {
+  background: rgba(255, 255, 255, 0.52);
+}
+
+.marginal-page .marginal-pinned {
+  border-color: rgba(152, 42, 52, 0.14);
+  background: rgba(152, 42, 52, 0.065);
+}
+
+.marginal-page .marginal-reply {
+  background: rgba(255, 255, 255, 0.42);
+}
+
+.marginal-page .marginal-empty {
+  border-color: rgba(116, 78, 66, 0.24);
+  background: rgba(255, 255, 255, 0.34);
+}
+
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .marginal-page .marginal-sidebar,
+  .marginal-page .marginal-main-column,
+  .marginal-page .marginal-topbar,
+  .marginal-page .marginal-compose,
+  .marginal-page .marginal-post {
+    background: rgba(255, 253, 250, 0.88);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .marginal-page .marginal-sidebar,
+  .marginal-page .marginal-main-column,
+  .marginal-page .marginal-topbar,
+  .marginal-page .marginal-compose,
+  .marginal-page .marginal-post {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgba(255, 253, 250, 0.92);
+  }
+}
+
 .reference-home--fa,
 .reference-home--fa * {
   font-family: "Vazirmatn", Tahoma, Arial, sans-serif !important;

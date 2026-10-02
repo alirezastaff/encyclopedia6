@@ -320,6 +320,16 @@ function profileForCountry(country: Country, profiles: CountryProfile[]): Countr
     || profiles.find((profile) => profile.name.toLowerCase() === countryName(country).toLowerCase());
 }
 
+function uniqueCountryProfiles(profiles: CountryProfile[]): CountryProfile[] {
+  const seen = new Set<string>();
+  return profiles.filter((profile) => {
+    const id = profile.id.toUpperCase();
+    if (seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+}
+
 function profileThemes(profile?: CountryProfile): string[] {
   const text = `${profile?.title || ""} ${profile?.summary || ""} ${profile?.article || ""}`.toLowerCase();
   return Object.entries(themeTerms)
@@ -494,7 +504,7 @@ export default function CountryAtlas({ locale = "en" }: { locale?: "en" | "fa" }
       ? import("@/data/country-articles-fa.json").then((module) => module.default as CountryProfile[]).catch(() => [])
       : Promise.resolve([]);
     void persianProfilesPromise.then((localProfiles) => {
-      if (active && isPersian && localProfiles.length) setProfiles([...localProfiles, ...persianFallbackProfiles]);
+      if (active && isPersian && localProfiles.length) setProfiles(uniqueCountryProfiles([...localProfiles, ...persianFallbackProfiles]));
     });
     const apiBase = (process.env.NEXT_PUBLIC_WORDPRESS_URL || "").replace(/\/$/, "");
     fetch(`${apiBase}/wp-json/sse/v1/countries?locale=${locale}`)
@@ -505,8 +515,7 @@ export default function CountryAtlas({ locale = "en" }: { locale?: "en" | "fa" }
       .then(async (data: CountryProfile[]) => {
         if (!active || !Array.isArray(data)) return;
         const merged = isPersian ? [...await persianProfilesPromise, ...data, ...persianFallbackProfiles] : [...countryArticles, ...data];
-        const unique = merged.filter((profile, index) => merged.findIndex((item) => item.id.toUpperCase() === profile.id.toUpperCase()) === index);
-        setProfiles(unique);
+        setProfiles(uniqueCountryProfiles(merged));
       })
       .catch(() => undefined);
     return () => { active = false; };

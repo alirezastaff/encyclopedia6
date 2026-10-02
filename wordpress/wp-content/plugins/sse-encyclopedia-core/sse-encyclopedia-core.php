@@ -790,7 +790,7 @@ function sse_encyclopedia_get_countries( WP_REST_Request $request ) {
 
 function sse_case_study_meta_defaults() {
     return array(
-        'place' => '', 'type_en' => '', 'type_fa' => '', 'summary_en' => '', 'summary_fa' => '',
+        'place' => '', 'place_fa' => '', 'type_en' => '', 'type_fa' => '', 'category_fa' => '', 'summary_en' => '', 'summary_fa' => '',
         'metric_en' => '', 'metric_fa' => '', 'pdf_en' => 0, 'pdf_fa' => 0,
         'published_en' => 0, 'published_fa' => 0, 'display_order' => 0,
     );
@@ -814,11 +814,12 @@ function sse_encyclopedia_get_case_studies( WP_REST_Request $request ) {
         if ( ! $meta[ 'published_' . $locale ] ) continue;
         $pdf_id = (int) $meta[ 'pdf_' . $locale ];
         $terms = wp_get_post_terms( $post->ID, 'sse_case_category', array( 'fields' => 'names' ) );
+        $category = $terms ? $terms[0] : '';
         $result[] = array(
             'id' => (int) $post->ID, 'slug' => $post->post_name,
             'title' => get_post_meta( $post->ID, '_sse_case_title_' . $locale, true ),
-            'place' => $meta['place'], 'type' => $meta[ 'type_' . $locale ],
-            'category' => $terms ? $terms[0] : '', 'summary' => $meta[ 'summary_' . $locale ],
+            'place' => 'fa' === $locale && $meta['place_fa'] ? $meta['place_fa'] : $meta['place'], 'type' => $meta[ 'type_' . $locale ],
+            'category' => 'fa' === $locale && $meta['category_fa'] ? $meta['category_fa'] : $category, 'summary' => $meta[ 'summary_' . $locale ],
             'metric' => $meta[ 'metric_' . $locale ], 'pdfUrl' => $pdf_id ? wp_get_attachment_url( $pdf_id ) : '',
         );
     }

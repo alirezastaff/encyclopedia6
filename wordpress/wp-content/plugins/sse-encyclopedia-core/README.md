@@ -48,7 +48,7 @@ The dashboard also includes an **SSE Encyclopedia** menu for editorial managemen
 
 ## Case Studies
 
-The dashboard includes a bilingual **Case Studies** content section. Each case study is one shared record with English and Persian titles, summaries, types, full editors, independent publication toggles, and a separate PDF attachment for each language. PDFs are selected from the WordPress Media Library and are exposed through the public endpoint only when that language is published.
+The dashboard includes a bilingual **Case Studies** content section. Each case study is one shared record with English and Persian titles, locations, category labels, summaries, types, full editors, independent publication toggles, and a separate PDF attachment for each language. PDFs are selected from the WordPress Media Library and are exposed through the public endpoint only when that language is published.
 
 The public API is available at `/wp-json/sse/v1/case-studies?locale=en` or `?locale=fa`. The Next.js Case Studies Hub uses this endpoint when `NEXT_PUBLIC_WORDPRESS_URL` is configured and keeps its local sample records as a migration fallback.
 

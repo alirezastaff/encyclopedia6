@@ -375,9 +375,10 @@ function sse_case_study_identity_box( $post ) {
     sse_case_study_admin_field( 'English title', 'sse_case[title_en]', $meta['title_en'] );
     sse_case_study_admin_field( 'English type', 'sse_case[type_en]', $meta['type_en'] );
     echo '</div><div dir="rtl">';
-    sse_case_study_admin_field( 'مکان', 'sse_case[place_fa]', $meta['place'], 'text', 'rtl' );
+    sse_case_study_admin_field( 'مکان', 'sse_case[place_fa]', $meta['place_fa'], 'text', 'rtl' );
     sse_case_study_admin_field( 'عنوان فارسی', 'sse_case[title_fa]', $meta['title_fa'], 'text', 'rtl' );
     sse_case_study_admin_field( 'نوع مطالعه', 'sse_case[type_fa]', $meta['type_fa'], 'text', 'rtl' );
+    sse_case_study_admin_field( 'دسته‌بندی فارسی', 'sse_case[category_fa]', $meta['category_fa'], 'text', 'rtl' );
     echo '</div></div>';
 }
 
@@ -417,7 +418,7 @@ function sse_case_study_save_admin( $post_id ) {
     if ( 'sse_case_study' !== get_post_type( $post_id ) || ! current_user_can( 'edit_post', $post_id ) ) return;
     if ( empty( $_POST['sse_case_study_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['sse_case_study_nonce'] ) ), 'sse_case_study_save' ) ) return;
     $input = (array) ( $_POST['sse_case'] ?? array() );
-    foreach ( array( 'place', 'title_en', 'title_fa', 'type_en', 'type_fa', 'metric_en', 'metric_fa' ) as $key ) update_post_meta( $post_id, '_sse_case_' . $key, sanitize_text_field( $input[ $key ] ?? '' ) );
+    foreach ( array( 'place', 'place_fa', 'title_en', 'title_fa', 'type_en', 'type_fa', 'category_fa', 'metric_en', 'metric_fa' ) as $key ) update_post_meta( $post_id, '_sse_case_' . $key, sanitize_text_field( $input[ $key ] ?? '' ) );
     foreach ( array( 'summary_en', 'summary_fa' ) as $key ) update_post_meta( $post_id, '_sse_case_' . $key, sanitize_textarea_field( $input[ $key ] ?? '' ) );
     foreach ( array( 'content_en', 'content_fa' ) as $key ) update_post_meta( $post_id, '_sse_case_' . $key, wp_kses_post( $input[ $key ] ?? '' ) );
     foreach ( array( 'pdf_en', 'pdf_fa' ) as $key ) update_post_meta( $post_id, '_sse_case_' . $key, absint( $input[ $key ] ?? 0 ) );
