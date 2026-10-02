@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import {
   BarChart3,
+  ChevronLeft,
   ChevronRight,
   Download,
   FileText,
@@ -20,16 +22,17 @@ import {
   X,
 } from "lucide-react";
 import { articles } from "@/lib/articles";
-import { encyclopediaParts } from "./ArchivePage";
+import { encyclopediaParts } from "./archiveData";
 
 const extraParts = [
-  { id: "part-5", number: "V", title: "GLOBALIZATION AND ALTERNATIVES" },
-  { id: "part-6", number: "VI", title: "POLICY AND GOVERNANCE" },
-  { id: "part-7", number: "VII", title: "CASE STUDIES" },
-  { id: "part-8", number: "VIII", title: "FUTURE PERSPECTIVES" },
+  { id: "part-5", number: "V", title: "GLOBALIZATION AND ALTERNATIVES", faTitle: "جهانی‌شدن و بدیل‌ها" },
+  { id: "part-6", number: "VI", title: "POLICY AND GOVERNANCE", faTitle: "سیاست‌گذاری و حکمرانی" },
+  { id: "part-7", number: "VII", title: "CASE STUDIES", faTitle: "مطالعه‌های موردی" },
+  { id: "part-8", number: "VIII", title: "FUTURE PERSPECTIVES", faTitle: "چشم‌اندازهای آینده" },
 ];
 
 type ViewId = "overview" | "insights" | "reports" | "authors";
+type Locale = "fa" | "en";
 
 type AuthorProfile = {
   name: string;
@@ -70,6 +73,33 @@ const reports = [
     title: "The Social Economy and the Energy Transition",
     description:
       "An exploration of the social economy’s capacity to reduce energy use, develop green jobs, and support vulnerable groups during the energy transition.",
+  },
+];
+
+const reportTranslations = [
+  {
+    title: "وضعیت اقتصاد اجتماعی",
+    description: "مروری فشرده بر تعاونی‌ها، بنگاه‌های اجتماعی، سازمان‌های غیردولتی و دیگر نهادهای فعال در اقتصاد اجتماعی، با تمرکز بر روندهای اثرگذار بر این حوزه.",
+  },
+  {
+    title: "موانع توسعهٔ تعاونی‌ها",
+    description: "بررسی چالش‌های حقوقی، مالی، مدیریتی و فرهنگی پیش روی تعاونی‌ها و عواملی که مشارکت اعضا و عملکرد سازمانی را شکل می‌دهند.",
+  },
+  {
+    title: "اقتصاد اجتماعی و اشتغال جوانان",
+    description: "ارزیابی ظرفیت نهادهای اقتصاد اجتماعی برای ایجاد فرصت‌های شغلی، پشتیبانی از کارآفرینی جمعی و افزایش مشارکت جوانان در زندگی اقتصادی.",
+  },
+  {
+    title: "تأمین مالی بنگاه‌های اجتماعی",
+    description: "مروری بر الگوهای تأمین مالی بنگاه‌های اجتماعی و تعاونی‌ها، از جمله دشواری‌های دسترسی آن‌ها به سرمایه و دیگر منابع مالی.",
+  },
+  {
+    title: "اقتصاد اجتماعی و توسعهٔ محلی",
+    description: "بررسی اینکه تعاونی‌ها، گروه‌های محلی و سازمان‌های اجتماعی چگونه درآمد و اشتغال ایجاد می‌کنند و توان اقتصادی جوامع محلی را افزایش می‌دهند.",
+  },
+  {
+    title: "اقتصاد اجتماعی و گذار انرژی",
+    description: "بررسی ظرفیت اقتصاد اجتماعی برای کاهش مصرف انرژی، ایجاد مشاغل سبز و حمایت از گروه‌های آسیب‌پذیر در دوران گذار انرژی.",
   },
 ];
 
@@ -195,6 +225,69 @@ const authors: AuthorProfile[] = [
     photo: "/pics/authors/picauthors/Peter North.jpg",
   },
 ];
+
+const authorTranslations: Record<string, { name: string; bio: string }> = {
+  "Hamish Jenkins": {
+    name: "همیش جنکینز",
+    bio: "پژوهشگر و کنشگر حوزهٔ توسعه، عدالت اجتماعی و اقتصاد اجتماعی و همبستگی است. او با نهادهای سازمان ملل و شبکه‌های جامعهٔ مدنی در زمینهٔ بدیل‌های اقتصادی و توسعهٔ فراگیر همکاری کرده است.",
+  },
+  "Stephen Healy": {
+    name: "استیون هیلی",
+    bio: "دانشیار جغرافیا، برنامه‌ریزی و مطالعات شهری در دانشگاه وسترن سیدنی است. پژوهش او بر اقتصادهای اجتماعی و متنوع و شیوه‌های بدیل سازمان‌دهی زندگی، بیرون از الگوهای بازارمحور، تمرکز دارد.",
+  },
+  "Peter Utting": {
+    name: "پیتر اوتینگ",
+    bio: "پژوهشگری برجسته در زمینهٔ توسعهٔ پایدار و اقتصاد اجتماعی و همبستگی است. او سال‌ها در مؤسسهٔ پژوهشی توسعهٔ اجتماعی سازمان ملل فعالیت کرده و در حوزهٔ توسعه، جنبش‌های اجتماعی و سیاست‌گذاری تخصص دارد.",
+  },
+  "Dražen Šimleša": {
+    name: "دراژن شیم‌لشا",
+    bio: "پژوهشگر توسعهٔ پایدار، اقتصاد اجتماعی و همبستگی و دگرگونی‌های زیست‌محیطی است و با شبکه‌های اقتصاد اجتماعی اروپا همکاری گسترده دارد.",
+  },
+  "Suzanne Bergeron": {
+    name: "سوزان برژرون",
+    bio: "اقتصاددان و پژوهشگر فمینیست است. آثار او به اقتصاد مراقبت، جنسیت، جهانی‌شدن و اقتصاد اجتماعی و همبستگی می‌پردازد.",
+  },
+  "Carmen Marcuello": {
+    name: "کارمن مارکوئلو",
+    bio: "استاد اقتصاد و مدیریت است و دربارهٔ اقتصاد اجتماعی، تعاونی‌ها، سرمایهٔ اجتماعی و نوآوری نهادی پژوهش می‌کند.",
+  },
+  "Jean-Louis Laville": {
+    name: "ژان‌لویی لاویل",
+    bio: "از نظریه‌پردازان برجستهٔ اقتصاد همبستگی و نوآوری اجتماعی است. آثار او به انجمن‌ها، دموکراسی و سازمان‌دهی چندگانهٔ اقتصاد می‌پردازد.",
+  },
+  "Luciane Lucas dos Santos": {
+    name: "لوسیانه لوکاس دوس سانتوس",
+    bio: "در زمینهٔ دانش جمعی، دموکراسی، عدالت و اقتصاد همبستگی پژوهش می‌کند و بر دگرگونی اجتماعی و پژوهش مشارکتی تمرکز دارد.",
+  },
+  "Yvon Poirier": {
+    name: "ایوون پوازیه",
+    bio: "کنشگر و پژوهشگر بین‌المللی اقتصاد اجتماعی و همبستگی است و در شبکه‌های تعاونی و حمایت‌گری در سطح جهانی تجربه دارد.",
+  },
+  "Ana Inés Heras": {
+    name: "آنا اینس اِراس",
+    bio: "دربارهٔ خودمدیریتی، یادگیری جمعی و تولید مشارکتی دانش در اقتصاد اجتماعی و همبستگی پژوهش می‌کند.",
+  },
+  "Anjel Errasti": {
+    name: "آنخل اِراستی",
+    bio: "در حوزهٔ تعاونی‌ها، اقتصاد اجتماعی و سیاست عمومی پژوهش می‌کند و به الگوی تعاونی موندراگون و سازمان‌دهی دموکراتیک اقتصاد علاقه‌مند است.",
+  },
+  "Ignacio Bretos": {
+    name: "ایگناسیو برتوس",
+    bio: "در زمینهٔ مدیریت، تعاونی‌ها و بنگاه‌های اجتماعی فعالیت پژوهشی دارد و بر دگرگونی سازمانی و شیوه‌های بدیل اقتصادی تمرکز می‌کند.",
+  },
+  "Sharon D. Wright Austin": {
+    name: "شارون دی. رایت آستین",
+    bio: "دانشمند علوم سیاسی و مدرس است. پژوهش او به نژاد، مشارکت، قدرت جامعه و بنیان‌های اجتماعی زندگی اقتصادی می‌پردازد.",
+  },
+  "Anabel Rieiro": {
+    name: "آنابل ریه‌رو",
+    bio: "دربارهٔ کار، سازمان‌های اجتماعی، اقتصاد همبستگی و پایداری زیست‌محیطی پژوهش می‌کند و به دانش جمعی و کنش محلی توجه دارد.",
+  },
+  "Peter North": {
+    name: "پیتر نورث",
+    bio: "استاد اقتصادهای بدیل در دانشگاه لیورپول است و اقتصادهای متنوع، جنبش‌های اجتماعی و بدیل‌های اقتصادی جامعه‌محور را مطالعه می‌کند.",
+  },
+};
 
 const styles = `
   .english-archive { --ink:#193641; --muted:#5d7580; --soft:#345563; --accent:#3e9fb5; --line:rgba(40,105,122,.2); --panel:rgba(220,235,240,.76); --panel-strong:rgba(242,249,251,.88); --chip:rgba(62,159,181,.1); height:100dvh; min-height:100dvh; overflow:hidden; color:var(--ink); background:linear-gradient(110deg,rgba(211,229,236,.92),rgba(187,215,225,.84)),url('/bgaboutus.png') center/cover fixed; font-family:'Vazirmatn',sans-serif; }
@@ -329,13 +422,169 @@ const styles = `
   .archive-sidebar .mobile-close { display:none; }
   @media (max-width:1100px) { .workspace { grid-template-columns:minmax(190px,.8fr) minmax(220px,1fr); }.glass-panel:last-child { grid-column:1/-1; }.preview-scroll { max-height:none; }.archive-hero { align-items:flex-start; flex-direction:column; }.archive-search-wrap { width:100%; } .reports-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .authors-shell { grid-template-columns:1fr; } }
   @media (max-width:700px) { .archive-shell { display:block; }.archive-sidebar { position:fixed; z-index:20; inset:0 auto 0 0; width:270px; transform:translateX(-105%); transition:.25s ease; }.archive-sidebar.open { transform:translateX(0); }.archive-sidebar .mobile-close { display:block; position:absolute; top:17px; right:14px; border:0; color:var(--soft); background:transparent; cursor:pointer; }.mobile-menu { display:grid; place-items:center; position:fixed; z-index:10; top:14px; left:14px; width:38px; height:38px; border:1px solid var(--line); border-radius:10px; color:var(--accent); background:rgba(5,30,30,.85); }.archive-main { padding:70px 12px 76px; }.archive-hero { padding:21px 18px; }.workspace { grid-template-columns:1fr; }.glass-panel:last-child { grid-column:auto; }.panel-list,.preview-scroll { max-height:none; }.metadata { grid-template-columns:1fr 1fr; }.metadata div:last-child { grid-column:1/-1; }.preview-hero h2 { font-size:21px; }.reports-grid { grid-template-columns:1fr; }.author-profile { flex-direction:column; }.author-profile img { width:100%; height:220px; } }
+
+  .english-archive[dir="rtl"] { position:relative; isolation:isolate; background:transparent; }
+  .english-archive[dir="rtl"]::before { content:""; position:fixed; z-index:-1; inset:0; pointer-events:none; background:linear-gradient(110deg,rgba(211,229,236,.92),rgba(187,215,225,.84)),url('/bgaboutus.png') center/cover no-repeat; transform:scaleX(-1); }
+  .english-archive[dir="rtl"].theme-dark::before { background:linear-gradient(110deg,rgba(18,55,69,.8),rgba(25,78,91,.72)),url('/bgaboutus.png') center/cover no-repeat; }
+  .english-archive[dir="rtl"] .archive-sidebar { border-right:0; border-left:1px solid var(--line); }
+  .english-archive[dir="rtl"] .side-nav button,
+  .english-archive[dir="rtl"] .part-row,
+  .english-archive[dir="rtl"] .entry-row,
+  .english-archive[dir="rtl"] .author-item,
+  .english-archive[dir="rtl"] .author-entry { text-align:right; }
+  .english-archive[dir="rtl"] .archive-search input,
+  .english-archive[dir="rtl"] .mini-search input { direction:rtl; text-align:right; }
+  .english-archive[dir="rtl"] .author-profile img { transform:scaleX(-1); }
+  .english-archive[dir="rtl"] .author-link[href^="mailto:"] { direction:ltr; }
+  @media (max-width:700px) {
+    .english-archive[dir="rtl"] .archive-sidebar { inset:0 0 0 auto; transform:translateX(105%); border-right:0; border-left:1px solid var(--line); }
+    .english-archive[dir="rtl"] .archive-sidebar.open { transform:translateX(0); }
+    .english-archive[dir="rtl"] .archive-sidebar .mobile-close { right:auto; left:14px; }
+    .english-archive[dir="rtl"] .mobile-menu { right:14px; left:auto; }
+  }
 `;
 
-export default function EnglishArchivePage() {
-  const [query, setQuery] = useState("");
-  const [partId, setPartId] = useState("part-1");
-  const [entryNo, setEntryNo] = useState(1);
-  const [language, setLanguage] = useState<"fa" | "en">("en");
+function toPersianNumber(value: number | string) {
+  return String(value).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)]);
+}
+
+function normalizeSearch(value: string) {
+  return value
+    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
+    .replace(/ي/g, "ی")
+    .replace(/ك/g, "ک")
+    .replace(/[\u200c\u200f]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+function getInitialSelection(query: string) {
+  const term = normalizeSearch(query);
+  if (!term) return undefined;
+
+  for (const part of encyclopediaParts) {
+    const entry = part.entries.find((item) => normalizeSearch(`${item.en} ${item.fa} ${item.page} ${item.no}`).includes(term));
+    if (entry) return { partId: part.id, entryNo: entry.no };
+  }
+}
+
+export default function EnglishArchivePage({ initialQuery = "", locale = "en" }: { initialQuery?: string; locale?: Locale }) {
+  const isPersian = locale === "fa";
+  const copy = isPersian
+    ? {
+        overview: "نمای کلی",
+        insights: "دیدگاه‌ها",
+        reports: "گزارش‌ها",
+        authors: "نویسندگان",
+        light: "تغییر به حالت روشن",
+        dark: "تغییر به حالت تیره",
+        description: "مجموعه‌ای جامع از مدخل‌ها دربارهٔ اقتصاد اجتماعی، همبستگی و رویکردهای دگرگون‌کنندهٔ اقتصادی.",
+        search: "جست‌وجو در مدخل‌ها، کلیدواژه‌ها یا شمارهٔ صفحه...",
+        advancedOn: "جست‌وجوی پیشرفته فعال شد.",
+        advancedUnavailable: "جست‌وجوی پیشرفته هنوز در دسترس نیست.",
+        parts: "بخش‌ها",
+        partUnit: "بخش",
+        selectPart: "برای دیدن مدخل‌ها یک بخش را انتخاب کنید",
+        entries: "مدخل‌ها",
+        entryUnit: "مدخل",
+        browseEntries: "مدخل‌های بخش انتخاب‌شده",
+        noEntriesYet: "هنوز مدخلی ندارد",
+        searchPart: "جست‌وجو در این بخش...",
+        noMatches: "مدخلی با این عبارت پیدا نشد.",
+        preview: "پیش‌نمایش مدخل",
+        selectedInfo: "اطلاعات مدخل انتخاب‌شده",
+        part: "بخش",
+        page: "صفحه",
+        entry: "مدخل",
+        language: "زبان نمایش مدخل",
+        switchLanguage: "نمایش متن فارسی یا انگلیسی",
+        persian: "فارسی",
+        english: "English",
+        faView: "متن فارسی",
+        enView: "متن انگلیسی",
+        author: "نویسنده",
+        startPage: "صفحهٔ آغاز",
+        category: "دسته‌بندی",
+        viewEntry: "مشاهدهٔ مدخل",
+        noPreview: "برای این انتخاب پیش‌نمایشی در دسترس نیست.",
+        underDevelopment: "در دست توسعه",
+        insightsTitle: "بخش دیدگاه‌ها برای مخاطبان فارسی‌زبان در حال آماده‌سازی است.",
+        insightsP1: "این بخش فضایی تعاملی برای پژوهشگران است تا دیدگاه‌های خود را دربارهٔ مدخل‌های دانشنامه به اشتراک بگذارند و دربارهٔ آن‌ها گفت‌وگو کنند.",
+        insightsP2: "هدف، فراهم‌کردن بستری برای تبادل نظر، مقایسهٔ برداشت‌ها و گفت‌وگویی سازنده دربارهٔ مفاهیم، تاریخ‌ها و مباحث دانشنامه است.",
+        insightsP3: "این فضا در نهایت بستری ساده برای تبادل پژوهشی خواهد بود: یادداشت‌های کوتاه، حاشیه‌نویسی و گفت‌وگو پیرامون مدخل‌ها و موضوعات.",
+        pdfSoon: "فایل PDF به‌زودی آماده می‌شود",
+        authorEntries: "مدخل‌های دانشنامه",
+        searchEntries: "جست‌وجوی مدخل‌ها...",
+        authorsFor: "نویسندگان مدخل",
+        searchAuthors: "جست‌وجوی نویسندگان...",
+        noAuthors: "نویسنده‌ای با این مشخصات پیدا نشد.",
+        profile: "نمایهٔ نویسنده",
+        profileLink: "نمایهٔ پژوهشی",
+        openMenu: "بازکردن راهبری",
+        closeMenu: "بستن راهبری",
+        advancedLabel: "فعال‌کردن جست‌وجوی پیشرفته",
+        runSearch: "اجرای جست‌وجو",
+      }
+    : {
+        overview: "Overview",
+        insights: "Insights",
+        reports: "Reports",
+        authors: "Authors",
+        light: "Switch to light",
+        dark: "Switch to dark",
+        description: "A comprehensive collection of entries on the social economy, solidarity, and transformative economic approaches.",
+        search: "Search entries, keywords, or page numbers...",
+        advancedOn: "Advanced search activated.",
+        advancedUnavailable: "Professional search is not active yet.",
+        parts: "Parts",
+        partUnit: "parts",
+        selectPart: "Select a part to view its entries",
+        entries: "Entries",
+        entryUnit: "entries",
+        browseEntries: "Browse entries in the selected part",
+        noEntriesYet: "No entries yet",
+        searchPart: "Search within this part...",
+        noMatches: "No entries match this search.",
+        preview: "Entry preview",
+        selectedInfo: "Selected entry information",
+        part: "PART",
+        page: "Page",
+        entry: "Entry",
+        language: "Entry display language",
+        switchLanguage: "Switch the preview text between Persian and English",
+        persian: "Persian",
+        english: "English",
+        faView: "Persian view",
+        enView: "English view",
+        author: "Author",
+        startPage: "Start page",
+        category: "Category",
+        viewEntry: "View entry",
+        noPreview: "No preview is available for this selection.",
+        underDevelopment: "Under development",
+        insightsTitle: "Insights are currently under development for English-speaking audiences.",
+        insightsP1: "This section is a small social network where researchers can share their perspectives on different encyclopedia entries and discuss them in dialogue.",
+        insightsP2: "The goal is to create a collaborative space for scholars to exchange ideas, compare interpretations, and engage in constructive conversation about the concepts, histories, and debates documented in the encyclopedia.",
+        insightsP3: "In other words, this is a lightweight community platform for research exchange: short reflections, annotations, and discussion threads around specific entries and topics.",
+        pdfSoon: "PDF coming soon",
+        authorEntries: "Encyclopedia entries",
+        searchEntries: "Search entries...",
+        authorsFor: "Authors",
+        searchAuthors: "Search authors...",
+        noAuthors: "No authors match this selection.",
+        profile: "Author profile",
+        profileLink: "Profile",
+        openMenu: "Open navigation",
+        closeMenu: "Close navigation",
+        advancedLabel: "Activate advanced search",
+        runSearch: "Run search",
+      };
+  const formatNumber = (value: number | string) => isPersian ? toPersianNumber(value) : String(value);
+  const [query, setQuery] = useState(initialQuery);
+  const initialSelection = getInitialSelection(initialQuery);
+  const [partId, setPartId] = useState(initialSelection?.partId ?? "part-1");
+  const [entryNo, setEntryNo] = useState(initialSelection?.entryNo ?? 1);
+  const [language, setLanguage] = useState<"fa" | "en">(isPersian ? "fa" : "en");
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeView, setActiveView] = useState<ViewId>("overview");
   const [professionalSearchActive, setProfessionalSearchActive] = useState(false);
@@ -348,21 +597,26 @@ export default function EnglishArchivePage() {
 
   const parts = useMemo(
     () => [
-      ...encyclopediaParts.map((part) => ({ ...part, title: part.enTitle })),
-      ...extraParts.map((part) => ({ ...part, entries: [], faTitle: "", enTitle: part.title })),
+      ...encyclopediaParts.map((part) => ({ ...part, title: isPersian ? part.faTitle : part.enTitle })),
+      ...extraParts.map((part) => ({ ...part, entries: [], enTitle: part.title, title: isPersian ? part.faTitle : part.title })),
     ],
-    [],
+    [isPersian],
   );
 
   const selectedPart = parts.find((part) => part.id === partId) ?? parts[0];
   const selectedEntry = selectedPart.entries.find((entry) => entry.no === entryNo) ?? selectedPart.entries[0];
   const article = articles.find((item) => item.startPage === selectedEntry?.page) ?? articles[0];
+  const localizedArticleAuthor = article.author
+    .split(" and ")
+    .map((name) => authorTranslations[name]?.name ?? name)
+    .join(" و ");
+
   const visibleEntries = selectedPart.entries.filter((entry) => {
-    const term = query.trim().toLowerCase();
-    return !term || `${entry.en} ${entry.fa} ${entry.page} ${entry.no}`.toLowerCase().includes(term);
+    const term = normalizeSearch(query);
+    return !term || normalizeSearch(`${entry.en} ${entry.fa} ${entry.page} ${entry.no}`).includes(term);
   });
   const globalMatches = query.trim()
-    ? parts.filter((part) => part.entries.some((entry) => `${entry.en} ${entry.fa} ${entry.page}`.toLowerCase().includes(query.trim().toLowerCase())))
+    ? parts.filter((part) => part.entries.some((entry) => normalizeSearch(`${entry.en} ${entry.fa} ${entry.page} ${entry.no}`).includes(normalizeSearch(query))))
     : parts;
 
   const selectPart = (id: string) => {
@@ -375,53 +629,62 @@ export default function EnglishArchivePage() {
   const allAuthorEntries = parts
     .flatMap((part) => part.entries)
     .filter((entry, index, entries) => entries.findIndex((candidate) => candidate.no === entry.no) === index);
-  const visibleAuthorEntries = allAuthorEntries.filter((entry) => entry.en.toLowerCase().includes(authorEntryQuery.trim().toLowerCase()));
+  const visibleAuthorEntries = allAuthorEntries.filter((entry) => normalizeSearch(`${entry.en} ${entry.fa} ${entry.page} ${entry.no}`).includes(normalizeSearch(authorEntryQuery)));
   const visibleAuthors = authors.filter((author) => {
-    const matchesQuery = author.name.toLowerCase().includes(authorQuery.trim().toLowerCase());
+    const translated = authorTranslations[author.name];
+    const matchesQuery = normalizeSearch(`${author.name} ${translated?.name ?? ""} ${isPersian ? translated?.bio ?? "" : author.bio}`).includes(normalizeSearch(authorQuery));
     const matchesEntry = !selectedAuthorEntry || author.entries.includes(selectedAuthorEntry);
     return matchesQuery && matchesEntry;
   });
+  const selectedAuthorEntryLabel = allAuthorEntries.find((entry) => entry.en === selectedAuthorEntry);
 
   const handleProfessionalSearch = () => {
     setProfessionalSearchActive((active) => {
       const next = !active;
-      setSearchNotice(next ? "Advanced search activated." : "");
+      setSearchNotice(next ? copy.advancedOn : "");
       return next;
     });
   };
 
   const handleSearchSubmit = () => {
     setProfessionalSearchActive(false);
-    setSearchNotice("Professional search is not active yet.");
+    setSearchNotice(copy.advancedUnavailable);
   };
 
   return (
-    <div className={`english-archive ${theme === "light" ? "theme-light" : "theme-dark"}`} dir="ltr">
+    <div className={`english-archive ${theme === "light" ? "theme-light" : "theme-dark"}`} dir={isPersian ? "rtl" : "ltr"} lang={locale}>
       <style>{styles}</style>
-      <button className="mobile-menu" type="button" aria-label="Open navigation" onClick={() => setMenuOpen(true)}>
+      <button className="mobile-menu" type="button" aria-label={copy.openMenu} onClick={() => setMenuOpen(true)}>
         <Menu size={18} />
       </button>
       <div className="archive-shell">
         <aside className={`archive-sidebar ${menuOpen ? "open" : ""}`}>
-          <button className="mobile-close" type="button" aria-label="Close navigation" onClick={() => setMenuOpen(false)}>
+          <button className="mobile-close" type="button" aria-label={copy.closeMenu} onClick={() => setMenuOpen(false)}>
             <X size={18} />
           </button>
-          <Link href="/en" className="archive-brand">
-            <img src="/homepage/logo-2-w.png" alt="Social and Solidarity Economy Knowledge Platform" />
+          <Link href={isPersian ? "/fa" : "/en"} className="archive-brand">
+            <Image
+              src={isPersian ? "/homepage/persian-logo-2.png" : "/homepage/logo-2-w.png"}
+              alt={isPersian ? "پایگاه دانش اقتصاد اجتماعی و همبستگی" : "Social and Solidarity Economy Knowledge Platform"}
+              width={isPersian ? 1500 : 2048}
+              height={isPersian ? 500 : 688}
+              sizes="210px"
+              unoptimized
+            />
           </Link>
 
           <nav className="side-nav">
             <button type="button" className={activeView === "overview" ? "active" : ""} onClick={() => setActiveView("overview")}>
-              <Grid2X2 size={17} />Overview
+              <Grid2X2 size={17} />{copy.overview}
             </button>
             <button type="button" className={activeView === "insights" ? "active" : ""} onClick={() => setActiveView("insights")}>
-              <BarChart3 size={16} />Insights
+              <BarChart3 size={16} />{copy.insights}
             </button>
             <button type="button" className={activeView === "reports" ? "active" : ""} onClick={() => setActiveView("reports")}>
-              <FileText size={16} />Reports
+              <FileText size={16} />{copy.reports}
             </button>
             <button type="button" className={activeView === "authors" ? "active" : ""} onClick={() => setActiveView("authors")}>
-              <Users size={16} />Authors
+              <Users size={16} />{copy.authors}
             </button>
           </nav>
 
@@ -433,15 +696,25 @@ export default function EnglishArchivePage() {
             onClick={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
           >
             {theme === "dark" ? <SunMedium size={16} /> : <MoonStar size={16} />}
-            <span>{theme === "dark" ? "Switch to light" : "Switch to dark"}</span>
+            <span>{theme === "dark" ? copy.light : copy.dark}</span>
           </button>
 
           <div className="mission">
             <Leaf size={17} />
             <span>
-              Knowledge for
-              <br />
-              <strong>a more just and sustainable economy</strong>
+              {isPersian ? (
+                <>
+                  دانش برای
+                  <br />
+                  <strong>اقتصادی عادلانه‌تر و پایدارتر</strong>
+                </>
+              ) : (
+                <>
+                  Knowledge for
+                  <br />
+                  <strong>a more just and sustainable economy</strong>
+                </>
+              )}
             </span>
           </div>
         </aside>
@@ -449,23 +722,19 @@ export default function EnglishArchivePage() {
         <main className="archive-main">
           <header className="archive-hero" id="overview">
             <div className="hero-copy">
-              <h1>
-                Social and Solidarity Economy <span>Encyclopedia</span>
-              </h1>
-              <p>
-                A comprehensive collection of entries on the social economy, solidarity, and transformative economic approaches.
-              </p>
+              <h1>{isPersian ? <><span>دانشنامهٔ</span> اقتصاد اجتماعی و همبستگی</> : <>Social and Solidarity Economy <span>Encyclopedia</span></>}</h1>
+              <p>{copy.description}</p>
             </div>
 
             <div className="archive-search-wrap">
               <div className="search-field-group">
                 <div className={`archive-search ${professionalSearchActive ? "professional-active" : ""}`}>
                   <Search size={17} />
-                  <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search entries, keywords, or page numbers..." />
+                  <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={copy.search} />
                   <button
                     className={`search-filter ${professionalSearchActive ? "active" : ""}`}
                     type="button"
-                    aria-label="Activate advanced search"
+                    aria-label={copy.advancedLabel}
                     onClick={handleProfessionalSearch}
                   >
                     <Sparkles size={16} />
@@ -473,7 +742,7 @@ export default function EnglishArchivePage() {
                 </div>
                 {searchNotice ? <span className="search-notice">{searchNotice}</span> : null}
               </div>
-              <button className="search-filter" type="button" onClick={handleSearchSubmit} aria-label="Run search">
+              <button className="search-filter" type="button" onClick={handleSearchSubmit} aria-label={copy.runSearch}>
                 <Search size={17} />
               </button>
             </div>
@@ -484,25 +753,25 @@ export default function EnglishArchivePage() {
               <section className="glass-panel" id="parts">
                 <div className="panel-heading">
                   <div>
-                    <h2>Parts</h2>
-                    <p>Select a part to view its entries</p>
+                    <h2>{copy.parts}</h2>
+                    <p>{copy.selectPart}</p>
                   </div>
-                  <span className="count-pill">{parts.length} parts</span>
+                  <span className="count-pill">{formatNumber(parts.length)} {copy.partUnit}</span>
                 </div>
                 <div className="panel-list">
-                  {parts.map((part) => (
+                    {parts.map((part, index) => (
                     <button
                       key={part.id}
                       className={`part-row ${part.id === selectedPart.id ? "selected" : ""} ${query && !globalMatches.some((match) => match.id === part.id) ? "hidden" : ""}`}
                       type="button"
                       onClick={() => selectPart(part.id)}
                     >
-                      <span className="number">{part.number}</span>
+                      <span className="number">{isPersian ? formatNumber(index + 1) : part.number}</span>
                       <span className="row-copy">
                         <strong>{part.title}</strong>
-                        <small>{part.entries.length || "No entries yet"} entries</small>
+                        <small>{part.entries.length ? `${formatNumber(part.entries.length)} ${copy.entryUnit}` : copy.noEntriesYet}</small>
                       </span>
-                      <ChevronRight className="row-arrow" size={15} />
+                      {isPersian ? <ChevronLeft className="row-arrow" size={15} /> : <ChevronRight className="row-arrow" size={15} />}
                     </button>
                   ))}
                 </div>
@@ -511,14 +780,14 @@ export default function EnglishArchivePage() {
               <section className="glass-panel">
                 <div className="panel-heading">
                   <div>
-                    <h2>Entries</h2>
-                    <p>Browse entries in the selected part</p>
+                    <h2>{copy.entries}</h2>
+                    <p>{copy.browseEntries}</p>
                   </div>
-                  <span className="count-pill">{selectedPart.entries.length} entries</span>
+                  <span className="count-pill">{formatNumber(selectedPart.entries.length)} {copy.entryUnit}</span>
                 </div>
                 <label className="mini-search">
                   <Search size={15} />
-                  <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search within this part..." />
+                  <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={copy.searchPart} />
                 </label>
                 <div className="panel-list entry-list">
                   {visibleEntries.length ? (
@@ -529,16 +798,16 @@ export default function EnglishArchivePage() {
                         type="button"
                         onClick={() => setEntryNo(entry.no)}
                       >
-                        <span className="number">{entry.no}</span>
+                        <span className="number">{formatNumber(entry.no)}</span>
                         <span className="row-copy">
-                          <strong>{entry.en}</strong>
-                          <small>Page {entry.page}</small>
+                          <strong>{isPersian ? entry.fa : entry.en}</strong>
+                          <small>{copy.page} {formatNumber(entry.page)}</small>
                         </span>
-                        <ChevronRight className="row-arrow" size={15} />
+                        {isPersian ? <ChevronLeft className="row-arrow" size={15} /> : <ChevronRight className="row-arrow" size={15} />}
                       </button>
                     ))
                   ) : (
-                    <div className="empty-state">No entries match this search.</div>
+                    <div className="empty-state">{copy.noMatches}</div>
                   )}
                 </div>
               </section>
@@ -546,10 +815,10 @@ export default function EnglishArchivePage() {
               <section className="glass-panel" id="preview">
                 <div className="panel-heading">
                   <div>
-                    <h2>Entry preview</h2>
-                    <p>Selected entry information</p>
+                    <h2>{copy.preview}</h2>
+                    <p>{copy.selectedInfo}</p>
                   </div>
-                  <span className="count-pill">Entry {selectedEntry?.no ?? "—"}</span>
+                  <span className="count-pill">{copy.entry} {selectedEntry ? formatNumber(selectedEntry.no) : "—"}</span>
                 </div>
                 <div className="preview-scroll">
                   {selectedEntry && article ? (
@@ -557,30 +826,30 @@ export default function EnglishArchivePage() {
                       <div className="preview-hero">
                         <div>
                           <span className="hero-kicker">
-                            PART {selectedPart.number}: {selectedPart.title}
+                            {copy.part} {isPersian ? formatNumber(parts.findIndex((part) => part.id === selectedPart.id) + 1) : selectedPart.number}: {selectedPart.title}
                           </span>
-                          <h2>{selectedEntry.en}</h2>
-                          <p className="preview-subtitle">{selectedEntry.en}</p>
+                          <h2>{isPersian ? selectedEntry.fa : selectedEntry.en}</h2>
+                          <p className="preview-subtitle">{isPersian ? selectedEntry.en : selectedEntry.fa}</p>
                         </div>
                       </div>
 
                       <div className="language-bar">
                         <div>
-                          <strong>Entry display language</strong>
-                          <p>Switch the preview text between Persian and English</p>
+                          <strong>{copy.language}</strong>
+                          <p>{copy.switchLanguage}</p>
                         </div>
                         <div className="lang-switch">
                           <button className={language === "fa" ? "active" : ""} type="button" onClick={() => setLanguage("fa")}>
-                            Persian
+                            {copy.persian}
                           </button>
                           <button className={language === "en" ? "active" : ""} type="button" onClick={() => setLanguage("en")}>
-                            English
+                            {copy.english}
                           </button>
                         </div>
                       </div>
 
-                      <article className="content-card" dir={language === "fa" ? "rtl" : "ltr"}>
-                        <span className="lang-label">{language === "fa" ? "Persian view" : "English view"}</span>
+                      <article className="content-card" dir={language === "fa" ? "rtl" : "ltr"} lang={language}>
+                        <span className="lang-label">{language === "fa" ? copy.faView : copy.enView}</span>
                         <h3>{language === "fa" ? article.title.fa : article.title.en}</h3>
                         <p>{language === "fa" ? article.description.fa : article.description.en}</p>
                         <div className="quote">
@@ -590,25 +859,25 @@ export default function EnglishArchivePage() {
                         </div>
                         <div className="metadata">
                           <div>
-                            <strong>Author</strong>
-                            <span>{article.author}</span>
+                            <strong>{copy.author}</strong>
+                            <span>{isPersian ? localizedArticleAuthor : article.author}</span>
                           </div>
                           <div>
-                            <strong>Start page</strong>
-                            <span>{article.startPage}</span>
+                            <strong>{copy.startPage}</strong>
+                            <span>{formatNumber(article.startPage)}</span>
                           </div>
                           <div>
-                            <strong>Category</strong>
+                            <strong>{copy.category}</strong>
                             <span>{language === "fa" ? article.category.fa : article.category.en}</span>
                           </div>
                         </div>
-                        <Link className="read-btn" href={`/en/articles/${article.slug}`}>
-                          {language === "fa" ? "مشاهده مدخل" : "View entry"} <ChevronRight size={14} />
+                        <Link className="read-btn" href={`/${locale}/articles/${article.slug}`}>
+                          {language === "fa" ? (isPersian ? "خواندن مدخل" : "مشاهدهٔ مدخل") : copy.viewEntry} {isPersian ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
                         </Link>
                       </article>
                     </>
                   ) : (
-                    <div className="empty-state">No preview is available for this selection.</div>
+                    <div className="empty-state">{copy.noPreview}</div>
                   )}
                 </div>
               </section>
@@ -618,17 +887,11 @@ export default function EnglishArchivePage() {
           {activeView === "insights" && (
             <div className="insights-shell">
               <div className="insights-card">
-                <span className="count-pill">Under development</span>
-                <h3>Insights are currently under development for English-speaking audiences.</h3>
-                <p>
-                  This section is a small social network where researchers can share their perspectives on different encyclopedia entries and discuss them in dialogue.
-                </p>
-                <p>
-                  The goal is to create a collaborative space for scholars to exchange ideas, compare interpretations, and engage in constructive conversation about the concepts, histories, and debates documented in the encyclopedia.
-                </p>
-                <p>
-                  In other words, this is a lightweight community platform for research exchange: short reflections, annotations, and discussion threads around specific entries and topics.
-                </p>
+                <span className="count-pill">{copy.underDevelopment}</span>
+                <h3>{copy.insightsTitle}</h3>
+                <p>{copy.insightsP1}</p>
+                <p>{copy.insightsP2}</p>
+                <p>{copy.insightsP3}</p>
               </div>
             </div>
           )}
@@ -636,13 +899,13 @@ export default function EnglishArchivePage() {
           {activeView === "reports" && (
             <div className="reports-shell">
               <div className="reports-grid">
-                {reports.map((report) => (
+                {reports.map((report, index) => (
                   <article className="report-card" key={report.title}>
-                    <h4>{report.title}</h4>
-                    <p>{report.description}</p>
-                    <button className="report-download" type="button" disabled title="The PDF file will be available here soon">
+                    <h4>{isPersian ? reportTranslations[index].title : report.title}</h4>
+                    <p>{isPersian ? reportTranslations[index].description : report.description}</p>
+                    <button className="report-download" type="button" disabled title={copy.pdfSoon}>
                       <Download size={14} />
-                      PDF coming soon
+                      {isPersian ? "دریافت PDF به‌زودی" : copy.pdfSoon}
                     </button>
                   </article>
                 ))}
@@ -653,10 +916,10 @@ export default function EnglishArchivePage() {
           {activeView === "authors" && (
             <div className="authors-shell">
               <div className="author-entries">
-                <h2 className="author-panel-heading">Encyclopedia entries</h2>
+                <h2 className="author-panel-heading">{copy.authorEntries}</h2>
                 <label className="mini-search author-search">
                   <Search size={14} />
-                  <input value={authorEntryQuery} onChange={(event) => setAuthorEntryQuery(event.target.value)} placeholder="Search entries..." />
+                  <input value={authorEntryQuery} onChange={(event) => setAuthorEntryQuery(event.target.value)} placeholder={copy.searchEntries} />
                 </label>
                 {visibleAuthorEntries.length ? (
                   visibleAuthorEntries.map((entry) => (
@@ -666,23 +929,23 @@ export default function EnglishArchivePage() {
                       key={entry.no}
                       onClick={() => setSelectedAuthorEntry(entry.en)}
                     >
-                      <span className="number">{entry.no}</span>
+                      <span className="number">{formatNumber(entry.no)}</span>
                       <span className="row-copy">
-                        <strong>{entry.en}</strong>
-                        <small>Page {entry.page}</small>
+                        <strong>{isPersian ? entry.fa : entry.en}</strong>
+                        <small>{copy.page} {formatNumber(entry.page)}</small>
                       </span>
                     </button>
                   ))
                 ) : (
-                  <div className="empty-state">No entries match this search.</div>
+                  <div className="empty-state">{copy.noMatches}</div>
                 )}
               </div>
 
               <div className="author-list">
-                <h2 className="author-panel-heading">Authors {selectedAuthorEntry ? `for ${selectedAuthorEntry}` : ""}</h2>
+                <h2 className="author-panel-heading">{copy.authorsFor}{selectedAuthorEntryLabel ? `: ${isPersian ? selectedAuthorEntryLabel.fa : selectedAuthorEntryLabel.en}` : ""}</h2>
                 <label className="mini-search author-search">
                   <Search size={14} />
-                  <input value={authorQuery} onChange={(event) => setAuthorQuery(event.target.value)} placeholder="Search authors..." />
+                  <input value={authorQuery} onChange={(event) => setAuthorQuery(event.target.value)} placeholder={copy.searchAuthors} />
                 </label>
                 {visibleAuthors.length ? visibleAuthors.map((author) => (
                   <button
@@ -691,19 +954,29 @@ export default function EnglishArchivePage() {
                     className={`author-item ${currentAuthor.name === author.name ? "active" : ""}`}
                     onClick={() => setSelectedAuthor(author.name)}
                   >
-                    <strong>{author.name}</strong>
-                    <span>{author.entries.join(" • ")}</span>
+                    <strong>{isPersian ? authorTranslations[author.name]?.name ?? author.name : author.name}</strong>
+                    <span>{author.entries.map((entryName) => {
+                      const entry = allAuthorEntries.find((item) => item.en === entryName);
+                      return isPersian && entry ? entry.fa : entryName;
+                    }).join(" • ")}</span>
                   </button>
-                )) : <div className="empty-state">No authors match this selection.</div>}
+                )) : <div className="empty-state">{copy.noAuthors}</div>}
               </div>
 
               <div className="author-card">
-                <h2 className="author-panel-heading">Author profile</h2>
+                <h2 className="author-panel-heading">{copy.profile}</h2>
                 <div className="author-profile">
-                  <img src={encodeURI(currentAuthor.photo)} alt={currentAuthor.name} />
+                  <Image
+                    src={currentAuthor.photo}
+                    alt={isPersian ? authorTranslations[currentAuthor.name]?.name ?? currentAuthor.name : currentAuthor.name}
+                    width={125}
+                    height={125}
+                    sizes="(max-width: 700px) 246px, 125px"
+                    unoptimized
+                  />
                   <div>
-                    <h3>{currentAuthor.name}</h3>
-                    <p>{currentAuthor.bio}</p>
+                    <h3>{isPersian ? authorTranslations[currentAuthor.name]?.name ?? currentAuthor.name : currentAuthor.name}</h3>
+                    <p>{isPersian ? authorTranslations[currentAuthor.name]?.bio ?? currentAuthor.bio : currentAuthor.bio}</p>
                   </div>
                 </div>
 
@@ -714,7 +987,7 @@ export default function EnglishArchivePage() {
                   </a>
                   <a href={currentAuthor.profileUrl} target="_blank" rel="noreferrer" className="author-link">
                     <Globe size={15} />
-                    Profile
+                    {copy.profileLink}
                   </a>
                 </div>
               </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Search, Sparkles } from "lucide-react";
 
 type KnowledgeSearchProps = {
@@ -14,6 +15,7 @@ export default function KnowledgeSearch({
   smartSearchActive = false,
   onSmartSearchToggle,
 }: KnowledgeSearchProps) {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [searchMessage, setSearchMessage] = useState("");
   const isFa = locale === "fa";
@@ -24,13 +26,19 @@ export default function KnowledgeSearch({
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    announceSearch();
+    if (isFa) {
+      announceSearch();
+      return;
+    }
+
+    const searchTerm = query.trim();
+    router.push(searchTerm ? `/en/archive?q=${encodeURIComponent(searchTerm)}` : "/en/archive");
   }
 
   return (
     <div className="knowledge-search-wrap">
       <form className={`knowledge-search${smartSearchActive ? " smart-active" : ""}`} onSubmit={handleSubmit}>
-        <button className="search-glass-button" type="button" aria-label={isFa ? "جست‌وجو" : "Search"} onClick={announceSearch}>
+        <button className="search-glass-button" type="submit" aria-label={isFa ? "جست‌وجو" : "Search"}>
           <Search className="search-glass" aria-hidden="true" />
         </button>
         <input
