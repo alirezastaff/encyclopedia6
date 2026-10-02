@@ -18,7 +18,9 @@ export default function RootLayout({
   return (
     <html lang="fa" dir="rtl">
       <body>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

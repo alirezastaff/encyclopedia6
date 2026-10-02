@@ -1875,3 +1875,127 @@
     padding-left: 10px;
   }
 }
+
+.analysisPage {
+  --analysis-ink: #edf2e8;
+  --analysis-muted: #a5b6aa;
+  position: relative;
+  display: grid;
+  min-height: 100dvh;
+  grid-template-rows: 72px minmax(0, 1fr);
+  overflow: hidden;
+  padding: 0 clamp(22px, 6vw, 96px);
+  color: var(--analysis-ink);
+  background: radial-gradient(ellipse at 74% 48%, #214a43 0%, #172d32 36%, #111e25 72%, #171f25 100%);
+  font-family: "DM Sans", "Vazirmatn", sans-serif;
+}
+
+.analysisPage *,
+.analysisPage *::before,
+.analysisPage *::after { box-sizing: border-box; }
+
+.analysisGrid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .16;
+  background-image: linear-gradient(#a8c9ae16 1px, transparent 1px), linear-gradient(90deg, #a8c9ae16 1px, transparent 1px);
+  background-size: 54px 54px;
+  mask-image: radial-gradient(ellipse at 72% 48%, black, transparent 68%);
+}
+
+.analysisHeader,
+.analysisBody { position: relative; z-index: 1; }
+.analysisHeader { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #d4e5d91c; }
+.analysisBrand { display: flex; align-items: center; gap: 11px; color: inherit; text-decoration: none; }
+.analysisBrandMark { display: grid; width: 36px; height: 36px; place-items: center; border: 1px solid #c8e0ce5c; border-radius: 50%; color: #cce4cb; }
+.analysisBrandMark svg { width: 19px; height: 19px; }
+.analysisBrand > span:last-child { display: grid; gap: 2px; }
+.analysisBrand strong { font-size: 12px; font-weight: 700; }
+.analysisBrand small { color: var(--analysis-muted); font-size: 9px; }
+.analysisLive { display: flex; align-items: center; gap: 8px; color: #c3d7c7; font-size: 10px; }
+.analysisLive i { width: 6px; height: 6px; border-radius: 50%; background: #efb87d; box-shadow: 0 0 13px #efb87d; animation: analysis-blink 1.4s ease-in-out infinite; }
+
+.analysisBody { display: grid; width: min(100%, 1240px); grid-template-columns: minmax(320px, .88fr) minmax(380px, 1.12fr); align-items: center; gap: clamp(36px, 7vw, 112px); margin: 0 auto; padding: 36px 0 56px; }
+.analysisCopy { max-width: 510px; animation: analysis-rise 600ms cubic-bezier(.2, .72, .22, 1) both; }
+.analysisEyebrow { display: flex; align-items: center; gap: 9px; margin: 0 0 18px; color: #e7b582; font-size: 9px; font-weight: 700; letter-spacing: 0; }
+.analysisEyebrow svg { width: 15px; height: 15px; }
+.analysisCopy h1 { max-width: 480px; margin: 0; color: #f1f4eb; font-family: "DM Serif Display", Georgia, serif; font-size: 48px; font-weight: 400; line-height: 1.08; }
+.analysisQuery { margin: 18px 0 0; color: #bbcbc0; font-size: 13px; }
+.analysisQuery strong { color: #f1c08c; font-weight: 600; }
+.analysisDescription { max-width: 415px; margin: 14px 0 35px; color: var(--analysis-muted); font-size: 12px; line-height: 1.8; }
+.analysisProgressLabel { display: flex; justify-content: space-between; gap: 16px; color: #d3e0d3; font-size: 10px; }
+.analysisProgressLabel span:last-child { color: #efbd8b; font-variant-numeric: tabular-nums; }
+.analysisProgressTrack { height: 3px; margin-top: 10px; overflow: hidden; background: #d2e0d51c; }
+.analysisProgressTrack span { display: block; height: 100%; background: linear-gradient(90deg, #88c2a0, #e7b47d); box-shadow: 0 0 14px #92cda4a8; transition: width 160ms linear; }
+.analysisStages { display: grid; gap: 11px; padding: 0; margin: 20px 0 0; list-style: none; }
+.analysisStages li { display: flex; align-items: center; gap: 9px; color: #859b90; font-size: 10px; transition: color .25s; }
+.analysisStages li i { width: 5px; height: 5px; flex: 0 0 5px; border: 1px solid #70877a; border-radius: 50%; }
+.analysisStages .analysisStageActive { color: #e8c49d; }
+.analysisStages .analysisStageActive i { border-color: #e9b77f; background: #e9b77f; box-shadow: 0 0 9px #e9b77f; }
+.analysisStages .analysisStageDone { color: #afd0b5; }
+.analysisStages .analysisStageDone i { border-color: #9dc9a5; background: #9dc9a5; }
+
+.analysisScene { position: relative; display: grid; width: min(100%, 540px); aspect-ratio: 1; place-items: center; justify-self: center; animation: analysis-arrive 900ms cubic-bezier(.2, .72, .22, 1) both; }
+.analysisGlow { position: absolute; width: 49%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, #8dc99d38, #e3b47a10 55%, transparent 72%); filter: blur(8px); animation: analysis-breathe 4s ease-in-out infinite; }
+.analysisOrbit { position: absolute; border: 1px solid #b6d4c22b; border-radius: 50%; animation: analysis-spin 24s linear infinite; }
+.analysisOrbitOuter { width: 94%; height: 58%; transform: rotate(-28deg); }
+.analysisOrbitMiddle { width: 73%; height: 82%; transform: rotate(39deg); animation-duration: 31s; animation-direction: reverse; }
+.analysisOrbitInner { width: 57%; height: 57%; border-style: dashed; border-color: #deb4863c; animation-duration: 40s; }
+.analysisOrbit i { position: absolute; width: 8px; height: 8px; border: 1px solid #dce8d3; border-radius: 50%; background: #5d9f7b; box-shadow: 0 0 18px #81c599; }
+.analysisOrbitOuter i:first-child { top: 11%; left: 19%; }
+.analysisOrbitOuter i:nth-child(2) { right: 9%; bottom: 27%; background: #d29363; box-shadow: 0 0 18px #d29363; }
+.analysisOrbitOuter i:nth-child(3) { top: 50%; left: 50%; width: 4px; height: 4px; }
+.analysisOrbitMiddle i:first-child { top: 5%; right: 27%; width: 6px; height: 6px; background: #d29363; box-shadow: 0 0 14px #d29363; }
+.analysisOrbitMiddle i:nth-child(2) { bottom: 8%; left: 23%; }
+.analysisOrbitInner i { top: 8%; left: 50%; width: 5px; height: 5px; }
+.analysisCore { position: relative; z-index: 1; display: grid; width: 94px; aspect-ratio: 1; place-items: center; border: 1px solid #d5e7d596; border-radius: 50%; color: #e1ebd5; background: radial-gradient(circle at 36% 27%, #4b9475, #1d534c 72%); box-shadow: 0 0 0 10px #a3d3ad0c, 0 0 58px #75c79645, inset 0 1px 14px #ffffff2a; animation: analysis-core 3.2s ease-in-out infinite; }
+.analysisCore svg { width: 39px; height: 39px; stroke-width: 1.25; }
+.analysisSatellite { position: absolute; z-index: 2; display: grid; width: 40px; aspect-ratio: 1; place-items: center; border: 1px solid #bfd9c44a; border-radius: 50%; color: #d5e3d1; background: #223a39; box-shadow: 0 8px 24px #0813115e; }
+.analysisSatellite svg { width: 17px; height: 17px; stroke-width: 1.5; }
+.analysisSatelliteOne { top: 16%; left: 27%; }
+.analysisSatelliteTwo { top: 31%; right: 12%; color: #e8bd8d; }
+.analysisSatelliteThree { right: 24%; bottom: 14%; }
+.analysisSatelliteFour { bottom: 25%; left: 12%; color: #c8d8a8; }
+.analysisSceneCaption { position: absolute; bottom: 1%; color: #a8bbac; font-size: 9px; letter-spacing: 0; }
+
+.analysisPage[dir="rtl"] { font-family: "Vazirmatn", Tahoma, sans-serif; }
+.analysisPage[dir="rtl"] * { letter-spacing: 0; }
+.analysisPage[dir="rtl"] .analysisLive { flex-direction: row-reverse; }
+.analysisPage[dir="rtl"] .analysisCopy h1,
+.analysisPage[dir="rtl"] .analysisBrand strong {
+  font-family: "Estedad", "Vazirmatn", Tahoma, sans-serif;
+  font-weight: 800;
+}
+.analysisPage[dir="rtl"] .analysisCopy h1 { line-height: 1.35; }
+
+@keyframes analysis-blink { 50% { opacity: .4; box-shadow: 0 0 4px #efb87d; } }
+@keyframes analysis-rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes analysis-arrive { from { opacity: 0; transform: scale(.92) rotate(-5deg); } to { opacity: 1; transform: scale(1) rotate(0); } }
+@keyframes analysis-spin { to { rotate: 360deg; } }
+@keyframes analysis-breathe { 50% { opacity: .55; transform: scale(1.12); } }
+@keyframes analysis-core { 50% { box-shadow: 0 0 0 15px #a3d3ad0a, 0 0 78px #75c79660, inset 0 1px 18px #ffffff39; } }
+
+@media (max-width: 850px) {
+  .analysisPage { min-height: 100svh; grid-template-rows: 60px auto; overflow-y: auto; padding: 0 22px; }
+  .analysisBody { grid-template-columns: 1fr; gap: 12px; padding: 24px 0 34px; }
+  .analysisCopy { order: 1; }
+  .analysisScene { order: 0; width: min(72vw, 330px); }
+  .analysisCopy h1 { font-size: 38px; }
+  .analysisDescription { margin-bottom: 24px; }
+  .analysisStages { grid-template-columns: 1fr 1fr; gap: 9px 12px; }
+  .analysisStages li { font-size: 9px; }
+  .analysisSceneCaption { font-size: 8px; }
+}
+
+@media (max-width: 390px) {
+  .analysisCopy h1 { font-size: 32px; }
+  .analysisLive { max-width: 130px; font-size: 8px; }
+  .analysisStages { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .analysisPage *,
+  .analysisPage *::before,
+  .analysisPage *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}

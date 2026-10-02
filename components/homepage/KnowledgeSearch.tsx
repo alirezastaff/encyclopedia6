@@ -22,15 +22,13 @@ export default function KnowledgeSearch({
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const searchTerm = query.trim();
-    if (isFa) {
-      if (smartSearchActive) {
-        router.push(`/fa/knowledge-graph?q=${encodeURIComponent(searchTerm || "solidarity")}`);
-      }
+    if (smartSearchActive) {
+      const smartQuery = encodeURIComponent(searchTerm || "solidarity");
+      router.push(`/${locale}/knowledge-graph?q=${smartQuery}&ai=1`);
       return;
     }
 
-    if (smartSearchActive && searchTerm) {
-      router.push(`/en/knowledge-graph?q=${encodeURIComponent(searchTerm)}`);
+    if (isFa) {
       return;
     }
 

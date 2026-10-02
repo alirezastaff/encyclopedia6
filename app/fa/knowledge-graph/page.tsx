@@ -9,10 +9,10 @@ export const metadata: Metadata = {
 export default async function PersianKnowledgeGraphPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string | string[] }>;
+  searchParams: Promise<{ q?: string | string[]; ai?: string | string[] }>;
 }) {
-  const { q } = await searchParams;
+  const { q, ai } = await searchParams;
   const query = typeof q === "string" ? q.trim() : "";
 
-  return <KnowledgeGraphResults initialQuery={query || "solidarity"} locale="fa" />;
+  return <KnowledgeGraphResults initialQuery={query || "solidarity"} locale="fa" initialAiSearch={ai === "1"} />;
 }

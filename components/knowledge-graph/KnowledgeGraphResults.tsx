@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowRight,
   BookMarked,
@@ -233,6 +233,18 @@ const persianLabels: Record<string, string> = {
   Tools: "ابزارها",
   "Knowledge builds stronger societies.": "دانش، جامعه‌ای نیرومندتر می‌سازد.",
   "Knowledge graph search results": "نتایج جست‌وجو در نمودار دانش",
+  "Knowledge Platform": "پلتفرم دانشی",
+  "AI analysis in progress": "تحلیل هوشمند در حال انجام است",
+  "SMART KNOWLEDGE SEARCH": "جست‌وجوی هوشمند دانش",
+  "Building your knowledge graph": "در حال ساخت نمودار دانش شما",
+  "Exploring connections for": "در حال کاوش پیوندهای مرتبط با",
+  "The knowledge network is being mapped across research, people, places and real-world experiences.": "شبکهٔ دانشی در میان پژوهش‌ها، افراد، مکان‌ها و تجربه‌های واقعی در حال نقشه‌برداری است.",
+  "Knowledge graph analysis progress": "میزان پیشرفت تحلیل نمودار دانش",
+  "Gathering relevant sources": "گردآوری منابع مرتبط",
+  "Tracing conceptual connections": "ردیابی پیوندهای مفهومی",
+  "Comparing evidence across topics": "مقایسهٔ شواهد میان موضوع‌ها",
+  "Preparing your knowledge graph": "آماده‌سازی نمودار دانش شما",
+  "Mapping a living network of ideas": "ترسیم شبکه‌ای زنده از ایده‌ها",
   "Graph Search Results for": "نتایج جست‌وجوی نموداری برای",
   "AI-powered graph search across the Social Economy knowledge network": "جست‌وجوی هوشمند در شبکهٔ دانشی اقتصاد اجتماعی و همبستگی",
   "Explore how concepts connect across the knowledge network": "پیوند میان مفاهیم این شبکهٔ دانشی را کاوش کنید",
@@ -322,7 +334,7 @@ const persianLabels: Record<string, string> = {
   Cooperatives: "تعاونی‌ها",
 };
 
-type KnowledgeGraphResultsProps = { initialQuery: string; locale?: "en" | "fa" };
+type KnowledgeGraphResultsProps = { initialQuery: string; locale?: "en" | "fa"; initialAiSearch?: boolean };
 
 function curvePath(
   from: { x: number; y: number },
@@ -337,6 +349,7 @@ function curvePath(
 export default function KnowledgeGraphResults({
   initialQuery,
   locale = "en",
+  initialAiSearch = false,
 }: KnowledgeGraphResultsProps) {
   const isPersian = locale === "fa";
   const localize = (value: string) => isPersian ? persianLabels[value] ?? value : value;
@@ -351,6 +364,27 @@ export default function KnowledgeGraphResults({
   const [savedInsights, setSavedInsights] = useState<string[]>([]);
   const [notice, setNotice] = useState("");
   const [activeNav, setActiveNav] = useState("Knowledge Graph");
+  const [isAiAnalyzing, setIsAiAnalyzing] = useState(initialAiSearch);
+  const [analysisProgress, setAnalysisProgress] = useState(0);
+
+  useEffect(() => {
+    if (!initialAiSearch) return;
+
+    const analysisDuration = 10_000;
+    const startedAt = Date.now();
+    const progressTimer = window.setInterval(() => {
+      setAnalysisProgress(Math.min(99, Math.floor((Date.now() - startedAt) / (analysisDuration / 100))));
+    }, 80);
+    const finishTimer = window.setTimeout(() => {
+      setAnalysisProgress(100);
+      setIsAiAnalyzing(false);
+    }, analysisDuration);
+
+    return () => {
+      window.clearInterval(progressTimer);
+      window.clearTimeout(finishTimer);
+    };
+  }, [initialAiSearch]);
 
   const formattedQuery = localize(query.trim() || "solidarity");
   const titleQuery = query.trim() || "solidarity";
@@ -385,6 +419,73 @@ export default function KnowledgeGraphResults({
   function localizedHref(href: string) {
     if (!isPersian) return href;
     return href === "/profile" ? "/fa/profile" : href.replace(/^\/en(?=\/|$)/, "/fa");
+  }
+
+  if (isAiAnalyzing) {
+    const stages = [
+      localize("Gathering relevant sources"),
+      localize("Tracing conceptual connections"),
+      localize("Comparing evidence across topics"),
+      localize("Preparing your knowledge graph"),
+    ];
+    const activeStage = Math.min(3, Math.floor(analysisProgress / 25));
+
+    return (
+      <main className={styles.analysisPage} lang={locale} dir={isPersian ? "rtl" : "ltr"}>
+        <div className={styles.analysisGrid} aria-hidden="true" />
+        <header className={styles.analysisHeader}>
+          <Link href={localizedHref(isPersian ? "/fa" : "/en")} className={styles.analysisBrand}>
+            <span className={styles.analysisBrandMark}><Network aria-hidden="true" /></span>
+            <span><strong>SSE</strong><small>{localize("Knowledge Platform")}</small></span>
+          </Link>
+          <span className={styles.analysisLive}><i />{localize("AI analysis in progress")}</span>
+        </header>
+
+        <section className={styles.analysisBody} aria-labelledby="analysis-title" aria-live="polite">
+          <div className={styles.analysisCopy}>
+            <p className={styles.analysisEyebrow}><Sparkles aria-hidden="true" />{localize("SMART KNOWLEDGE SEARCH")}</p>
+            <h1 id="analysis-title">{localize("Building your knowledge graph")}</h1>
+            <p className={styles.analysisQuery}>{localize("Exploring connections for")} <strong>“{formattedQuery}”</strong></p>
+            <p className={styles.analysisDescription}>{localize("The knowledge network is being mapped across research, people, places and real-world experiences.")}</p>
+
+            <div className={styles.analysisProgressLabel}>
+              <span>{stages[activeStage]}</span>
+              <span>{isPersian ? String(analysisProgress).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)]) : `${analysisProgress}%`}</span>
+            </div>
+            <div
+              className={styles.analysisProgressTrack}
+              role="progressbar"
+              aria-label={localize("Knowledge graph analysis progress")}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={analysisProgress}
+            >
+              <span style={{ width: `${analysisProgress}%` }} />
+            </div>
+            <ol className={styles.analysisStages}>
+              {stages.map((stage, index) => (
+                <li className={index < activeStage ? styles.analysisStageDone : index === activeStage ? styles.analysisStageActive : ""} key={stage}>
+                  <i aria-hidden="true" />{stage}
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <div className={styles.analysisScene} aria-hidden="true">
+            <div className={styles.analysisGlow} />
+            <div className={`${styles.analysisOrbit} ${styles.analysisOrbitOuter}`}><i /><i /><i /></div>
+            <div className={`${styles.analysisOrbit} ${styles.analysisOrbitMiddle}`}><i /><i /></div>
+            <div className={`${styles.analysisOrbit} ${styles.analysisOrbitInner}`}><i /></div>
+            <div className={styles.analysisCore}><Network /></div>
+            <span className={`${styles.analysisSatellite} ${styles.analysisSatelliteOne}`}><BookOpen /></span>
+            <span className={`${styles.analysisSatellite} ${styles.analysisSatelliteTwo}`}><Globe2 /></span>
+            <span className={`${styles.analysisSatellite} ${styles.analysisSatelliteThree}`}><UsersRound /></span>
+            <span className={`${styles.analysisSatellite} ${styles.analysisSatelliteFour}`}><Handshake /></span>
+            <span className={styles.analysisSceneCaption}>{localize("Mapping a living network of ideas")}</span>
+          </div>
+        </section>
+      </main>
+    );
   }
 
   return (
