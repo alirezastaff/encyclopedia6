@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { fallbackProfiles, persianFallbackProfiles } from "@/components/country/CountryExplorer";
+import { fallbackProfiles, persianFallbackProfiles } from "@/components/country/countryFallbackProfiles";
 
 type CountryArticle = {
   id: string;

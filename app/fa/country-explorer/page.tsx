@@ -1,5 +1,5 @@
-import CountryExplorer from "@/components/country/CountryExplorer";
+import CountryAtlas from "@/components/country/CountryAtlas";
 
 export default function FaCountryExplorerPage() {
-  return <CountryExplorer locale="fa" />;
+  return <CountryAtlas locale="fa" />;
 }

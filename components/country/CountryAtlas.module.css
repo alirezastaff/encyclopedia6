@@ -557,3 +557,72 @@ span.cardFlag { display: inline-grid; place-items: center; font-size: 12px; }
 .profilePanelLight .aiFootnote { color: #5a7061; }
 .profilePanelLight .aiError { color: #a33d35; }
 .profilePanelLight .comparePrompt > svg { color: #347b54; }
+
+.atlasPersian {
+  direction: rtl;
+  text-align: right;
+  font-family: "Vazirmatn", Tahoma, sans-serif;
+  background:
+    radial-gradient(ellipse at 39% 41%, rgba(30, 94, 82, .32), transparent 42%),
+    radial-gradient(ellipse at 99% 3%, rgba(61, 105, 86, .13), transparent 37%),
+    #071b1b;
+}
+
+.atlasPersian::after { transform: scaleX(-1); }
+.atlasPersian :is(h1, h2, h3, h4, p, span, button, a, input, select, small, strong, li) { font-family: "Vazirmatn", Tahoma, sans-serif !important; letter-spacing: 0 !important; }
+.atlasPersian .searchCompact > svg { right: 11px; left: auto; }
+.atlasPersian .searchCompact input { padding-right: 34px; padding-left: 12px; text-align: right; }
+.atlasPersian .searchResult, .atlasPersian .regionButton, .atlasPersian .viewList button, .atlasPersian .toc button, .atlasPersian .shareButton, .atlasPersian .countryCard { text-align: right; }
+.atlasPersian .mapSurface { background: radial-gradient(ellipse at 44% 48%, rgba(27, 82, 75, .36), rgba(7, 27, 27, .17) 56%, rgba(6, 23, 23, .2)); }
+.atlasPersian .mapSurface::before { transform: scaleX(-1); mask-image: radial-gradient(ellipse at 42% 47%, black 0%, transparent 74%); }
+.atlasPersian .mapSurface::after { transform: scaleX(-1); }
+.atlasPersian .mapCoordinates { right: auto; left: 25px; }
+.atlasPersian .mapLegend { right: 306px; left: auto; text-align: right; }
+.atlasPersian .mapControls { right: auto; left: 24px; }
+.atlasPersian .mapStamp { right: 306px; left: auto; letter-spacing: 0; }
+.atlasPersian .exploreRail { right: 23px; left: auto; }
+.atlasPersian .profilePanel { right: auto; left: 22px; }
+.atlasPersian .profilePanelExpanded { right: 315px; left: auto; }
+.atlasPersian .heroImage, .atlasPersian .cardImage { transform: scaleX(-1); }
+.atlasPersian .countryCard:hover .cardImage { transform: scaleX(-1) scale(1.04); }
+.atlasPersian .heroOverlay { background: linear-gradient(270deg, rgba(5, 23, 23, .84), rgba(5, 23, 23, .34) 62%, rgba(5, 23, 23, .44)), linear-gradient(0deg, rgba(5, 24, 23, .9), transparent 78%); }
+.atlasPersian .profilePanelLight .heroOverlay { background: linear-gradient(270deg, rgba(248, 250, 245, .8), rgba(248, 250, 245, .48) 62%, rgba(248, 250, 245, .65)), linear-gradient(0deg, rgba(248, 250, 245, .76), transparent 78%); }
+.atlasPersian .heroMeta span + span::before { margin-right: 0; margin-left: 9px; }
+.atlasPersian .compareBar .generateComparisonButton { margin-right: auto; margin-left: 0; }
+.atlasPersian .articleRail { border-right: 0; border-left: 1px solid rgba(190, 220, 204, .13); }
+.atlasPersian .articleCopy :global(ul), .atlasPersian .articleCopy :global(ol), .atlasPersian .sources ul { padding-right: 19px; padding-left: 0; }
+.atlasPersian .sources ul { padding-right: 16px; }
+.atlasPersian .articleCopy :global(blockquote), .atlasPersian .articleUnavailable { border-right: 2px solid #8fb598; border-left: 0; padding-right: 15px; padding-left: 0; }
+.atlasPersian .articleUnavailable { border-right-color: #829f88; padding-right: 12px; }
+.atlasPersian .carouselDock { right: 300px; left: 23px; }
+.atlasPersian .countryCarousel { direction: rtl; }
+.atlasPersian .cardSelectionMark { right: auto; left: 8px; }
+.atlasPersian .mapTooltip { direction: rtl; text-align: right; }
+
+@media (max-width: 1350px) and (min-width: 761px) {
+  .atlasPersian .profilePanelExpanded { right: 277px; left: auto; }
+  .atlasPersian .mapStamp, .atlasPersian .mapLegend { right: 270px; left: auto; }
+  .atlasPersian .carouselDock { right: 270px; left: 23px; }
+}
+
+@media (max-width: 1050px) and (min-width: 761px) {
+  .atlasPersian .profilePanel { right: auto; left: 14px; }
+  .atlasPersian .profilePanelExpanded { right: 247px; left: auto; }
+  .atlasPersian .mapStamp, .atlasPersian .mapLegend, .atlasPersian .carouselDock { right: 231px; left: auto; }
+  .atlasPersian .carouselDock { left: 23px; }
+  .atlasPersian .mapControls { right: auto; left: 15px; }
+}
+
+@media (max-width: 760px) {
+  .atlasPersian .mapCoordinates { right: auto; left: 13px; }
+  .atlasPersian .mapStamp { right: 15px; left: auto; }
+  .atlasPersian .mapLegend { right: 14px; left: auto; text-align: right; }
+  .atlasPersian .mapControls { right: auto; left: 13px; }
+  .atlasPersian .exploreRail { right: auto; left: auto; }
+  .atlasPersian .profilePanel, .atlasPersian .profilePanelExpanded { right: auto; left: auto; }
+  .atlasPersian .articleRail { border-right: 0; border-left: 0; }
+  .atlasPersian .carouselDock { right: auto; left: auto; }
+  .atlasPersian .carouselHeading { direction: rtl; }
+}
+
+.atlasPersian .profilePanel.profilePanelExpanded { right: 0; left: 0; }
