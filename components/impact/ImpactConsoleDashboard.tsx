@@ -1661,7 +1661,7 @@ export default function ImpactConsoleDashboard({ locale = "en" }: { locale?: Loc
             <Menu size={16} />
           </button>
           <Link href={fa ? "/fa" : "/en"} className="er-brand" aria-label="SSE Impact Lab">
-            <Image src="/homepage/logo-2-w.png" alt="SSE Impact Lab" width={160} height={28} priority />
+            <Image src={fa ? "/homepage/persian-logo-2.png" : "/homepage/logo-2-w.png"} alt={fa ? "دانشنامه اقتصاد اجتماعی و همبستگی" : "SSE Impact Lab"} width={160} height={28} priority />
           </Link>
 
           <div className="er-status">
@@ -1939,8 +1939,8 @@ const persianStyles = `
   .er-console.is-persian .er-body,
   .er-console.is-persian .er-main,
   .er-console.is-persian .er-right-column { direction: rtl; }
-  .er-console.is-persian .er-brand { justify-content: flex-end; }
-  .er-console.is-persian .er-brand img { object-position: right center; }
+  .er-console.is-persian .er-brand { width: 240px; height: 42px; justify-content: flex-end; }
+  .er-console.is-persian .er-brand img { object-position: right center; filter: brightness(0) invert(1) drop-shadow(0 1px 2px rgba(0,0,0,0.15)); }
   .er-console.is-persian .er-topbar-actions a { padding: 0 10px 0 12px; }
   .er-console.is-persian .rail-item,
   .er-console.is-persian .field,
@@ -1976,7 +1976,7 @@ const persianStyles = `
   .er-console.is-persian .ratio-row { direction: rtl; }
   .er-console.is-persian .ratio-row strong,
   .er-console.is-persian .result-card strong { direction: ltr; unicode-bidi: isolate; }
-  .er-console.is-persian .legend-item .amount,
+  .er-console.is-persian .legend-item .amount { direction: rtl; unicode-bidi: isolate; }
   .er-console.is-persian .legend-item .pct { direction: ltr; unicode-bidi: isolate; }
   .er-console.is-persian button { letter-spacing: 0; }
   @media (min-width: 1201px) and (min-height: 700px) {
@@ -1984,7 +1984,7 @@ const persianStyles = `
     .er-console.is-persian .er-shell {
       height: calc(100dvh - 18px);
       min-height: 0;
-      grid-template-rows: 36px minmax(0, 1fr) 18px;
+      grid-template-rows: 42px minmax(0, 1fr) 18px;
       gap: 8px;
     }
     .er-console.is-persian .er-body { min-height: 0; align-items: stretch; grid-template-columns: 218px minmax(0, 1fr) 314px; }
@@ -2011,6 +2011,6 @@ const persianStyles = `
     .er-console.is-persian .snapshot-item + .snapshot-item { border-right: 0; padding-right: 0; }
     .er-console.is-persian .scenario-box { border-right: 0; border-top: 1px solid var(--line); padding: 14px 0 0; }
     .er-console.is-persian .er-status { display: none; }
-    .er-console.is-persian .er-brand { margin-right: 0; }
+    .er-console.is-persian .er-brand { width: 188px; height: 39px; margin-right: 0; }
   }
 `;

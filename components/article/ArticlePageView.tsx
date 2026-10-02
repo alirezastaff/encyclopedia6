@@ -13,12 +13,16 @@ type ArticlePageViewProps = {
 function classifySection(text: string): "heading" | "paragraph" {
   const normalized = text.trim().replace(/\s+/g, " ");
   if (!normalized) return "paragraph";
-  if (/^(BOX|REFERENCES)\b/i.test(normalized)) return "heading";
+  if (/^(BOX|REFERENCES?)\b/i.test(normalized) || isReferencesHeading(normalized)) return "heading";
   if (/^[۰-۹\d]+([.)]|[IVX]+[.)])/.test(normalized)) return "heading";
   const englishHeading = /^[A-Z][A-Za-z0-9\s&’'()\-:,.]+$/.test(normalized) && normalized.length < 90;
   const persianHeading = /^[\u0600-\u06FF\s۰-۹،؛:؟«»"'().\-]+$/.test(normalized) && normalized.length < 90;
   if (englishHeading || persianHeading) return "heading";
   return "paragraph";
+}
+
+function isReferencesHeading(text: string) {
+  return /^(?:references?|bibliography|works cited|sources|منابع(?:\s+و\s+مآخذ)?|مآخذ)\s*:?[\s]*$/i.test(text.trim());
 }
 
 function escapeHtml(value: string) {
@@ -179,16 +183,20 @@ export default function ArticlePageView({ locale, slug }: ArticlePageViewProps) 
   const isPersian = locale === "fa";
   const articleRef = useRef<HTMLDivElement | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(true);
+  const [shareStatus, setShareStatus] = useState("");
 
   const sections = useMemo(() => {
     if (!article) return [];
 
-    return article.body
+    const body = article.body
       .filter((text) => text.trim().length > 0)
-      .filter((text) => text.trim() !== article.title.trim())
-      .map((text, index) => ({
+      .filter((text) => text.trim() !== article.title.trim());
+    const referencesStart = body.findIndex(isReferencesHeading);
+
+    return body.map((text, index) => ({
         id: `article-section-${index}`,
-        kind: classifySection(text),
+        kind: isReferencesHeading(text) ? "heading" : classifySection(text),
+        isReference: referencesStart !== -1 && index >= referencesStart,
         text,
       }));
   }, [article]);
@@ -237,6 +245,25 @@ export default function ArticlePageView({ locale, slug }: ArticlePageViewProps) 
     });
   };
 
+  const shareArticle = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: article.title, url });
+        return;
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(url);
+      setShareStatus(isPersian ? "پیوند کپی شد" : "Link copied");
+    } catch {
+      setShareStatus(isPersian ? "کپی پیوند ممکن نشد" : "Unable to copy link");
+    }
+  };
+
   return (
     <main
       dir={isPersian ? "rtl" : "ltr"}
@@ -258,7 +285,7 @@ export default function ArticlePageView({ locale, slug }: ArticlePageViewProps) 
       <button
         type="button"
         onClick={scrollToReading}
-        aria-label="Scroll to the article"
+        aria-label={isPersian ? "رفتن به متن مقاله" : "Scroll to the article"}
         style={{
           position: "fixed",
           left: 18,
@@ -320,49 +347,32 @@ export default function ArticlePageView({ locale, slug }: ArticlePageViewProps) 
           >
             <button
               type="button"
+              onClick={shareArticle}
+              aria-label={isPersian ? "اشتراک‌گذاری مقاله" : "Share article"}
               style={{
                 borderRadius: 999,
                 border: `1px solid ${panelTheme.border}`,
                 background: panelTheme.button,
                 color: panelTheme.text,
-                width: 132,
+                width: 40,
                 height: 40,
-                padding: "0 16px",
-                fontSize: 13,
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 8,
-                cursor: "pointer",
-              }}
-            >
-              <Share2 size={14} />
-              Share
-            </button>
-
-            <Link
-              href={`/${locale}/archive`}
-              style={{
-                borderRadius: 999,
-                background: panelTheme.action,
-                color: "#fff",
-                fontWeight: 700,
-                width: 132,
-                height: 40,
-                padding: "0 16px",
+                padding: 0,
                 display: "inline-flex",
                 alignItems: "center",
                 justifyContent: "center",
-                textDecoration: "none",
-                fontSize: 13,
-                boxShadow: "0 10px 26px rgba(36, 108, 255, 0.38)",
+                cursor: "pointer",
               }}
             >
-              Close & Return
-            </Link>
+              <Share2 size={17} />
+            </button>
+
+            <span role="status" aria-live="polite" style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0, 0, 0, 0)", whiteSpace: "nowrap", border: 0 }}>
+              {shareStatus}
+            </span>
 
             <button
               type="button"
-              aria-label="Toggle theme"
+              aria-label={isPersian ? "تغییر پوسته" : "Toggle theme"}
               onClick={() => setIsDarkMode((current) => !current)}
               style={{
                 borderRadius: 999,
@@ -399,7 +409,7 @@ export default function ArticlePageView({ locale, slug }: ArticlePageViewProps) 
 
             <Link
               href={`/${locale}/archive`}
-              aria-label="Close"
+              aria-label={isPersian ? "بازگشت به آرشیو" : "Return to archive"}
               style={{
                 width: 38,
                 height: 38,
@@ -431,13 +441,9 @@ export default function ArticlePageView({ locale, slug }: ArticlePageViewProps) 
             }}
           >
             <div style={{ maxWidth: 1000, margin: "0 auto" }}>
-              <div style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: panelTheme.muted, fontWeight: 600 }}>
-                Title
-              </div>
-
               <h1
                 style={{
-                  margin: "12px 0 0",
+                  margin: 0,
                   fontSize: "clamp(2.3rem, 3.5vw, 4.1rem)",
                   lineHeight: 1.08,
                   letterSpacing: "-0.05em",
@@ -462,6 +468,7 @@ export default function ArticlePageView({ locale, slug }: ArticlePageViewProps) 
                           fontSize: "1.25rem",
                           fontWeight: 700,
                           lineHeight: 1.4,
+                          ...(section.isReference ? { direction: "ltr", textAlign: "left" as const } : {}),
                         }}
                       >
                         {section.text}
@@ -470,7 +477,7 @@ export default function ArticlePageView({ locale, slug }: ArticlePageViewProps) 
                   }
 
                   return (
-                    <p key={section.id} style={{ margin: "0 0 18px", color: panelTheme.text }}>
+                    <p key={section.id} style={{ margin: "0 0 18px", color: panelTheme.text, ...(section.isReference ? { direction: "ltr", textAlign: "left" as const } : {}) }}>
                       {section.text}
                     </p>
                   );

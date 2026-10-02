@@ -21,9 +21,19 @@ export default function KnowledgeSearch({
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (isFa) return;
-
     const searchTerm = query.trim();
+    if (isFa) {
+      if (smartSearchActive) {
+        router.push(`/fa/knowledge-graph?q=${encodeURIComponent(searchTerm || "solidarity")}`);
+      }
+      return;
+    }
+
+    if (smartSearchActive && searchTerm) {
+      router.push(`/en/knowledge-graph?q=${encodeURIComponent(searchTerm)}`);
+      return;
+    }
+
     router.push(searchTerm ? `/en/archive?q=${encodeURIComponent(searchTerm)}` : "/en/archive");
   }
 

@@ -301,8 +301,9 @@ const styles = `
   .archive-shell { display:grid; grid-template-columns:270px minmax(0,1fr); height:100%; min-height:0; }
   .archive-sidebar { display:flex; flex-direction:column; gap:22px; min-height:0; height:100%; overflow:auto; padding:22px 20px; border-right:1px solid var(--line); background:rgba(242,250,252,.72); backdrop-filter:blur(18px); }
   .theme-dark .archive-sidebar { background:rgba(9,37,49,.68); }
-  .archive-brand { display:flex; align-items:center; min-height:72px; padding:8px 10px; border-radius:14px; background:rgba(8,48,47,.92); color:var(--ink); text-decoration:none; }
-  .archive-brand img { width:100%; height:auto; max-height:66px; flex:none; object-fit:contain; }
+  .archive-brand { display:flex; align-items:center; min-height:72px; padding:8px 10px; border-radius:14px; color:var(--ink); text-decoration:none; }
+  .archive-brand img { width:100%; height:auto; max-height:66px; flex:none; object-fit:contain; filter:brightness(0) invert(1); }
+  .theme-light .archive-brand img { filter:brightness(0) saturate(100%) invert(17%) sepia(37%) saturate(1240%) hue-rotate(124deg) brightness(91%) contrast(98%); }
   .side-nav, .side-nav-group { display:grid; gap:7px; }
   .side-nav button { display:flex; align-items:center; gap:12px; width:100%; padding:11px 13px; border:1px solid transparent; border-radius:11px; color:var(--muted); background:transparent; text-align:left; font:inherit; font-size:13px; cursor:pointer; transition:.2s ease; }
   .side-nav button:hover, .side-nav button.active { color:var(--ink); background:rgba(62,159,181,.14); border-color:rgba(116,198,214,.28); }
@@ -362,6 +363,10 @@ const styles = `
   .hero-kicker { margin-bottom:9px; color:#c4edf4; }
   .preview-hero h2 { max-width:460px; margin:0; font-size:20px; line-height:1.25; }
   .preview-subtitle { margin:5px 0 0; color:#c0dbe2; font-size:10px; }
+  .theme-light .preview-hero { border-color:var(--line); background:#fff; }
+  .theme-light .preview-hero:after { display:none; }
+  .theme-light .preview-hero .hero-kicker { color:var(--accent); }
+  .theme-light .preview-hero .preview-subtitle { color:var(--muted); }
   .language-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 2px 8px; }
   .language-bar strong { display:block; font-size:12px; }
   .language-bar p { margin:3px 0 0; color:var(--muted); font-size:10px; }
@@ -589,7 +594,7 @@ export default function EnglishArchivePage({ initialQuery = "", locale = "en" }:
   const [activeView, setActiveView] = useState<ViewId>("overview");
   const [professionalSearchActive, setProfessionalSearchActive] = useState(false);
   const [searchNotice, setSearchNotice] = useState("");
-  const [theme, setTheme] = useState<"dark" | "light">("light");
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [selectedAuthor, setSelectedAuthor] = useState<string>(authors[0].name);
   const [authorQuery, setAuthorQuery] = useState("");
   const [authorEntryQuery, setAuthorEntryQuery] = useState("");
