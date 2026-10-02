@@ -17,19 +17,11 @@ export default function KnowledgeSearch({
 }: KnowledgeSearchProps) {
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const [searchMessage, setSearchMessage] = useState("");
   const isFa = locale === "fa";
-
-  function announceSearch() {
-    setSearchMessage(isFa ? "موتور جست‌وجو درحال توسعه است." : "Search is currently under development.");
-  }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (isFa) {
-      announceSearch();
-      return;
-    }
+    if (isFa) return;
 
     const searchTerm = query.trim();
     router.push(searchTerm ? `/en/archive?q=${encodeURIComponent(searchTerm)}` : "/en/archive");
@@ -60,11 +52,6 @@ export default function KnowledgeSearch({
           <Sparkles aria-hidden="true" />
         </button>
       </form>
-      {searchMessage && (
-        <p className="search-feedback" role="status" dir={isFa ? "rtl" : "ltr"}>
-          {searchMessage}
-        </p>
-      )}
     </div>
   );
 }

@@ -63,16 +63,15 @@ const homepageCopy = {
     ],
   },
   fa: {
-    logoAlt: "نشان پلتفرم دانشی اقتصاد اجتماعی و همبستگی", home: "خانه", aboutNav: "دربارهٔ ما", followNav: "خبرنامه", switchLabel: "رفتن به نسخهٔ انگلیسی",
-    kicker: "بشناسید / تحلیل کنید / برای آینده‌ای عادلانه‌تر بسازید", title: <>پایگاه دانشی<br />اقتصاد اجتماعی</>,
+    logoAlt: "نشان پلتفرم دانشی اقتصاد اجتماعی و همبستگی", home: "خانه", aboutNav: "دربارهٔ ما", followNav: "عضویت", switchLabel: "رفتن به نسخهٔ انگلیسی",
+    kicker: "بشناسید / تحلیل کنید / برای آینده‌ای عادلانه‌تر بسازید", title: <><span>پلتفرم دانشی</span><span>اقتصاد اجتماعی و همبستگی</span></>,
     description: "پژوهش‌ها، داده‌ها و تجربه‌های واقعی در زمینهٔ اقتصاد اجتماعی، همبستگی و توسعهٔ فراگیر را دنبال کنید.",
-    newsletterLabel: "عضویت در خبرنامه", newsletterTitle: "ایده‌ها و پژوهش‌ها، در ایمیل شما", newsletterDescription: "گزیده‌ای از تازه‌ترین پژوهش‌های اقتصاد اجتماعی را گاه‌به‌گاه دریافت کنید.", emailLabel: "نشانی ایمیل", emailPlaceholder: "you@example.com", joining: "در حال ثبت‌نام...", subscribe: "عضویت",
+    newsletterLabel: "عضویت در شبکه", newsletterTitle: "فرم را تکمیل کنید و به شبکه ما بپیوندید.", newsletterDescription: "", emailLabel: "ایمیل", emailPlaceholder: "ایمیل", joining: "در حال ثبت‌نام...", subscribe: "عضویت",
     subscribed: "عضویت شما با موفقیت ثبت شد.", subscribeError: "ثبت درخواست عضویت انجام نشد. لطفاً دوباره تلاش کنید.", aboutTitle: "دربارهٔ ما", closeSpotlight: "بستن نمای متمرکز",
     about: [
-      "ما نهادی پژوهشی و مستقل در حوزهٔ اقتصاد اجتماعی هستیم. ایده‌ها، نهادها و شیوه‌های عمل در این حوزه را بررسی می‌کنیم و یافته‌ها را در دسترس پژوهشگران، کنشگران و عموم مردم قرار می‌دهیم.",
-      "در ایران و دیگر نقاط جهان، برای شناساندن اقتصاد اجتماعی می‌کوشیم. با پژوهش، همکاری و گفت‌وگوی آزاد، به ساختن آینده‌ای فراگیرتر و پایدارتر کمک می‌کنیم.",
-      "دانش پژوهشی را به تجربهٔ زیسته پیوند می‌دهیم و پژوهشگران، آموزگاران، تشکل‌های محلی و کنشگرانی را کنار هم می‌آوریم که برای اقتصادی مبتنی بر همکاری، کرامت انسانی و مسئولیت مشترک تلاش می‌کنند. با ثبت ابتکارهای محلی و بررسی بستر شکل‌گیری آن‌ها، دانش کاربردی را آشکارتر و دسترس‌پذیرتر می‌کنیم.",
-      "این پلتفرم فضایی رو به گسترش برای پژوهش و گفت‌وگوی عمومی است. پژوهش‌های روشن و دسترس‌پذیر منتشر می‌کنیم، تجربه‌های همبستگی را بازتاب می‌دهیم و زمینهٔ گفت‌وگو دربارهٔ نقش جوامع در شکل‌دادن به نظمی عادلانه‌تر را فراهم می‌آوریم. باور داریم دانش زمانی اثرگذارتر می‌شود که آزادانه به اشتراک گذاشته شود و با مردمی پیوند بخورد که برای آن‌ها تولید شده است.",
+      "این پلتفرم دانشی، یک پروژه مستقل پژوهشی ـ سیاستی است که با همکاری گروهی از پژوهشگران اقتصاد اجتماعی از دانشگاه‌های مختلف ایران شکل گرفته است. هدف این پروژه، گسترش و ترویج دانش و مفاهیم اقتصاد اجتماعی و همبستگی و ایجاد بستری برای ارتباط، تبادل دانش و شبکه‌سازی میان پژوهشگران و فعالان این حوزه است.",
+      "این مسیر با ترجمه دانشنامه اقتصاد اجتماعی و همبستگی، تدوین‌شده توسط کارگروه پژوهشی سازمان ملل متحد، و راه‌اندازی رسانه اقتصاد اجتماعی آغاز شد و اکنون در قالب یک پلتفرم دانشی بین‌المللی ادامه یافته است. این پلتفرم با هدف ایجاد ارتباط علمی میان پژوهشگران و فعالان کشورهای مختلف، دسترسی و تبادل دانش در حوزه اقتصاد اجتماعی و همبستگی را تسهیل می‌کند و در ادامه، بستری برای شکل‌گیری همکاری‌های بین‌المللی و برگزاری رویدادها و کنفرانس‌های تخصصی فراهم خواهد کرد.",
+      "از همه پژوهشگران، فعالان و علاقه‌مندان اقتصاد اجتماعی و همبستگی دعوت می‌کنیم به این شبکه بپیوندند تا از فعالیت‌ها و مراحل بعدی پروژه مطلع شوند و امکان مشارکت و همکاری در توسعه این مجموعه برای آنان فراهم شود.",
     ],
   },
 } as const;
@@ -223,8 +222,15 @@ export default function ReferenceHome({ locale = "en" }: { locale?: HomeLocale }
   async function handleSubscribe(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
-    const email = new FormData(form).get("email");
+    const formData = new FormData(form);
+    const email = formData.get("email");
     if (typeof email !== "string") return;
+
+    const fullName = formData.get("fullName");
+    const phone = formData.get("phone");
+    const memberDetails = isPersian && typeof fullName === "string" && typeof phone === "string"
+      ? { fullName, phone }
+      : {};
 
     setIsSubscribing(true);
     setSubscriptionMessage("");
@@ -233,7 +239,7 @@ export default function ReferenceHome({ locale = "en" }: { locale?: HomeLocale }
       const response = await fetch("/api/newsletter", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, ...memberDetails }),
       });
 
       if (!response.ok) throw new Error("Subscription failed");
@@ -299,10 +305,20 @@ export default function ReferenceHome({ locale = "en" }: { locale?: HomeLocale }
               <span><Mail size={13} aria-hidden="true" /> {strings.newsletterLabel}</span>
             </div>
             <h2>{strings.newsletterTitle}</h2>
-            <p className="newsletter-description">{strings.newsletterDescription}</p>
-            <form className="newsletter-form" onSubmit={handleSubscribe}>
-              <label htmlFor="newsletter-email">{strings.emailLabel}</label>
-              <input id="newsletter-email" name="email" type="email" autoComplete="email" placeholder={strings.emailPlaceholder} required dir="ltr" />
+            {strings.newsletterDescription && <p className="newsletter-description">{strings.newsletterDescription}</p>}
+            <form className={`newsletter-form${isPersian ? " newsletter-form--fa" : ""}`} onSubmit={handleSubscribe}>
+              {isPersian ? (
+                <>
+                  <input id="newsletter-email" name="email" type="email" autoComplete="email" placeholder="ایمیل" aria-label="ایمیل" required dir="ltr" />
+                  <input id="newsletter-phone" className="newsletter-phone" name="phone" type="tel" autoComplete="tel" inputMode="tel" placeholder="09123784490" aria-label="شماره تلفن" required dir="ltr" />
+                  <input id="newsletter-name" name="fullName" type="text" autoComplete="name" placeholder="نام و نام خانوادگی" aria-label="نام و نام خانوادگی" required />
+                </>
+              ) : (
+                <>
+                  <label htmlFor="newsletter-email">{strings.emailLabel}</label>
+                  <input id="newsletter-email" name="email" type="email" autoComplete="email" placeholder={strings.emailPlaceholder} required dir="ltr" />
+                </>
+              )}
               <button type="submit" disabled={isSubscribing}>{isSubscribing ? strings.joining : strings.subscribe}<DirectionalArrow size={14} aria-hidden="true" /></button>
               <p className="newsletter-feedback" role="status">{subscriptionMessage}</p>
             </form>

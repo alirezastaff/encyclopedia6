@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import ReferenceHome from "@/components/homepage/ReferenceHome";
 
 export const metadata: Metadata = {
-  title: "پایگاه دانشی اقتصاد اجتماعی و همبستگی",
+  title: "پلتفرم دانشی اقتصاد اجتماعی و همبستگی",
   description: "پژوهش‌ها، داده‌ها و تجربه‌های اقتصاد اجتماعی و همبستگی.",
 };
 

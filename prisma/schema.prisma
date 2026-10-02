@@ -192,5 +192,7 @@ model MarginalReport {
 model NewsletterSubscriber {
   id           String   @id @default(cuid())
   email        String   @unique
+  fullName     String?
+  phone        String?
   subscribedAt DateTime @default(now())
 }

@@ -2,18 +2,18 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState } from "react";
 import { jsPDF } from "jspdf";
 import {
   Activity,
   ArrowLeft,
+  ArrowRight,
   BarChart3,
   BriefcaseBusiness,
   Check,
   CircleHelp,
   Download,
   Gauge,
-  Leaf,
   Menu,
   Recycle,
   Save,
@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 
 type Stage = "overview" | "financial" | "outputs" | "outcomes" | "adjustments" | "results";
+type Locale = "en" | "fa";
 type Form = {
   budget: number;
   volunteerHours: number;
@@ -66,6 +67,15 @@ const initial: Form = {
   dropoff: 8,
 };
 
+const persianInitial: Form = {
+  ...initial,
+  budget: 1000000000,
+  hourlyRate: 500000,
+  socialProxy: 2000000,
+  environmentalProxy: 50000,
+  economicProxy: 200000000,
+};
+
 const stages: { id: Stage; label: string; icon: typeof Gauge }[] = [
   { id: "overview", label: "Overview", icon: Gauge },
   { id: "financial", label: "Financial inputs", icon: WalletCards },
@@ -74,6 +84,83 @@ const stages: { id: Stage; label: string; icon: typeof Gauge }[] = [
   { id: "adjustments", label: "Adjustments", icon: Settings2 },
   { id: "results", label: "Results", icon: Activity },
 ];
+
+const faCopy = {
+  status: "ارزیابی در حال انجام",
+  updated: "به‌تازگی به‌روزرسانی شد",
+  encyclopedia: "دانشنامه",
+  workspace: "فضای کار",
+  activeView: "نمای فعلی",
+  ready: "آماده",
+  dataTip: "راهنمای داده",
+  dataTipText: "اولویت با داده‌های سنجیده و مستند است؛ از برآوردهای جایگزین فقط وقتی استفاده کنید که شواهد مستقیم در دسترس نیست.",
+  decisionSupport: "پشتیبانی از تصمیم‌گیری",
+  heading: "ارزیابی اثر اجتماعی",
+  totalValue: "مجموع ارزش اجتماعی",
+  valueCreated: "ارزش ایجادشده",
+  netValue: "ارزش خالص",
+  liveResult: "نتیجهٔ زنده",
+  ratio: "نسبت بازده اجتماعی سرمایه‌گذاری (SROI)",
+  ratioSentenceBefore: "به‌ازای هر ۱ ریال سرمایه‌گذاری، حدود",
+  ratioSentenceAfter: "ریال ارزش اجتماعی ایجاد می‌شود.",
+  valueMix: "ترکیب ارزش",
+  currentEstimate: "برآورد فعلی",
+  valueBridge: "مسیر تبدیل ارزش",
+  netEffect: "اثر خالص",
+  grossOutcomes: "ارزش ناخالص پیامدها",
+  adjustments: "تعدیلات",
+  adjustmentNote: "تعدیلات از بزرگ‌نمایی اثر جلوگیری می‌کنند.",
+  social: "اجتماعی",
+  economic: "اقتصادی",
+  environmental: "زیست‌محیطی",
+  peopleReached: "افراد تحت پوشش",
+  jobsCreated: "شغل ایجادشده",
+  wasteRecovered: "پسماند بازیابی‌شده",
+  scenario: "سناریو",
+  conservative: "محافظه‌کارانه",
+  expected: "محتمل",
+  optimistic: "خوش‌بینانه",
+  assumptions: "فرض‌ها",
+  finalReview: "بازبینی نهایی",
+  readyToExport: "آمادهٔ دریافت گزارش",
+  netSocialValue: "ارزش خالص اجتماعی",
+  totalInvestment: "کل سرمایه‌گذاری",
+  downloadPdf: "چاپ / ذخیرهٔ گزارش PDF",
+  screeningEstimate: "این برآورد اولیه است و ارزش‌گذاری حسابرسی‌شده محسوب نمی‌شود.",
+  stages: {
+    overview: "نمای کلی",
+    financial: "منابع مالی",
+    outputs: "خروجی‌های مستقیم",
+    outcomes: "پیامدها و ارزش‌ها",
+    adjustments: "تعدیل اثر",
+    results: "نتیجهٔ ارزیابی",
+  } satisfies Record<Stage, string>,
+  guides: {
+    overview: "با فرض‌هایی شروع کنید که برایشان شواهد دارید و هر ورودی را با اطلاعات محلی دقیق‌تر کنید. برآورد با تغییر داده‌ها به‌روز می‌شود.",
+    financial: "مبالغی را وارد کنید که واقعاً به برنامه اختصاص یافته‌اند. ارزش زمان داوطلبان را فقط زمانی حساب کنید که مبنای نرخ ساعتی و دورهٔ سنجش روشن باشد.",
+    outputs: "افراد، مشاغل و موادی را بشمارید که مستقیماً و به‌طور قابل‌راستی‌آزمایی تحت تأثیر برنامه بوده‌اند؛ از پیش‌بینی‌های بی‌پشتوانه استفاده نکنید.",
+    outcomes: "ارزشِ تغییر معنادار را بسنجید، نه صرفاً حجم فعالیت را. منبع هر برآورد را ثبت کنید و در نبود شواهد کافی، نرخ تغییر محتاطانه‌ای در نظر بگیرید.",
+    adjustments: "برای جلوگیری از انتساب بیش‌ازحد، تغییراتِ مستقل از برنامه، سهم دیگران، پیامدهای ناخواسته و کاهش اثر در گذر زمان را لحاظ کنید.",
+    results: "نسبت را در کنار فرض‌های محاسبه‌شده بررسی کنید، سناریوها را بسنجید و شواهد خود را ثبت کنید. این نتیجه برآورد اولیه است، نه ارزش‌گذاری حسابرسی‌شده.",
+  } satisfies Record<Stage, string>,
+} as const;
+
+const faFields = {
+  budget: { label: "بودجهٔ سالانه / سرمایه‌گذاری اولیه", help: "وجه نقدی که مستقیماً به برنامه اختصاص یافته است.", suffix: "ریال" },
+  volunteerHours: { label: "ساعت داوطلبی", help: "زمانی که افراد در دورهٔ ارزیابی بدون دریافت دستمزد صرف کرده‌اند.", suffix: "ساعت" },
+  hourlyRate: { label: "ارزش هر ساعت داوطلبی", help: "برآوردی محتاطانه از ارزش یک ساعت کار داوطلبانه.", suffix: "ریال / ساعت" },
+  beneficiaries: { label: "ذی‌نفعان مستقیم", help: "افرادی که مستقیماً از برنامه خدمات یا حمایت دریافت کرده‌اند.", suffix: "نفر" },
+  jobs: { label: "مشاغل پایدار ایجادشده", help: "مشاغلی که برای گروه‌های کمتر برخوردار ایجاد شده‌اند.", suffix: "شغل" },
+  waste: { label: "پسماند بازیابی‌شده", help: "موادی که در نتیجهٔ مداخله از چرخهٔ دورریز خارج شده‌اند.", suffix: "کیلوگرم" },
+  changeRate: { label: "نرخ تغییر مثبت", help: "برآورد مستند یا سنجیده‌شدهٔ میزان تغییر منتسب به برنامه.", suffix: "٪" },
+  socialProxy: { label: "ارزش اجتماعی هر ذی‌نفع", help: "برای نمونه، هزینه‌های سلامت یا رفاهی که از آن‌ها جلوگیری شده است.", suffix: "ریال / نفر" },
+  environmentalProxy: { label: "ارزش زیست‌محیطی هر کیلوگرم", help: "هزینهٔ جمع‌آوریِ حذف‌شده به‌علاوهٔ ارزش کربن ذخیره‌شده.", suffix: "ریال / کیلوگرم" },
+  economicProxy: { label: "ارزش اقتصادی هر شغل", help: "ارزش برآوردی اشتغال پایدار برای خانوار و جامعه.", suffix: "ریال / شغل" },
+  deadweight: { label: "تغییر بدون مداخله", help: "بخشی از تغییر که احتمالاً حتی بدون برنامه رخ می‌داد.", suffix: "٪" },
+  attribution: { label: "سهم سایر نهادها", help: "بخشی از موفقیت که باید به سازمان‌ها یا افراد دیگر نسبت داد.", suffix: "٪" },
+  displacement: { label: "جابه‌جایی اثر", help: "ارزش مثبتی که در جای دیگری زیان یا پیامد منفی ایجاد می‌کند.", suffix: "٪" },
+  dropoff: { label: "کاهش اثر در گذر زمان", help: "کاهش سالانهٔ ارزش پیامدها در طول زمان.", suffix: "٪" },
+} satisfies Record<keyof Form, { label: string; help: string; suffix: string }>;
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -1193,14 +1280,33 @@ function calculate(form: Form): Result {
   };
 }
 
-function money(value: number, compact = false) {
-  if (compact && value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
-  if (compact && value >= 1000) return `$${(value / 1000).toFixed(0)}K`;
-  return `$${new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(Math.max(0, value))}`;
+function formatNumber(value: number, locale: Locale, maximumFractionDigits = 0) {
+  return new Intl.NumberFormat(locale === "fa" ? "fa-IR" : "en-US", { maximumFractionDigits }).format(value);
+}
+
+function money(value: number, compact = false, locale: Locale = "en") {
+  const amount = Math.max(0, value);
+  if (locale === "fa") {
+    const scales = [
+      { limit: 1000000000, divisor: 1000000000, label: "میلیارد" },
+      { limit: 1000000, divisor: 1000000, label: "میلیون" },
+      { limit: 1000, divisor: 1000, label: "هزار" },
+    ];
+    const scale = compact ? scales.find(({ limit }) => amount >= limit) : undefined;
+    const formatted = formatNumber(scale ? amount / scale.divisor : amount, "fa", scale ? 1 : 0);
+    return `${formatted}${scale ? ` ${scale.label}` : ""} ریال`;
+  }
+  if (compact && amount >= 1000000) return `$${(amount / 1000000).toFixed(1)}M`;
+  if (compact && amount >= 1000) return `$${(amount / 1000).toFixed(0)}K`;
+  return `$${formatNumber(amount, "en")}`;
 }
 
 function number(value: string) {
-  return Number(value.replace(/,/g, "")) || 0;
+  const normalized = value
+    .replace(/[۰-۹٠-٩]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩".indexOf(digit) % 10))
+    .replace(/[٬,،]/g, "")
+    .replace(/٫/g, ".");
+  return Number(normalized) || 0;
 }
 
 function ring(result: Result) {
@@ -1217,7 +1323,8 @@ function scenario(form: Form, mode: "low" | "high") {
   }).ratio;
 }
 
-function stageTitle(stage: Stage) {
+function stageTitle(stage: Stage, locale: Locale = "en") {
+  if (locale === "fa") return faCopy.stages[stage];
   if (stage === "financial") return "Financial inputs";
   if (stage === "outputs") return "Direct outputs";
   if (stage === "outcomes") return "Outcomes & values";
@@ -1225,7 +1332,8 @@ function stageTitle(stage: Stage) {
   return "Results";
 }
 
-function stageGuide(stage: Stage) {
+function stageGuide(stage: Stage, locale: Locale = "en") {
+  if (locale === "fa") return faCopy.guides[stage];
   if (stage === "financial") return "Use cash actually committed to the programme. Include volunteer time only when you can explain the hourly rate and measurement period.";
   if (stage === "outputs") return "Count direct, verifiable reach: people supported, jobs created, and materials recovered. Avoid forecasts or numbers that cannot be evidenced.";
   if (stage === "outcomes") return "Estimate the value of meaningful change, not activity alone. Record the source of each proxy and use a conservative change rate when evidence is limited.";
@@ -1234,7 +1342,8 @@ function stageGuide(stage: Stage) {
   return "Start with the assumptions you can support, then refine each input with local evidence. The estimate updates as you move through the workspace.";
 }
 
-function Overview({ form, result }: { form: Form; result: Result }) {
+function Overview({ form, result, locale }: { form: Form; result: Result; locale: Locale }) {
+  const fa = locale === "fa";
   const total = result.total;
   const socialShare = total ? (result.values.social / total) * 100 : 0;
   const economicShare = total ? (result.values.economic / total) * 100 : 0;
@@ -1245,45 +1354,45 @@ function Overview({ form, result }: { form: Form; result: Result }) {
     <div className="overview-grid">
       <section className="panel glass value-panel">
         <div className="panel-head">
-          <span>Value mix</span>
-          <small>Current estimate</small>
+          <span>{fa ? faCopy.valueMix : "Value mix"}</span>
+          <small>{fa ? faCopy.currentEstimate : "Current estimate"}</small>
         </div>
         <div className="value-layout">
           <div className="donut" style={{ background: ring(result) }}>
             <div className="center">
-              <strong>{money(result.total, true)}</strong>
-              <span>Net value</span>
+              <strong>{money(result.total, true, locale)}</strong>
+              <span>{fa ? faCopy.netValue : "Net value"}</span>
             </div>
           </div>
           <div className="bar-list">
             <div className="bar-item">
               <div className="bar-item-header">
-                <span className="bar-item-label"><span className="dot social" />Social</span>
-                <b>{Math.round(socialShare)}%</b>
+                <span className="bar-item-label"><span className="dot social" />{fa ? faCopy.social : "Social"}</span>
+                <b>{formatNumber(Math.round(socialShare), locale)}{fa ? "٪" : "%"}</b>
               </div>
               <div className="bar-track"><span className="bar-fill social" style={{ width: `${socialShare}%` }} /></div>
               <div className="bar-item-header">
-                <span style={{ color: "var(--text-muted)" }}>{money(result.values.social, true)}</span>
+                <span style={{ color: "var(--text-muted)" }}>{money(result.values.social, true, locale)}</span>
               </div>
             </div>
             <div className="bar-item">
               <div className="bar-item-header">
-                <span className="bar-item-label"><span className="dot economic" />Economic</span>
-                <b>{Math.round(economicShare)}%</b>
+                <span className="bar-item-label"><span className="dot economic" />{fa ? faCopy.economic : "Economic"}</span>
+                <b>{formatNumber(Math.round(economicShare), locale)}{fa ? "٪" : "%"}</b>
               </div>
               <div className="bar-track"><span className="bar-fill economic" style={{ width: `${economicShare}%` }} /></div>
               <div className="bar-item-header">
-                <span style={{ color: "var(--text-muted)" }}>{money(result.values.economic, true)}</span>
+                <span style={{ color: "var(--text-muted)" }}>{money(result.values.economic, true, locale)}</span>
               </div>
             </div>
             <div className="bar-item">
               <div className="bar-item-header">
-                <span className="bar-item-label"><span className="dot environmental" />Environmental</span>
-                <b>{Math.round(environmentalShare)}%</b>
+                <span className="bar-item-label"><span className="dot environmental" />{fa ? faCopy.environmental : "Environmental"}</span>
+                <b>{formatNumber(Math.round(environmentalShare), locale)}{fa ? "٪" : "%"}</b>
               </div>
               <div className="bar-track"><span className="bar-fill environmental" style={{ width: `${environmentalShare}%` }} /></div>
               <div className="bar-item-header">
-                <span style={{ color: "var(--text-muted)" }}>{money(result.values.environmental, true)}</span>
+                <span style={{ color: "var(--text-muted)" }}>{money(result.values.environmental, true, locale)}</span>
               </div>
             </div>
           </div>
@@ -1292,24 +1401,28 @@ function Overview({ form, result }: { form: Form; result: Result }) {
 
       <section className="panel glass bridge-panel">
         <div className="panel-head">
-          <span>Value bridge</span>
-          <small>Net effect</small>
+          <span>{fa ? faCopy.valueBridge : "Value bridge"}</span>
+          <small>{fa ? faCopy.netEffect : "Net effect"}</small>
         </div>
         <div className="bridge-rows">
-          {[{ label: "Gross outcomes", value: gross, color: "social" }, { label: "Adjustments", value: gross - result.total, color: "coral" }, { label: "Net value", value: result.total, color: "economic" }].map((entry) => {
+          {[
+            { label: fa ? faCopy.grossOutcomes : "Gross outcomes", value: gross, color: "social" },
+            { label: fa ? faCopy.adjustments : "Adjustments", value: gross - result.total, color: "coral" },
+            { label: fa ? faCopy.netValue : "Net value", value: result.total, color: "economic" },
+          ].map((entry) => {
             const width = gross ? (entry.value / gross) * 100 : 0;
             return (
               <div className="bridge-row" key={entry.label}>
                 <div className="bridge-row-head">
                   <span>{entry.label}</span>
-                  <b>{Math.round(width)}%</b>
+                  <b>{formatNumber(Math.round(width), locale)}{fa ? "٪" : "%"}</b>
                 </div>
                 <div className="bar-track"><span className={`bar-fill ${entry.color}`} style={{ width: `${Math.max(width, 8)}%` }} /></div>
               </div>
             );
           })}
         </div>
-        <div className="bridge-note">Adjustments reduce overclaiming.</div>
+        <div className="bridge-note">{fa ? faCopy.adjustmentNote : "Adjustments reduce overclaiming."}</div>
       </section>
 
       <section className="panel glass metric-strip">
@@ -1317,22 +1430,22 @@ function Overview({ form, result }: { form: Form; result: Result }) {
           <div className="metric-pill">
             <div className="metric-icon social"><Users size={14} /></div>
             <div>
-              <strong>{form.beneficiaries.toLocaleString("en-US")}</strong>
-              <small>People reached</small>
+              <strong>{formatNumber(form.beneficiaries, locale)}</strong>
+              <small>{fa ? faCopy.peopleReached : "People reached"}</small>
             </div>
           </div>
           <div className="metric-pill">
             <div className="metric-icon economic"><BriefcaseBusiness size={14} /></div>
             <div>
-              <strong>{form.jobs.toLocaleString("en-US")}</strong>
-              <small>Jobs created</small>
+              <strong>{formatNumber(form.jobs, locale)}</strong>
+              <small>{fa ? faCopy.jobsCreated : "Jobs created"}</small>
             </div>
           </div>
           <div className="metric-pill">
             <div className="metric-icon environmental"><Recycle size={14} /></div>
             <div>
-              <strong>{`${form.waste.toLocaleString("en-US")} kg`}</strong>
-              <small>Waste recovered</small>
+              <strong>{`${formatNumber(form.waste, locale)} ${fa ? "کیلوگرم" : "kg"}`}</strong>
+              <small>{fa ? faCopy.wasteRecovered : "Waste recovered"}</small>
             </div>
           </div>
         </div>
@@ -1343,29 +1456,29 @@ function Overview({ form, result }: { form: Form; result: Result }) {
           <div className="snapshot-item">
             <div className="metric-icon social"><Users size={14} /></div>
             <div className="meta">
-              <strong>{form.beneficiaries.toLocaleString("en-US")}</strong>
-              <small>People reached</small>
+              <strong>{formatNumber(form.beneficiaries, locale)}</strong>
+              <small>{fa ? faCopy.peopleReached : "People reached"}</small>
             </div>
           </div>
           <div className="snapshot-item">
             <div className="metric-icon economic"><BriefcaseBusiness size={14} /></div>
             <div className="meta">
-              <strong>{form.jobs.toLocaleString("en-US")}</strong>
-              <small>Jobs created</small>
+              <strong>{formatNumber(form.jobs, locale)}</strong>
+              <small>{fa ? faCopy.jobsCreated : "Jobs created"}</small>
             </div>
           </div>
           <div className="snapshot-item">
             <div className="metric-icon environmental"><Recycle size={14} /></div>
             <div className="meta">
-              <strong>{`${form.waste.toLocaleString("en-US")} kg`}</strong>
-              <small>Waste recovered</small>
+              <strong>{`${formatNumber(form.waste, locale)} ${fa ? "کیلوگرم" : "kg"}`}</strong>
+              <small>{fa ? faCopy.wasteRecovered : "Waste recovered"}</small>
             </div>
           </div>
           <div className="scenario-box">
-            <span className="label">Scenario</span>
-            <span className="scenario-pill">Conservative {scenario(form, "low").toFixed(2)}</span>
-            <span className="scenario-pill primary">Expected {result.ratio.toFixed(2)}</span>
-            <span className="scenario-pill">Optimistic {scenario(form, "high").toFixed(2)}</span>
+            <span className="label">{fa ? faCopy.scenario : "Scenario"}</span>
+            <span className="scenario-pill">{fa ? faCopy.conservative : "Conservative"} {formatNumber(scenario(form, "low"), locale, 2)}</span>
+            <span className="scenario-pill primary">{fa ? faCopy.expected : "Expected"} {formatNumber(result.ratio, locale, 2)}</span>
+            <span className="scenario-pill">{fa ? faCopy.optimistic : "Optimistic"} {formatNumber(scenario(form, "high"), locale, 2)}</span>
           </div>
         </div>
       </section>
@@ -1373,7 +1486,7 @@ function Overview({ form, result }: { form: Form; result: Result }) {
   );
 }
 
-function Inputs({ stage, form, update }: { stage: Stage; form: Form; update: (key: keyof Form, value: string) => void }) {
+function Inputs({ stage, form, update, locale }: { stage: Stage; form: Form; update: (key: keyof Form, value: string) => void; locale: Locale }) {
   const fields: { key: keyof Form; label: string; help: string; prefix?: string; suffix?: string; range?: boolean }[] =
     stage === "financial"
       ? [
@@ -1400,22 +1513,32 @@ function Inputs({ stage, form, update }: { stage: Stage; form: Form; update: (ke
               { key: "displacement", label: "Displacement", help: "Positive value that creates harm elsewhere.", suffix: "%", range: true },
               { key: "dropoff", label: "Drop-off", help: "Annual reduction in outcome value over time.", suffix: "%", range: true },
             ];
+  const displayedFields = locale === "fa"
+    ? fields.map((field) => ({ ...field, ...faFields[field.key], prefix: undefined }))
+    : fields;
 
   return (
     <div className="input-stage">
       <div className="panel glass input-panel">
       <div className="panel-head">
-        <span>{stageTitle(stage)}</span>
-        <small>Assumptions</small>
+        <span>{stageTitle(stage, locale)}</span>
+        <small>{locale === "fa" ? faCopy.assumptions : "Assumptions"}</small>
       </div>
       <div className="input-grid">
-        {fields.map((field) => (
+        {displayedFields.map((field) => (
           <div key={field.key} className="field">
-            <label>{field.label}</label>
+            <label htmlFor={`impact-${field.key}`}>{field.label}</label>
             <div className="help">{field.help}</div>
             <div className="control">
               {field.prefix && <span>{field.prefix}</span>}
-              <input type="number" value={form[field.key]} onChange={(event) => update(field.key, event.target.value)} />
+              <input
+                id={`impact-${field.key}`}
+                type={locale === "fa" ? "text" : "number"}
+                inputMode="numeric"
+                dir={locale === "fa" ? "ltr" : undefined}
+                value={locale === "fa" ? formatNumber(form[field.key], locale) : form[field.key]}
+                onChange={(event) => update(field.key, event.target.value)}
+              />
               {field.suffix && <span>{field.suffix}</span>}
             </div>
             {field.range && (
@@ -1425,42 +1548,97 @@ function Inputs({ stage, form, update }: { stage: Stage; form: Form; update: (ke
         ))}
       </div>
       </div>
-      <p className="stage-guide">{stageGuide(stage)}</p>
+      <p className="stage-guide">{stageGuide(stage, locale)}</p>
     </div>
   );
 }
 
-function Results({ result, exportPdf }: { result: Result; exportPdf: () => void }) {
+function Results({ result, exportPdf, locale }: { result: Result; exportPdf: () => void; locale: Locale }) {
+  const fa = locale === "fa";
   return (
     <div className="result-stage">
       <div className="panel glass results-panel">
       <div className="panel-head">
-        <span>Final review</span>
-        <small>Ready to export</small>
+        <span>{fa ? faCopy.stages.results : "Final review"}</span>
+        <small>{fa ? faCopy.readyToExport : "Ready to export"}</small>
       </div>
       <div className="result-summary">
-        <div className="result-card"><span>Net social value</span><strong>{money(result.total)}</strong></div>
-        <div className="result-card"><span>Total investment</span><strong>{money(result.investment)}</strong></div>
-        <div className="result-card"><span>SROI ratio</span><strong>{result.ratio.toFixed(2)} : 1</strong></div>
+        <div className="result-card"><span>{fa ? faCopy.netSocialValue : "Net social value"}</span><strong>{money(result.total, false, locale)}</strong></div>
+        <div className="result-card"><span>{fa ? faCopy.totalInvestment : "Total investment"}</span><strong>{money(result.investment, false, locale)}</strong></div>
+        <div className="result-card"><span>{fa ? "نسبت SROI" : "SROI ratio"}</span><strong>{formatNumber(result.ratio, locale, 2)} : 1</strong></div>
       </div>
-      <button className="download-btn" type="button" onClick={exportPdf}><Download size={14} /> Download PDF report</button>
+      <button className="download-btn" type="button" onClick={exportPdf}><Download size={14} /> {fa ? faCopy.downloadPdf : "Download PDF report"}</button>
       </div>
-      <p className="stage-guide">{stageGuide("results")}</p>
+      <p className="stage-guide">{stageGuide("results", locale)}</p>
     </div>
   );
 }
 
-export default function ImpactConsoleDashboard() {
+function printPersianReport(form: Form, result: Result) {
+  const printWindow = window.open("", "_blank");
+  if (!printWindow) return;
+
+  const escapeHtml = (value: string) => value.replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  })[character]!);
+  const rows = [
+    ["نسبت بازده اجتماعی سرمایه‌گذاری (SROI)", `${formatNumber(result.ratio, "fa", 2)} : 1`],
+    ["ارزش خالص اجتماعی", money(result.total, false, "fa")],
+    ["کل سرمایه‌گذاری", money(result.investment, false, "fa")],
+    ["ارزش اجتماعی", money(result.values.social, false, "fa")],
+    ["ارزش اقتصادی", money(result.values.economic, false, "fa")],
+    ["ارزش زیست‌محیطی", money(result.values.environmental, false, "fa")],
+  ];
+  const assumptions = [
+    ["بودجهٔ سالانه / سرمایه‌گذاری اولیه", money(form.budget, false, "fa")],
+    ["ساعت داوطلبی", `${formatNumber(form.volunteerHours, "fa")} ساعت`],
+    ["ارزش هر ساعت داوطلبی", money(form.hourlyRate, false, "fa")],
+    ["ذی‌نفعان مستقیم", formatNumber(form.beneficiaries, "fa")],
+    ["مشاغل پایدار ایجادشده", formatNumber(form.jobs, "fa")],
+    ["پسماند بازیابی‌شده", `${formatNumber(form.waste, "fa")} کیلوگرم`],
+    ["نرخ تغییر مثبت", `${formatNumber(form.changeRate, "fa")}٪`],
+    ["ارزش اجتماعی هر ذی‌نفع", money(form.socialProxy, false, "fa")],
+    ["ارزش زیست‌محیطی هر کیلوگرم", money(form.environmentalProxy, false, "fa")],
+    ["ارزش اقتصادی هر شغل", money(form.economicProxy, false, "fa")],
+    ["تغییر بدون مداخله", `${formatNumber(form.deadweight, "fa")}٪`],
+    ["سهم سایر نهادها", `${formatNumber(form.attribution, "fa")}٪`],
+    ["جابه‌جایی اثر", `${formatNumber(form.displacement, "fa")}٪`],
+    ["کاهش اثر در گذر زمان", `${formatNumber(form.dropoff, "fa")}٪`],
+  ];
+  const tableRows = (items: string[][]) => items.map(([label, value]) => `<tr><th>${escapeHtml(label)}</th><td>${escapeHtml(value)}</td></tr>`).join("");
+
+  printWindow.document.write(`<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><title>گزارش ارزیابی اثر اجتماعی</title><style>
+    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap');
+    *{box-sizing:border-box}body{margin:0;padding:36px;color:#162932;font-family:Vazirmatn,Tahoma,sans-serif;line-height:1.8}main{max-width:820px;margin:auto}h1{margin:0 0 6px;font-size:28px}p{margin:0 0 24px;color:#52666d}h2{margin:28px 0 8px;font-size:17px}table{width:100%;border-collapse:collapse}th,td{padding:9px 12px;border-bottom:1px solid #dbe4e5;text-align:right}th{font-weight:500}td{font-weight:700;direction:rtl}.notice{margin-top:24px;padding:12px 14px;border-right:3px solid #238575;background:#f2f8f6;color:#52666d;font-size:13px}@media print{body{padding:0}main{max-width:none}h2{break-after:avoid}tr{break-inside:avoid}}
+    </style></head><body><main><h1>گزارش ارزیابی اثر اجتماعی</h1><p>برآورد بر پایهٔ فرض‌های ثبت‌شده در ابزار ارزیابی اثر اجتماعی</p><h2>خلاصهٔ ارزیابی</h2><table><tbody>${tableRows(rows)}</tbody></table><h2>فرض‌های محاسبه</h2><table><tbody>${tableRows(assumptions)}</tbody></table><div class="notice">این گزارش یک برآورد اولیه است و ارزش‌گذاری حسابرسی‌شده محسوب نمی‌شود. منابع و فرض‌ها را پیش از تصمیم‌گیری با شواهد محلی بررسی کنید.</div></main></body></html>`);
+  printWindow.document.close();
+  void printWindow.document.fonts.ready.then(() => {
+    printWindow.focus();
+    printWindow.print();
+  });
+}
+
+export default function ImpactConsoleDashboard({ locale = "en" }: { locale?: Locale }) {
+  const fa = locale === "fa";
   const [stage, setStage] = useState<Stage>("overview");
-  const [form, setForm] = useState<Form>(initial);
+  const [form, setForm] = useState<Form>(fa ? persianInitial : initial);
   const [railOpen, setRailOpen] = useState(false);
   const result = useMemo(() => calculate(form), [form]);
+  const localizedStages = stages.map((item) => ({ ...item, label: fa ? faCopy.stages[item.id] : item.label }));
 
   const update = (key: keyof Form, value: string) => {
     setForm((current) => ({ ...current, [key]: number(value) }));
   };
 
   const exportPdf = () => {
+    if (fa) {
+      printPersianReport(form, result);
+      return;
+    }
     const document = new jsPDF();
     document.setFontSize(20);
     document.text("Social Impact Assessment Report", 20, 24);
@@ -1471,35 +1649,35 @@ export default function ImpactConsoleDashboard() {
     document.save("social-impact-assessment.pdf");
   };
 
-  const currentStage = stages.find((item) => item.id === stage)!;
+  const currentStage = localizedStages.find((item) => item.id === stage)!;
 
   return (
-    <main className="er-console" dir="ltr">
-      <style>{styles + fidelityStyles}</style>
+    <main className={`er-console${fa ? " is-persian" : ""}`} dir={fa ? "rtl" : "ltr"}>
+      <style>{styles + fidelityStyles + (fa ? persianStyles : "")}</style>
       <div className="er-overlay" />
       <div className="er-shell">
         <header className="er-topbar">
-          <button className="er-icon-btn" type="button" aria-label="Open menu" onClick={() => setRailOpen((open) => !open)} style={{ display: "none" }}>
+          <button className="er-icon-btn" type="button" aria-label={fa ? "باز کردن منو" : "Open menu"} onClick={() => setRailOpen((open) => !open)} style={{ display: "none" }}>
             <Menu size={16} />
           </button>
-          <Link href="/en" className="er-brand" aria-label="SSE Impact Lab">
+          <Link href={fa ? "/fa" : "/en"} className="er-brand" aria-label="SSE Impact Lab">
             <Image src="/homepage/logo-2-w.png" alt="SSE Impact Lab" width={160} height={28} priority />
           </Link>
 
           <div className="er-status">
             <span className="dot" />
-            <span>Assessment in progress</span>
+            <span>{fa ? faCopy.status : "Assessment in progress"}</span>
             <span className="divider">•</span>
-            <span>Updated just now</span>
+            <span>{fa ? faCopy.updated : "Updated just now"}</span>
           </div>
 
           <div className="er-topbar-actions">
-            <button className="er-icon-btn" type="button" aria-label="Save">
+            <button className="er-icon-btn" type="button" aria-label={fa ? "ذخیره" : "Save"}>
               <Save size={15} />
             </button>
-            <Link href="/en" aria-label="Back to encyclopedia">
-              <ArrowLeft size={13} />
-              <span>Encyclopedia</span>
+            <Link href={fa ? "/fa" : "/en"} aria-label={fa ? "بازگشت به دانشنامه" : "Back to encyclopedia"}>
+              {fa ? <ArrowRight size={13} /> : <ArrowLeft size={13} />}
+              <span>{fa ? faCopy.encyclopedia : "Encyclopedia"}</span>
             </Link>
           </div>
         </header>
@@ -1507,13 +1685,13 @@ export default function ImpactConsoleDashboard() {
         <div className="er-body">
           <aside className={`er-rail ${railOpen ? "open" : ""}`}>
             <div className="er-rail-head">
-              <span>Workspace</span>
-              <button type="button" aria-label="Close menu" onClick={() => setRailOpen(false)}>
+              <span>{fa ? faCopy.workspace : "Workspace"}</span>
+              <button type="button" aria-label={fa ? "بستن منو" : "Close menu"} onClick={() => setRailOpen(false)}>
                 <X size={14} />
               </button>
             </div>
             <nav>
-              {stages.map(({ id, label, icon: Icon }) => (
+              {localizedStages.map(({ id, label, icon: Icon }) => (
                 <button
                   type="button"
                   key={id}
@@ -1526,7 +1704,7 @@ export default function ImpactConsoleDashboard() {
                   <span className="icon-shell"><Icon size={15} /></span>
                   <span className="copy">
                     <strong>{label}</strong>
-                    <small>{stage === id ? "Active view" : "Ready"}</small>
+                    <small>{stage === id ? (fa ? faCopy.activeView : "Active view") : (fa ? faCopy.ready : "Ready")}</small>
                   </span>
                   <span className="state-mark"><Check size={13} /></span>
                 </button>
@@ -1535,8 +1713,8 @@ export default function ImpactConsoleDashboard() {
             <div className="rail-tip">
               <CircleHelp size={14} />
               <div>
-                <strong>Data tip</strong>
-                Use measured evidence before proxies.
+                <strong>{fa ? faCopy.dataTip : "Data tip"}</strong>
+                {fa ? faCopy.dataTipText : "Use measured evidence before proxies."}
               </div>
             </div>
           </aside>
@@ -1544,75 +1722,77 @@ export default function ImpactConsoleDashboard() {
           <section className="er-main">
             <div className="er-heading">
               <div className="er-heading-copy">
-                <span className="eyebrow">Decision support / {currentStage.label.toUpperCase()}</span>
+                <span className="eyebrow">{fa ? faCopy.decisionSupport : "Decision support"} / {currentStage.label.toUpperCase()}</span>
                 <h1>
-                  {stage === "overview" ? (
+                  {stage === "overview" && fa ? (
+                    <>ارزیابی اثر<em>اجتماعی</em></>
+                  ) : stage === "overview" ? (
                     <>
                       Social impact
                       <em>assessment</em>
                     </>
                   ) : (
-                    stageTitle(stage)
+                    stageTitle(stage, locale)
                   )}
                 </h1>
               </div>
 
               <div className="total-value glass">
-                <span className="total-value-label">Total social value</span>
-                <span className="value-pill">◈ Value created</span>
-                <strong>{money(result.total, true)}</strong>
-                <small>Net value <b>↗ +12%</b></small>
+                <span className="total-value-label">{fa ? faCopy.totalValue : "Total social value"}</span>
+                <span className="value-pill">◈ {fa ? faCopy.valueCreated : "Value created"}</span>
+                <strong dir={fa ? "rtl" : "ltr"}>{money(result.total, true, locale)}</strong>
+                <small>{fa ? faCopy.netValue : "Net value"} <b>{fa ? "برآورد زنده" : "↗ +12%"}</b></small>
               </div>
             </div>
 
-            {stage === "overview" ? <Overview form={form} result={result} /> : stage === "results" ? <Results result={result} exportPdf={exportPdf} /> : <Inputs stage={stage} form={form} update={update} />}
+            {stage === "overview" ? <Overview form={form} result={result} locale={locale} /> : stage === "results" ? <Results result={result} exportPdf={exportPdf} locale={locale} /> : <Inputs stage={stage} form={form} update={update} locale={locale} />}
           </section>
 
           <div className="er-right-column">
           <aside className="er-result glass">
-            <div className="result-head"><span className="dot" /> Live result</div>
-            <small>SROI ratio</small>
+            <div className="result-head"><span className="dot" /> {fa ? faCopy.liveResult : "Live result"}</div>
+            <small>{fa ? "نسبت بازده اجتماعی سرمایه‌گذاری" : "SROI ratio"}</small>
             <div className="ratio-row">
-              <strong>{result.ratio.toFixed(2)}</strong>
-              <span>↗ +0.12</span>
+              <strong dir="ltr">{formatNumber(result.ratio, locale, 2)}</strong>
+              <span>{fa ? "نسبت فعلی" : "↗ +0.12"}</span>
             </div>
             <p>
-              Every $1 invested creates an estimated <b>${result.ratio.toFixed(2)}</b> in social value.
+              {fa ? <>{faCopy.ratioSentenceBefore} <b dir="rtl">{formatNumber(result.ratio, locale, 2)} ریال</b> {faCopy.ratioSentenceAfter}</> : <>Every $1 invested creates an estimated <b>${result.ratio.toFixed(2)}</b> in social value.</>}
             </p>
 
             <div className="result-donut" style={{ background: ring(result) }}>
               <div className="center">
-                <strong>{money(result.total, true)}</strong>
-                <span>Net value</span>
+                <strong>{money(result.total, true, locale)}</strong>
+                <span>{fa ? faCopy.netValue : "Net value"}</span>
               </div>
             </div>
 
             <div className="legend-list">
               <div className="legend-item">
-                <span className="label"><span className="dot social" />Social</span>
-                <span className="amount">{money(result.values.social, true)}</span>
-                <span className="pct">{Math.round((result.values.social / result.total) * 100) || 0}%</span>
+                <span className="label"><span className="dot social" />{fa ? faCopy.social : "Social"}</span>
+                <span className="amount">{money(result.values.social, true, locale)}</span>
+                <span className="pct">{formatNumber(Math.round((result.values.social / result.total) * 100) || 0, locale)}{fa ? "٪" : "%"}</span>
               </div>
               <div className="legend-item">
-                <span className="label"><span className="dot economic" />Economic</span>
-                <span className="amount">{money(result.values.economic, true)}</span>
-                <span className="pct">{Math.round((result.values.economic / result.total) * 100) || 0}%</span>
+                <span className="label"><span className="dot economic" />{fa ? faCopy.economic : "Economic"}</span>
+                <span className="amount">{money(result.values.economic, true, locale)}</span>
+                <span className="pct">{formatNumber(Math.round((result.values.economic / result.total) * 100) || 0, locale)}{fa ? "٪" : "%"}</span>
               </div>
               <div className="legend-item">
-                <span className="label"><span className="dot environmental" />Environmental</span>
-                <span className="amount">{money(result.values.environmental, true)}</span>
-                <span className="pct">{Math.round((result.values.environmental / result.total) * 100) || 0}%</span>
+                <span className="label"><span className="dot environmental" />{fa ? faCopy.environmental : "Environmental"}</span>
+                <span className="amount">{money(result.values.environmental, true, locale)}</span>
+                <span className="pct">{formatNumber(Math.round((result.values.environmental / result.total) * 100) || 0, locale)}{fa ? "٪" : "%"}</span>
               </div>
             </div>
 
-            <button className="download-btn" type="button" onClick={exportPdf}><Download size={14} /> Download report</button>
-            <div className="result-disclaimer">Screening estimate, not an audited valuation.</div>
+            <button className="download-btn" type="button" onClick={exportPdf}><Download size={14} /> {fa ? "چاپ / ذخیرهٔ گزارش PDF" : "Download report"}</button>
+            <div className="result-disclaimer">{fa ? faCopy.screeningEstimate : "Screening estimate, not an audited valuation."}</div>
           </aside>
           </div>
         </div>
 
         <div className="er-foot">
-          <span>Impact Lab / assessment workspace</span>
+          <span>{fa ? "آزمایشگاه اثر / فضای ارزیابی" : "Impact Lab / assessment workspace"}</span>
           <span className="dot" />
         </div>
       </div>
@@ -1647,7 +1827,7 @@ const fidelityStyles = `
   .er-brand img { object-position: left center; }
   .er-status { font-size: 10px; }
   .er-topbar-actions a, .er-icon-btn { background: rgba(18, 44, 76, .7); border-color: var(--line); }
-  .er-body { grid-template-columns: 218px minmax(0, 1fr) 314px; gap: 16px; align-items: start; }
+  .er-body { grid-template-columns: 218px minmax(0, 1fr) 314px; gap: 16px; align-items: stretch; }
   .er-rail, .er-result, .panel, .total-value { border-color: var(--line); background: linear-gradient(145deg, rgba(27, 57, 93, .78), rgba(8, 25, 48, .78)); box-shadow: inset 0 1px rgba(255,255,255,.1), 0 20px 48px rgba(0,0,0,.27); backdrop-filter: blur(24px) saturate(130%); }
   .er-rail { min-height: 706px; padding: 18px 14px; border-radius: 18px; }
   .er-rail-head { padding: 3px 10px 17px; color: #91a8c6; }
@@ -1661,7 +1841,7 @@ const fidelityStyles = `
   .rail-item.active .copy small { color: var(--social); }
   .rail-tip { margin: 28px 0 0; padding: 18px 9px 0; color: #9bb0c9; border-color: var(--line); }
   .rail-tip strong { color: #eef6ff; }
-  .er-main { gap: 16px; }
+  .er-main { gap: 16px; min-height: 0; }
   .er-heading { display: grid; grid-template-columns: minmax(0, .78fr) minmax(0, 1.22fr); min-height: 138px; gap: 18px; }
   .eyebrow, .panel-head span { color: #9db4d0; font-size: 8px; letter-spacing: .18em; }
   .er-heading h1 { font-size: clamp(2.8rem, 3.6vw, 4.25rem); line-height: .9; letter-spacing: -.065em; font-weight: 700; }
@@ -1673,13 +1853,13 @@ const fidelityStyles = `
   .total-value strong { font-size: clamp(2.7rem, 3.4vw, 3.8rem); }
   .total-value small { color: #b4c8df; }
   .total-value .value-pill { top: 20px; right: 22px; background: rgba(255,255,255,.13); }
-  .overview-grid { grid-template-columns: minmax(0, 1.12fr) minmax(0, .9fr); gap: 16px; }
+  .overview-grid { grid-template-columns: minmax(0, 1.12fr) minmax(0, .9fr); grid-template-rows: minmax(0, 1fr) auto auto; gap: 16px; flex: 1; min-height: 0; }
   .panel { border-radius: 17px; padding: 19px 20px 17px; }
   .panel-head { margin-bottom: 15px; }
   .panel-head small { color: #8da4c0; }
   .value-panel, .bridge-panel { min-height: 258px; }
   .value-layout { grid-template-columns: 230px minmax(0, 1fr); min-height: 196px; gap: 12px; }
-  .donut { width: 190px; background: conic-gradient(var(--social) 0deg 137deg, var(--economic) 137deg 332deg, var(--environmental) 332deg 360deg) !important; filter: drop-shadow(0 0 14px rgba(83, 173, 245, .18)); }
+  .donut { width: 190px; filter: drop-shadow(0 0 14px rgba(83, 173, 245, .18)); }
   .donut::after, .result-donut::after { content: ''; position: absolute; inset: 21px; border-radius: 50%; background: #091a31; box-shadow: inset 0 0 22px rgba(0,0,0,.35); }
   .donut::before, .result-donut::before { display: none; }
   .donut .center strong, .result-donut .center strong { font-size: 1.35rem; }
@@ -1712,20 +1892,125 @@ const fidelityStyles = `
   .scenario-box .label { color: var(--social); }
   .scenario-box .scenario-pill { padding: 7px 10px; background: rgba(7, 24, 47, .48); border-color: var(--line); }
   .scenario-box .scenario-pill.primary { background: rgba(73, 218, 186, .22); color: var(--social); }
-  .er-right-column { display: grid; gap: 14px; align-self: start; }
+  .er-right-column { display: grid; gap: 14px; align-self: stretch; }
   .er-result { min-height: 530px; padding: 21px 19px 18px; border-radius: 18px; }
   .result-head { color: #b3c8e0; }
   .er-result small { margin-top: 27px; color: #96acc7; }
   .ratio-row strong { font-size: 3.5rem; }
   .ratio-row span { color: var(--social); }
   .er-result p { color: #b0c2d8; }
-  .result-donut { width: 216px; margin: 20px auto 20px; background: conic-gradient(var(--social) 0deg 137deg, var(--economic) 137deg 332deg, var(--environmental) 332deg 360deg) !important; filter: drop-shadow(0 0 16px rgba(83, 173, 245, .18)); }
+  .result-donut { width: 216px; margin: 20px auto 20px; filter: drop-shadow(0 0 16px rgba(83, 173, 245, .18)); }
   .legend-list { gap: 12px; }
   .legend-item { color: #b5c7dc; }
   .legend-item .amount { color: #f3f7ff; }
   .download-btn { margin-top: 20px; min-height: 38px; background: rgba(48, 86, 132, .5); border-color: rgba(166, 204, 242, .27); }
   .er-foot { color: #7e97b4; }
   @media (max-width: 1200px) { .er-body { grid-template-columns: 190px minmax(0, 1fr); } .er-right-column { grid-column: 1 / -1; grid-template-columns: minmax(0, 1fr) minmax(280px, .72fr); } .er-result { min-height: 430px; } }
-  @media (max-width: 820px) { .er-console { padding: 12px; } .er-shell { min-height: auto; } .er-body { display: block; } .er-rail { min-height: 0; margin-bottom: 14px; } .er-rail nav { flex-direction: row; flex-wrap: wrap; } .rail-item { width: calc(50% - 5px); } .er-main { margin-bottom: 14px; } .er-heading { display: flex; flex-direction: column; min-height: auto; } .er-heading h1 { font-size: clamp(2.5rem, 11vw, 4rem); } .stage-guide { max-height: 50px; overflow: hidden; font-size: 11px; line-height: 1.4; } .total-value { width: 100%; min-width: 0; } .er-right-column { grid-template-columns: 1fr; } .overview-grid { grid-template-columns: 1fr; } .metric-strip-inner, .snapshot-inner { grid-template-columns: 1fr; } .metric-pill + .metric-pill, .snapshot-item + .snapshot-item { border-left: 0; padding-left: 0; } .scenario-box { border-left: 0; border-top: 1px solid var(--line); padding: 14px 0 0; } }
+  @media (max-width: 820px) { .er-console { padding: 12px; } .er-shell { min-height: auto; } .er-body { display: block; } .er-rail { min-height: 0; margin-bottom: 14px; } .er-rail nav { flex-direction: row; flex-wrap: wrap; } .rail-item { width: calc(50% - 5px); } .er-main { margin-bottom: 14px; } .er-heading { display: flex; flex-direction: column; min-height: auto; } .er-heading h1 { font-size: clamp(2.5rem, 11vw, 4rem); } .stage-guide { max-height: 50px; overflow: hidden; font-size: 11px; line-height: 1.4; } .total-value { width: 100%; min-width: 0; } .er-right-column { grid-template-columns: 1fr; } .overview-grid { grid-template-columns: 1fr; grid-template-rows: auto; flex: initial; } .metric-strip-inner, .snapshot-inner { grid-template-columns: 1fr; } .metric-pill + .metric-pill, .snapshot-item + .snapshot-item { border-left: 0; padding-left: 0; } .scenario-box { border-left: 0; border-top: 1px solid var(--line); padding: 14px 0 0; } }
   @media (min-width: 821px) and (max-height: 820px) { .er-heading { min-height: 116px; } .er-heading h1 { font-size: clamp(2.5rem, 3.2vw, 3.6rem); } .stage-guide { max-height: 36px; overflow: hidden; font-size: 10px; line-height: 1.3; } .total-value { height: 116px; padding: 14px 20px; } .total-value-label { margin-bottom: 9px; } .total-value strong { font-size: clamp(2.35rem, 3vw, 3.25rem); } }
+`;
+
+const persianStyles = `
+  .er-console.is-persian {
+    position: relative;
+    isolation: isolate;
+    direction: rtl;
+    text-align: right;
+    background: #071426;
+    font-family: Vazirmatn, Tahoma, Arial, sans-serif;
+  }
+  .er-console.is-persian::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: url('/bg.png') center / cover no-repeat;
+    transform: scaleX(-1);
+    pointer-events: none;
+  }
+  .er-console.is-persian::after { transform: scaleX(-1); }
+  .er-console.is-persian,
+  .er-console.is-persian * {
+    font-family: Vazirmatn, Tahoma, Arial, sans-serif;
+    letter-spacing: 0;
+  }
+  .er-console.is-persian .er-shell { direction: rtl; }
+  .er-console.is-persian .er-topbar,
+  .er-console.is-persian .er-body,
+  .er-console.is-persian .er-main,
+  .er-console.is-persian .er-right-column { direction: rtl; }
+  .er-console.is-persian .er-brand { justify-content: flex-end; }
+  .er-console.is-persian .er-brand img { object-position: right center; }
+  .er-console.is-persian .er-topbar-actions a { padding: 0 10px 0 12px; }
+  .er-console.is-persian .rail-item,
+  .er-console.is-persian .field,
+  .er-console.is-persian .result-card { text-align: right; }
+  .er-console.is-persian .total-value { background: linear-gradient(115deg, rgba(32, 72, 113, .74), rgba(33, 48, 74, .55)); }
+  .er-console.is-persian .total-value::after {
+    background: linear-gradient(115deg, rgba(11, 29, 55, .12), rgba(11, 29, 55, .6)), url('/bg.png') center 46% / cover;
+    transform: scaleX(-1);
+  }
+  .er-console.is-persian .total-value .value-pill { right: auto; left: 22px; }
+  .er-console.is-persian .donut,
+  .er-console.is-persian .result-donut { transform: scaleX(-1); }
+  .er-console.is-persian .donut .center,
+  .er-console.is-persian .result-donut .center { transform: scaleX(-1); }
+  .er-console.is-persian .bar-fill { inset: 0 0 0 auto; }
+  .er-console.is-persian .metric-pill + .metric-pill,
+  .er-console.is-persian .snapshot-item + .snapshot-item {
+    border-right: 1px solid var(--line);
+    border-left: 0;
+    padding-right: 24px;
+    padding-left: 0;
+  }
+  .er-console.is-persian .scenario-box {
+    border-right: 1px solid var(--line);
+    border-left: 0;
+    padding-right: 22px;
+    padding-left: 0;
+  }
+  .er-console.is-persian .field .control { flex-direction: row; }
+  .er-console.is-persian .field input:not([type="range"]) { direction: ltr; text-align: right; }
+  .er-console.is-persian .field input[type="range"] { direction: rtl; }
+  .er-console.is-persian .er-foot { padding: 0 2px 0 6px; }
+  .er-console.is-persian .ratio-row { direction: rtl; }
+  .er-console.is-persian .ratio-row strong,
+  .er-console.is-persian .result-card strong { direction: ltr; unicode-bidi: isolate; }
+  .er-console.is-persian .legend-item .amount,
+  .er-console.is-persian .legend-item .pct { direction: ltr; unicode-bidi: isolate; }
+  .er-console.is-persian button { letter-spacing: 0; }
+  @media (min-width: 1201px) and (min-height: 700px) {
+    .er-console.is-persian { height: 100dvh; min-height: 0; overflow: hidden; padding: 10px 22px 8px; }
+    .er-console.is-persian .er-shell {
+      height: calc(100dvh - 18px);
+      min-height: 0;
+      grid-template-rows: 36px minmax(0, 1fr) 18px;
+      gap: 8px;
+    }
+    .er-console.is-persian .er-body { min-height: 0; align-items: stretch; grid-template-columns: 218px minmax(0, 1fr) 314px; }
+    .er-console.is-persian .er-rail,
+    .er-console.is-persian .er-result { height: 100%; min-height: 0; overflow: hidden; }
+    .er-console.is-persian .er-main { min-height: 0; gap: 10px; }
+    .er-console.is-persian .er-heading { min-height: 116px; }
+    .er-console.is-persian .total-value { height: 116px; }
+    .er-console.is-persian .value-panel,
+    .er-console.is-persian .bridge-panel { min-height: 0; }
+    .er-console.is-persian .panel { padding: 14px 16px 12px; }
+    .er-console.is-persian .metric-strip,
+    .er-console.is-persian .snapshot-strip { min-height: 66px; padding: 9px 14px; }
+    .er-console.is-persian .value-layout { grid-template-columns: 190px minmax(0, 1fr); min-height: 150px; }
+    .er-console.is-persian .donut { width: min(170px, 22vh); }
+    .er-console.is-persian .result-donut { width: min(170px, 22vh); margin: 10px auto; }
+    .er-console.is-persian .er-result { padding: 14px; }
+    .er-console.is-persian .er-result small { margin-top: 14px; }
+    .er-console.is-persian .legend-list { gap: 7px; }
+    .er-console.is-persian .download-btn { min-height: 32px; margin-top: 10px; }
+  }
+  @media (max-width: 820px) {
+    .er-console.is-persian .metric-pill + .metric-pill,
+    .er-console.is-persian .snapshot-item + .snapshot-item { border-right: 0; padding-right: 0; }
+    .er-console.is-persian .scenario-box { border-right: 0; border-top: 1px solid var(--line); padding: 14px 0 0; }
+    .er-console.is-persian .er-status { display: none; }
+    .er-console.is-persian .er-brand { margin-right: 0; }
+  }
 `;
