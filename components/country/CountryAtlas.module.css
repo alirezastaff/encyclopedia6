@@ -594,6 +594,8 @@ span.cardFlag { display: inline-grid; place-items: center; font-size: 12px; }
 .atlasPersian .sources ul { padding-right: 16px; }
 .atlasPersian .articleCopy :global(blockquote), .atlasPersian .articleUnavailable { border-right: 2px solid #8fb598; border-left: 0; padding-right: 15px; padding-left: 0; }
 .atlasPersian .articleUnavailable { border-right-color: #829f88; padding-right: 12px; }
+.atlasPersian .sources, .atlasPersian .sources p, .atlasPersian .sources li { direction: ltr; text-align: left; }
+.atlasPersian .sources ul { padding-right: 0; padding-left: 16px; }
 .atlasPersian .carouselDock { right: 300px; left: 23px; }
 .atlasPersian .countryCarousel { direction: rtl; }
 .atlasPersian .cardSelectionMark { right: auto; left: 8px; }
