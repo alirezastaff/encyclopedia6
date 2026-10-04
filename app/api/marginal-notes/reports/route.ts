@@ -1,13 +1,16 @@
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
+import { isRecord, parseJsonBody } from "@/lib/request-validation";
 
 const reasons = new Set(["spam", "abuse", "off-topic", "privacy", "other"]);
 
 export async function POST(request: Request) {
-  const body = await request.json().catch(() => null);
-  if (!body || typeof body !== "object") return new Response(JSON.stringify({ error: "Invalid request." }), { status: 400 });
-  const input = body as Record<string, unknown>;
+  const parsed = await parseJsonBody(request, 8 * 1024);
+  if (!parsed.ok || !isRecord(parsed.value)) {
+    return Response.json({ error: "Invalid request." }, { status: parsed.ok ? 400 : parsed.status, headers: { "Cache-Control": "no-store" } });
+  }
+  const input = parsed.value;
   const postId = typeof input.postId === "string" ? input.postId.trim() : "";
   const reason = typeof input.reason === "string" && reasons.has(input.reason) ? input.reason : "other";
   const session = await getServerSession(authOptions);

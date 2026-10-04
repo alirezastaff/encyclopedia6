@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { articles } from "@/lib/articles";
+import { isRecord, isSameOriginRequest, parseJsonBody } from "@/lib/request-validation";
 
 export async function GET(request: Request) {
   const session = await getServerSession(authOptions);
@@ -17,19 +19,24 @@ export async function GET(request: Request) {
     prisma.textHighlight.findMany({ where: { user: { email: session.user.email } } }),
   ]);
 
-  return new Response(JSON.stringify({ bookmarks, readingList, progress, groups, notes, highlights }), { status: 200 });
+  return Response.json({ bookmarks, readingList, progress, groups, notes, highlights }, { status: 200, headers: { "Cache-Control": "private, no-store" } });
 }
 
 export async function POST(request: Request) {
+  if (!isSameOriginRequest(request)) return Response.json({ error: "Cross-origin request denied." }, { status: 403, headers: { "Cache-Control": "no-store" } });
+
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 
-  const body = await request.json();
-  const { action, payload } = body as { action: string; payload: Record<string, unknown> };
+  const parsed = await parseJsonBody(request, 32 * 1024);
+  if (!parsed.ok || !isRecord(parsed.value)) {
+    return Response.json({ error: "Invalid payload" }, { status: parsed.ok ? 400 : parsed.status, headers: { "Cache-Control": "no-store" } });
+  }
+  const { action, payload } = parsed.value;
 
-  if (!action) {
+  if (typeof action !== "string" || !isRecord(payload)) {
     return new Response(JSON.stringify({ error: "Action required" }), { status: 400 });
   }
 
@@ -40,7 +47,7 @@ export async function POST(request: Request) {
 
   switch (action) {
     case "toggleBookmark":
-      if (typeof payload.articleSlug !== "string") {
+      if (typeof payload.articleSlug !== "string" || !articles.some((article) => article.slug === payload.articleSlug)) {
         return new Response(JSON.stringify({ error: "Invalid payload" }), { status: 400 });
       }
       const existing = await prisma.bookmark.findUnique({ where: { userId_articleSlug: { userId: user.id, articleSlug: payload.articleSlug } } });
@@ -52,7 +59,7 @@ export async function POST(request: Request) {
       return new Response(JSON.stringify({ success: true }));
 
     case "toggleReadingList":
-      if (typeof payload.articleSlug !== "string") {
+      if (typeof payload.articleSlug !== "string" || !articles.some((article) => article.slug === payload.articleSlug)) {
         return new Response(JSON.stringify({ error: "Invalid payload" }), { status: 400 });
       }
       const existingItem = await prisma.readingListItem.findUnique({ where: { userId_articleSlug: { userId: user.id, articleSlug: payload.articleSlug } } });
@@ -64,7 +71,8 @@ export async function POST(request: Request) {
       return new Response(JSON.stringify({ success: true }));
 
     case "updateStatus":
-      if (typeof payload.articleSlug !== "string" || typeof payload.status !== "string") {
+      if (typeof payload.articleSlug !== "string" || !articles.some((article) => article.slug === payload.articleSlug)
+        || !["to-read", "reading", "completed"].includes(String(payload.status))) {
         return new Response(JSON.stringify({ error: "Invalid payload" }), { status: 400 });
       }
       await prisma.readingListItem.upsert({
@@ -75,7 +83,9 @@ export async function POST(request: Request) {
       return new Response(JSON.stringify({ success: true }));
 
     case "saveProgress":
-      if (typeof payload.articleSlug !== "string" || typeof payload.scrollPosition !== "number") {
+      if (typeof payload.articleSlug !== "string" || !articles.some((article) => article.slug === payload.articleSlug)
+        || typeof payload.scrollPosition !== "number" || !Number.isSafeInteger(payload.scrollPosition)
+        || payload.scrollPosition < 0 || payload.scrollPosition > 5_000_000) {
         return new Response(JSON.stringify({ error: "Invalid payload" }), { status: 400 });
       }
       await prisma.readingProgress.upsert({

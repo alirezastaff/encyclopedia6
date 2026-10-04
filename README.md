@@ -1,40 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SSE Encyclopedia
 
-## Getting Started
+This repository is a Next.js application for the Social and Solidarity Economy encyclopedia platform.
 
-First, run the development server:
+## Local setup
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Create a local environment file based on the example:
+   ```bash
+   cp .env.example .env.local
+   ```
+3. Fill in the required values in `.env.local`.
+4. Run the app:
+   ```bash
+   npm run dev
+   ```
+
+## Required environment variables
+
+Copy the values from `.env.example` and replace the placeholders before deployment.
+
+- `DATABASE_URL`: database connection string. For production, prefer PostgreSQL instead of SQLite.
+- `NEXTAUTH_SECRET`: strong secret for NextAuth session signing.
+- `NEXTAUTH_URL`: canonical app URL for authentication flows.
+- `NEXT_PUBLIC_WORDPRESS_URL`: WordPress base URL for published editorial content.
+- `GEMINI_API_KEY`: server-only Gemini API key for AI country comparison.
+
+## Production deployment checklist
+
+Before deployment, confirm all of the following:
+
+- `npm run lint` passes.
+- `npm run typecheck` passes.
+- `npm run build` passes.
+- Prisma client is generated: `npm run db:generate`.
+- Database is migrated for the target environment: `npm run db:migrate`.
+- The app health endpoint is reachable at `/health`.
+- `NEXTAUTH_SECRET` and `DATABASE_URL` are set in the deployment platform secrets.
+- `GEMINI_API_KEY` is stored as a server-only secret and never exposed to the browser.
+- `NEXT_PUBLIC_WORDPRESS_URL` points to the correct public WordPress origin.
+
+## Useful scripts
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run build
+npm run start
+npm run lint
+npm run typecheck
+npm run db:generate
+npm run db:push
+npm run db:migrate
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Notes
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- The app uses Prisma + SQLite in local development by default.
+- For production hosting, move to a managed PostgreSQL database before relying on the app at scale.
+- The AI comparison feature remains optional; if `GEMINI_API_KEY` is missing, the app keeps local comparisons available but disables the Gemini-backed comparison.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Country comparison
-
-The Country Explorer's comparative view works without an API key: it compares themes and published indicators locally. To generate a full AI comparative study, it sends both published country articles to Gemini and displays five or six analytical paragraphs plus a qualitative evidence map with source excerpts. Enable this option with a Gemini API key in the server environment or deployment secrets under `GEMINI_API_KEY`, then restart or redeploy the application. Keep this key server-side; do not prefix it with `NEXT_PUBLIC_`, commit it to the repository, or share it in chat. If no key is configured, local comparisons remain available.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

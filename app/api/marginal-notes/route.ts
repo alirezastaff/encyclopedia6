@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { articles } from "@/lib/articles";
 import { getServerSession } from "next-auth";
+import { isRecord, parseJsonBody } from "@/lib/request-validation";
 
 const postKinds = new Set(["comment", "question", "critique", "proposal", "experience", "reference"]);
 const maxContentLength = 12000;
@@ -33,6 +34,7 @@ export async function GET(request: Request) {
   const articleSlug = url.searchParams.get("article")?.trim() || undefined;
   const kind = url.searchParams.get("kind")?.trim() || undefined;
   const search = url.searchParams.get("q")?.trim() || undefined;
+  if (search && search.length > 120) return json({ error: "Search query is too long." }, 400);
   const posts = await prisma.marginalPost.findMany({
     where: {
       status: "published",
@@ -48,11 +50,11 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const body = await request.json().catch(() => null);
-  if (!body || typeof body !== "object") return json({ error: "بدنه درخواست معتبر نیست." }, 400);
+  const parsed = await parseJsonBody(request, 64 * 1024);
+  if (!parsed.ok || !isRecord(parsed.value)) return json({ error: "بدنه درخواست معتبر نیست." }, parsed.ok ? 400 : parsed.status);
 
   const session = await getServerSession(authOptions);
-  const input = body as Record<string, unknown>;
+  const input = parsed.value;
   const content = typeof input.content === "string" ? input.content.trim() : "";
   const articleSlug = typeof input.articleSlug === "string" ? input.articleSlug.trim() : "";
   const kind = typeof input.kind === "string" && postKinds.has(input.kind) ? input.kind : "comment";

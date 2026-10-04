@@ -1,13 +1,18 @@
 import { prisma } from "@/lib/prisma";
+import { isRecord, parseJsonBody } from "@/lib/request-validation";
 
 export async function POST(request: Request) {
-  const body = await request.json().catch(() => null) as { email?: unknown; fullName?: unknown; phone?: unknown } | null;
+  const parsed = await parseJsonBody(request, 8 * 1024);
+  if (!parsed.ok || !isRecord(parsed.value)) {
+    return Response.json({ error: "A valid request is required." }, { status: parsed.ok ? 400 : parsed.status, headers: { "Cache-Control": "no-store" } });
+  }
+  const body = parsed.value;
   if (typeof body?.email !== "string") {
     return Response.json({ error: "A valid email address is required." }, { status: 400 });
   }
 
   const email = body.email.trim().toLowerCase();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return Response.json({ error: "A valid email address is required." }, { status: 400 });
   }
 
@@ -42,5 +47,5 @@ export async function POST(request: Request) {
     update: memberDetails ?? {},
   });
 
-  return Response.json({ success: true }, { status: 201 });
+  return Response.json({ success: true }, { status: 201, headers: { "Cache-Control": "no-store" } });
 }

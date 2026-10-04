@@ -541,6 +541,8 @@ export default function CountryAtlas({ locale = "en" }: { locale?: "en" | "fa" }
     || ({ id: selectedId, name: profiles.find((profile) => profile.id === selectedId)?.name || "United States of America" } as Country);
   const profile = profileForCountry(selectedCountry, profiles);
   const selectedName = profile?.name || countryName(selectedCountry, locale);
+  const selectedLabelWidth = Math.min(190, Math.max(48, selectedName.length * (isPersian ? 7.5 : 6.5) + 18));
+  const selectedLabelTextLength = selectedLabelWidth - 20;
   const selectedRegion = getRegion(selectedCountry) || "North America";
   const selectedRegionName = regionLabels[selectedRegion][locale];
   const selectedPoint: [number, number] = typeof profile?.longitude === "number" && typeof profile.latitude === "number"
@@ -656,7 +658,7 @@ export default function CountryAtlas({ locale = "en" }: { locale?: "en" | "fa" }
         ? [profileMatch.longitude, profileMatch.latitude]
         : pointForCountry(country);
       setCenter(nextPoint);
-      setZoom((current) => Math.max(current, 2.15));
+      setZoom((current) => Math.max(current, 2.5));
     }
     setHoveredCountry(null);
   }
@@ -811,7 +813,7 @@ export default function CountryAtlas({ locale = "en" }: { locale?: "en" | "fa" }
             <ComposableMap
               className={styles.worldMap}
               projection="geoEqualEarth"
-              projectionConfig={{ scale: 156 }}
+              projectionConfig={{ scale: 178 }}
               width={1200}
               height={720}
               role="img"
@@ -853,9 +855,18 @@ export default function CountryAtlas({ locale = "en" }: { locale?: "en" | "fa" }
                 <Marker coordinates={selectedPoint}>
                   <circle className={styles.markerHalo} r="9" />
                   <circle className={styles.markerPoint} r="2.6" />
-                  <g className={styles.markerLabel} transform="translate(12 -16)">
-                    <rect width={Math.max(90, Math.min(180, selectedName.length * 6.5 + 28))} height="28" rx="3" />
-                    <text x="10" y="18">{selectedName}</text>
+                  <g className={styles.markerLabel} transform={`translate(12 -16) scale(${1 / zoom})`}>
+                    <rect width={selectedLabelWidth} height="28" rx="3" />
+                    <text
+                      x={isPersian ? selectedLabelWidth - 10 : 10}
+                      y="18"
+                      direction={isPersian ? "rtl" : "ltr"}
+                      textAnchor="start"
+                      textLength={selectedLabelTextLength}
+                      lengthAdjust="spacingAndGlyphs"
+                    >
+                      {selectedName}
+                    </text>
                   </g>
                 </Marker>
               </ZoomableGroup>

@@ -1,3 +1,5 @@
+import { isRecord, parseJsonBody } from "@/lib/request-validation";
+
 type CountryComparisonProfile = {
   id: string;
   name: string;
@@ -39,7 +41,7 @@ const maxTotalArticleLength = 55000;
 const maxStatistics = 30;
 
 function json(data: unknown, status = 200) {
-  return Response.json(data, { status });
+  return Response.json(data, { status, headers: { "Cache-Control": "no-store" } });
 }
 
 function articleText(value: string): string {
@@ -111,9 +113,9 @@ export async function GET() {
 export async function POST(request: Request) {
   const queryLocale = new URL(request.url).searchParams.get("locale");
   const defaultLocale: Locale = queryLocale === "fa" ? "fa" : "en";
-  const body: unknown = await request.json().catch(() => null);
-  if (!body || typeof body !== "object") return json({ error: localizedError(defaultLocale, "A valid comparison request is required.", "درخواست مقایسه معتبر نیست.") }, 400);
-  const input = body as Record<string, unknown>;
+  const parsed = await parseJsonBody(request, 512 * 1024);
+  if (!parsed.ok || !isRecord(parsed.value)) return json({ error: localizedError(defaultLocale, "A valid comparison request is required.", "درخواست مقایسه معتبر نیست.") }, parsed.ok ? 400 : parsed.status);
+  const input = parsed.value;
   const locale: Locale = input.locale === "fa" ? "fa" : input.locale === "en" ? "en" : defaultLocale;
   const first = parseProfile(input.first);
   const second = parseProfile(input.second);

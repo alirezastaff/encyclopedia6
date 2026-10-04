@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import AuthProvider from "@/components/auth/AuthProvider";
+import PageTransition from "@/components/layout/PageTransition";
 
 export const metadata: Metadata = {
   title: "دانشنامه اقتصاد اجتماعی و همبستگی",
@@ -19,6 +20,7 @@ export default function RootLayout({
     <html lang="fa" dir="rtl">
       <body>
         <AuthProvider>
+          <PageTransition />
           {children}
         </AuthProvider>
       </body>

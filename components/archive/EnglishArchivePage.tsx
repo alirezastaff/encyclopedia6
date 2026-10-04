@@ -293,6 +293,7 @@ const styles = `
   .english-archive { --ink:#193641; --muted:#5d7580; --soft:#345563; --accent:#3e9fb5; --line:rgba(40,105,122,.2); --panel:rgba(220,235,240,.76); --panel-strong:rgba(242,249,251,.88); --chip:rgba(62,159,181,.1); height:100dvh; min-height:100dvh; overflow:hidden; color:var(--ink); background:linear-gradient(110deg,rgba(211,229,236,.92),rgba(187,215,225,.84)),url('/bgaboutus.png') center/cover fixed; font-family:'Vazirmatn',sans-serif; }
   .english-archive.theme-dark { --ink:#edf8fa; --muted:#abc3cb; --soft:#c8dfe5; --accent:#82c9d8; --line:rgba(184,225,235,.22); --panel:rgba(17,55,68,.7); --panel-strong:rgba(22,68,82,.84); --chip:rgba(105,194,211,.12); background:linear-gradient(110deg,rgba(18,55,69,.8),rgba(25,78,91,.72)),url('/bgaboutus.png') center/cover fixed; }
   .english-archive * { box-sizing:border-box; scrollbar-width:thin; scrollbar-color:rgba(62,159,181,.58) transparent; }
+  .english-archive, .english-archive * { font-family:'Vazirmatn',sans-serif !important; }
   .english-archive *::-webkit-scrollbar { width:8px; height:8px; }
   .english-archive *::-webkit-scrollbar-track { background:transparent; }
   .english-archive *::-webkit-scrollbar-thumb { border:2px solid transparent; border-radius:999px; background:rgba(62,159,181,.58); background-clip:padding-box; }
@@ -709,9 +710,7 @@ export default function EnglishArchivePage({ initialQuery = "", locale = "en" }:
             <span>
               {isPersian ? (
                 <>
-                  دانش برای
-                  <br />
-                  <strong>اقتصادی عادلانه‌تر و پایدارتر</strong>
+                  تالیف نسخه اصلی توسط کارگروه پژوهشی سازمان ملل متحد
                 </>
               ) : (
                 <>

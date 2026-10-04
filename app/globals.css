@@ -5,6 +5,84 @@ html {
   scroll-behavior: smooth;
 }
 
+.page-transition-veil {
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 420ms ease;
+}
+
+.page-transition-veil.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.page-transition-content {
+  display: grid;
+  justify-items: center;
+  gap: 19px;
+  width: min(300px, calc(100vw - 48px));
+  color: #f4f5ef;
+}
+
+.page-transition-brand {
+  font-family: "Estedad", Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.page-transition-track {
+  position: relative;
+  width: 100%;
+  height: 3px;
+  overflow: hidden;
+  background: #27302d;
+}
+
+.page-transition-progress {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 38%;
+  background: #a9d3b0;
+  animation: page-transition-progress 1.25s cubic-bezier(.45, 0, .55, 1) infinite;
+}
+
+@keyframes page-transition-progress {
+  from { transform: translateX(-110%); }
+  to { transform: translateX(365%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-transition-veil {
+    transition-duration: 1ms;
+  }
+
+  .page-transition-progress {
+    animation-duration: 3s;
+  }
+}
+
+@media (max-width: 680px) {
+  .case-page.is-english .case-card-image,
+  .case-page.is-persian .case-card-image {
+    height: clamp(90px, 21vh, 168px) !important;
+  }
+}
+
+@media (min-width: 681px) {
+  .case-page.is-english .case-card-image,
+  .case-page.is-persian .case-card-image {
+    height: clamp(162px, 27vh, 276px) !important;
+  }
+}
+
 /* Viewport-locked dashboard layouts for the two tool surfaces. */
 .case-page {
   height: 100dvh;
