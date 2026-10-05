@@ -69,11 +69,20 @@ const initial: Form = {
 
 const persianInitial: Form = {
   ...initial,
-  budget: 1000000000,
-  hourlyRate: 500000,
-  socialProxy: 2000000,
-  environmentalProxy: 50000,
-  economicProxy: 200000000,
+  budget: 0,
+  volunteerHours: 0,
+  hourlyRate: 0,
+  beneficiaries: 0,
+  jobs: 0,
+  waste: 0,
+  changeRate: 0,
+  socialProxy: 0,
+  environmentalProxy: 0,
+  economicProxy: 0,
+  deadweight: 0,
+  attribution: 0,
+  displacement: 0,
+  dropoff: 0,
 };
 
 const stages: { id: Stage; label: string; icon: typeof Gauge }[] = [
@@ -87,17 +96,18 @@ const stages: { id: Stage; label: string; icon: typeof Gauge }[] = [
 
 const faCopy = {
   status: "ارزیابی در حال انجام",
-  updated: "به‌تازگی به‌روزرسانی شد",
+  updated: "برآورد بر پایهٔ ورودی‌های شما",
   encyclopedia: "دانشنامه",
   workspace: "فضای کار",
   activeView: "نمای فعلی",
+  dashboardGuide: "راهنمای کار با داشبورد",
   ready: "آماده",
   dataTip: "راهنمای داده",
   dataTipText: "اولویت با داده‌های سنجیده و مستند است؛ از برآوردهای جایگزین فقط وقتی استفاده کنید که شواهد مستقیم در دسترس نیست.",
   decisionSupport: "پشتیبانی از تصمیم‌گیری",
   heading: "ارزیابی اثر اجتماعی",
-  totalValue: "مجموع ارزش اجتماعی",
-  valueCreated: "ارزش ایجادشده",
+  totalValue: "ارزش اجتماعی برآوردشده",
+  valueCreated: "بر پایهٔ فرض‌های واردشده",
   netValue: "ارزش خالص",
   liveResult: "نتیجهٔ زنده",
   ratio: "نسبت بازده اجتماعی سرمایه‌گذاری (SROI)",
@@ -106,7 +116,7 @@ const faCopy = {
   valueMix: "ترکیب ارزش",
   currentEstimate: "برآورد فعلی",
   valueBridge: "مسیر تبدیل ارزش",
-  netEffect: "اثر خالص",
+  netEffect: "مسیر برآورد",
   grossOutcomes: "ارزش ناخالص پیامدها",
   adjustments: "تعدیلات",
   adjustmentNote: "تعدیلات از بزرگ‌نمایی اثر جلوگیری می‌کنند.",
@@ -119,7 +129,6 @@ const faCopy = {
   scenario: "سناریو",
   conservative: "محافظه‌کارانه",
   expected: "محتمل",
-  optimistic: "خوش‌بینانه",
   assumptions: "فرض‌ها",
   finalReview: "بازبینی نهایی",
   readyToExport: "آمادهٔ دریافت گزارش",
@@ -128,7 +137,7 @@ const faCopy = {
   downloadPdf: "چاپ / ذخیرهٔ گزارش PDF",
   screeningEstimate: "این برآورد اولیه است و ارزش‌گذاری حسابرسی‌شده محسوب نمی‌شود.",
   stages: {
-    overview: "نمای کلی",
+    overview: "اثر اجتماعی چیست",
     financial: "منابع مالی",
     outputs: "خروجی‌های مستقیم",
     outcomes: "پیامدها و ارزش‌ها",
@@ -146,20 +155,20 @@ const faCopy = {
 } as const;
 
 const faFields = {
-  budget: { label: "بودجهٔ سالانه / سرمایه‌گذاری اولیه", help: "وجه نقدی که مستقیماً به برنامه اختصاص یافته است.", suffix: "ریال" },
-  volunteerHours: { label: "ساعت داوطلبی", help: "زمانی که افراد در دورهٔ ارزیابی بدون دریافت دستمزد صرف کرده‌اند.", suffix: "ساعت" },
-  hourlyRate: { label: "ارزش هر ساعت داوطلبی", help: "برآوردی محتاطانه از ارزش یک ساعت کار داوطلبانه.", suffix: "ریال / ساعت" },
-  beneficiaries: { label: "ذی‌نفعان مستقیم", help: "افرادی که مستقیماً از برنامه خدمات یا حمایت دریافت کرده‌اند.", suffix: "نفر" },
-  jobs: { label: "مشاغل پایدار ایجادشده", help: "مشاغلی که برای گروه‌های کمتر برخوردار ایجاد شده‌اند.", suffix: "شغل" },
-  waste: { label: "پسماند بازیابی‌شده", help: "موادی که در نتیجهٔ مداخله از چرخهٔ دورریز خارج شده‌اند.", suffix: "کیلوگرم" },
-  changeRate: { label: "نرخ تغییر مثبت", help: "برآورد مستند یا سنجیده‌شدهٔ میزان تغییر منتسب به برنامه.", suffix: "٪" },
-  socialProxy: { label: "ارزش اجتماعی هر ذی‌نفع", help: "برای نمونه، هزینه‌های سلامت یا رفاهی که از آن‌ها جلوگیری شده است.", suffix: "ریال / نفر" },
-  environmentalProxy: { label: "ارزش زیست‌محیطی هر کیلوگرم", help: "هزینهٔ جمع‌آوریِ حذف‌شده به‌علاوهٔ ارزش کربن ذخیره‌شده.", suffix: "ریال / کیلوگرم" },
-  economicProxy: { label: "ارزش اقتصادی هر شغل", help: "ارزش برآوردی اشتغال پایدار برای خانوار و جامعه.", suffix: "ریال / شغل" },
-  deadweight: { label: "تغییر بدون مداخله", help: "بخشی از تغییر که احتمالاً حتی بدون برنامه رخ می‌داد.", suffix: "٪" },
-  attribution: { label: "سهم سایر نهادها", help: "بخشی از موفقیت که باید به سازمان‌ها یا افراد دیگر نسبت داد.", suffix: "٪" },
-  displacement: { label: "جابه‌جایی اثر", help: "ارزش مثبتی که در جای دیگری زیان یا پیامد منفی ایجاد می‌کند.", suffix: "٪" },
-  dropoff: { label: "کاهش اثر در گذر زمان", help: "کاهش سالانهٔ ارزش پیامدها در طول زمان.", suffix: "٪" },
+  budget: { label: "بودجه / سرمایه‌گذاری نقدی", help: "مجموع منابع نقدی مصرف‌شده برای همین پروژه و همین دورهٔ ارزیابی را وارد کنید؛ هزینهٔ سالانه را با کل هزینهٔ چندساله مخلوط نکنید. پیش‌نیاز: بودجهٔ مصوب یا اسناد مالی پروژه.", suffix: "ریال" },
+  volunteerHours: { label: "ساعت کار داوطلبانه", help: "ساعت‌هایی که داوطلبان واقعاً برای پروژه صرف کرده‌اند؛ این ورودی خروجی پروژه است، نه تعداد افراد. پیش‌نیاز: برگهٔ ثبت ساعت، حضور و غیاب یا گزارش معتبر دورهٔ ارزیابی.", suffix: "ساعت" },
+  hourlyRate: { label: "ارزش هر ساعت داوطلبی", help: "نرخ پولیِ مستند برای ارزش‌گذاری زمان داوطلبان است و باید با نوع کار و محل پروژه تناسب داشته باشد. پیش‌نیاز: نرخ دستمزد مرجع رسمی/محلی یا روش ارزش‌گذاری مکتوب؛ عدد دلخواه وارد نکنید.", suffix: "ریال / ساعت" },
+  beneficiaries: { label: "افرادِ مستقیمِ تحت‌تأثیر", help: "تعداد افراد یکتایی که خدمت یا حمایت مستقیم گرفته‌اند؛ مراجعه‌های تکراری را دوباره نشمارید. پیش‌نیاز: فهرست ثبت‌نام یا دادهٔ اجراییِ تجمیع‌شده؛ برای فهم تجربه و تغییر آنان، با خود افراد هم مشورت کنید.", suffix: "نفر" },
+  jobs: { label: "مشاغل پایدار ایجادشده", help: "تعداد شغل‌هایی که واقعاً به ایجاد یا حفظ آن‌ها کمک شده، نه فرصت‌های اعلام‌شده یا موقت. «پایدار» را برای پروژه تعریف کنید. پیش‌نیاز: سوابق اشتغال/کارفرما و در صورت امکان پیگیری وضعیت افراد.", suffix: "شغل" },
+  waste: { label: "پسماند بازیابی‌شده", help: "وزن ماده‌ای که واقعاً از دفع جلوگیری شده یا بازیابی شده است؛ نوع ماده و دورهٔ شمارش باید یکسان باشد. پیش‌نیاز: قبض باسکول، رسید بازیافت یا ثبت عملیاتی؛ از تخمین بدون مبنا پرهیز کنید.", suffix: "کیلوگرم" },
+  changeRate: { label: "درصد افرادِ دارای تغییر", help: "سهم افراد تحت‌تأثیر است که تغییرِ تعریف‌شده و مهم را تجربه کرده‌اند؛ این عدد صرفاً نرخ حضور یا رضایت نیست. پیش‌نیاز: تعریف Outcome و شاخص، سپس دادهٔ قبل/بعد یا پیگیری معتبر. معمولاً به نظرسنجی از ذی‌نفعان نیاز دارید؛ پرسش‌ها و زمان سنجش را ثبت کنید.", suffix: "٪" },
+  socialProxy: { label: "ارزش مالی پیامد اجتماعی", help: "تقریب مالیِ مستند برای یک Outcome اجتماعی به ازای هر فرد است، نه قیمت واقعیِ انسان یا پیامد. پیش‌نیاز: Outcome و واحد آن را مشخص کنید، سپس منبع معتبر (پژوهش، آمار رسمی یا هزینهٔ جایگزین) و سال/واحد پول را ثبت کنید. اگر منبع ندارید، عدد نسازید و پیامد را غیرپولی گزارش کنید.", suffix: "ریال / نفر" },
+  environmentalProxy: { label: "ارزش مالی هر کیلوگرم پسماند", help: "تقریب مالیِ مستند برای اثر زیست‌محیطیِ همان نوع ماده است؛ ارزش چند پیامد را بدون تفکیک با هم جمع نکنید. پیش‌نیاز: نوع ماده، روش محاسبه و منبعی مانند تعرفهٔ رسمی یا پژوهش معتبر. اگر منبع ندارید، عدد نسازید.", suffix: "ریال / کیلوگرم" },
+  economicProxy: { label: "ارزش مالی هر شغل", help: "تقریب مالیِ مستند برای Outcome اشتغال است، نه حقوق سالانهٔ شاغل مگر آنکه روش شما دقیقاً همین را توجیه کند. پیش‌نیاز: تعریف شغل پایدار، مدت اثر، واحد محاسبه و منبع معتبر؛ از شمارش هم‌زمان درآمد و منفعتی که همان درآمد را بازتاب می‌دهد پرهیز کنید.", suffix: "ریال / شغل" },
+  deadweight: { label: "تغییری که بدون پروژه رخ می‌داد", help: "درصد Outcomeای است که احتمالاً حتی بدون مداخلهٔ شما رخ می‌داد؛ هرچه این سهم بیشتر باشد، سهم قابل‌انتساب کمتر است. پیش‌نیاز: خط پایه، گروه مقایسه یا پرسش از ذی‌نفعان دربارهٔ وضعیتِ بدون پروژه؛ معمولاً نظرسنجی/مصاحبهٔ پیگیری لازم است.", suffix: "٪" },
+  attribution: { label: "سهم سایر عوامل و سازمان‌ها", help: "درصد تغییری است که به همکاری نهادهای دیگر یا عوامل بیرونی مربوط می‌شود. پیش‌نیاز: گفت‌وگو با ذی‌نفعان و شرکا، بررسی خدمات هم‌زمان و ثبت منطق تقسیم سهم؛ نظرسنجی داخلی به‌تنهایی کافی نیست مگر روش آن روشن باشد.", suffix: "٪" },
+  displacement: { label: "جابه‌جایی یا انتقال اثر", help: "درصد منفعتی است که با زیان یا کاهش منفعت در جای دیگری همراه شده است؛ نبودِ داده به معنی صفر بودن آن نیست. پیش‌نیاز: شواهد بازار/خدمت یا پرسش از افراد و گروه‌های متأثر. اگر جابه‌جایی رخ نداده یا داده‌ای ندارید، دلیل و سطح اطمینان را بیرون از این فرم ثبت کنید.", suffix: "٪" },
+  dropoff: { label: "کاهش سالانهٔ اثر", help: "درصد کاهش شدت Outcome در هر سال پس از سال اول است؛ با مدت ماندگاری اثر فرق دارد. پیش‌نیاز: دادهٔ پیگیری در چند مقطع، نظرسنجی تکرارشونده یا مطالعهٔ معتبر. نسخهٔ فعلی مدت اثر و تنزیل را نمی‌سنجد و این نرخ را فقط به‌صورت یک تعدیل ساده اعمال می‌کند.", suffix: "٪" },
 } satisfies Record<keyof Form, { label: string; help: string; suffix: string }>;
 
 const styles = `
@@ -1342,6 +1351,82 @@ function stageGuide(stage: Stage, locale: Locale = "en") {
   return "Start with the assumptions you can support, then refine each input with local evidence. The estimate updates as you move through the workspace.";
 }
 
+function PersianMethodology() {
+  return (
+    <section className="methodology-overview" aria-labelledby="methodology-title">
+      <header className="methodology-intro">
+        <span className="methodology-kicker">مبتنی بر روش بازگشت اجتماعی سرمایه گذاری (SROI)</span>
+        <h2 id="methodology-title">اثر اجتماعی چیست؟</h2>
+        <p>
+          ارزیابی اثر اجتماعی یک شاخص مبتنی بر ارزش اجتماعی و یک ابزار تصمیم یاری برای مدیران پروژه هاست که به آنها کمک میکند تا ابعاد نتایج پروژه را بر زندگی افراد و محیط محاسبه کنند. این ارزیابی بسته به نوع پروژه و منابع مادی که در آن درگیر میشود شاخصها و استانداردهای متفاوتی برای سنجش دارد. اما شیوه محاسبه ارزیابی اثر اجتماعی مبتنی بر نرخ بازگشت اجتماعی سرمایه گذاری(SROI) یک شیوه رایج و عمومی است که شواهد و تقریبهای مالی قابل دفاع و منابع مصرف شده را دریافت کرده و میزان ارزش اجتماعی که سرمایه گذاری در این پروژه تولید کرده است را محاسبه میکند.
+        </p>
+        <div className="methodology-chain" aria-label="زنجیره ارزیابی اثر">
+          {["منابع", "فعالیت", "خروجی", "پیامد", "شواهد و ارزش‌گذاری", "تعدیل اثر", "SROI"].map((step, index) => (
+            <span key={step}><b>{index + 1}</b>{step}</span>
+          ))}
+        </div>
+      </header>
+
+      <div className="methodology-concepts">
+        <article><span>۱ · ورودی پروژه</span><h3>منابعی که پروژه مصرف کرده است.</h3><p>منابع شامل منابع مالی و زمان صرف شده توسط نیروی انسانی است.</p></article>
+        <article><span>۲ · فعالیت و خروجی پروژه</span><h3>در پروژه چه کردید و خروجی چه بود؟</h3><p>منظور نوع فعالیت پروژه (آموزشی، تولیدی، فرهنگی، دیجیتال و...) و خروجی مادی آن است. منظور از خروجی، نتایجی مانند مشارکت ۲۰۰ نفر در پروژه یا سود مالی و... است.</p></article>
+        <article><span>۳ · پیامد پروژه</span><h3>انجام پروژه چه تاثیر مثبت یا منفی بر افراد داشت</h3><p>برای نمونه افزایش مهارت نیروی انسانی، احساس رضایت شغلی یا حتی تعدیل نیرو در پایان یک پروژه موفق که نتایج نامطلوبی بر کارکنان دارد.</p></article>
+        <article><span>۴ · اثر واقعی پروژه</span><h3>چه میزان از پیامدهای پروژه بر افراد را واقعا میتوان به پروژه نسبت داد؟</h3><p>اصولا همه تغییرات مشاهده شده به پروژه مرتبط نیستند. بنابراین باید پایش و تعدیل صورت گیرد تا اثر واقعی پروژه شناسایی شود.</p></article>
+      </div>
+
+      <div className="methodology-preparation">
+        <div>
+          <span className="methodology-kicker">پیش نیازها</span>
+          <h3>برای استفاده از داشبورد، چه داده هایی باید آماده کنید؟</h3>
+          <ul>
+            <li><b>منابع و خروجی های پروژه:</b> باید بودجه پروژه، فهرست کارکنان، سوابق شغلی و اسناد وزن پسماند (اگر پروژه شما پسماند طبیعی دارد) را در اختیار داشته باشید.</li>
+            <li><b>معنای تغییر واقعی:</b> شما باید پیامدها را در پروژه خود تعریف کنید. بنابراین باید از ذی نفعان درباره میزان اثرگذاری پروژه بر آنها و نوع اثر نظرسنجی یا مصاحبه کنید. (راهنمای نظرسنجی)</li>
+            <li><b>باید صورت حساب منابع مالی خود را از صفر تا صد پروژه در اختیار داشته باشید.</b></li>
+          </ul>
+        </div>
+        <aside>
+          <strong>این داشبورد چقدر قابل اعتماد است؟</strong>
+          <p>ابزارهای تصمیم یاری برای مدیران پروژه ها تنوع بسیار گسترده ای دارد. اما این ابزار که بر اساس متدولوژی SROI یا همان بازگشت سرمایه اجتماعی تنظیم شده است که به عنوان عمومی ترین و همه شمول ترین ابزار محاسبه اثرگذاری اجتماعی شناخته میشود. این روش شناسی، پیامدهای نهایی را بصورت دسته های اجتماعی، اقتصادی و زیست محیطی برآورد میکند.</p>
+        </aside>
+      </div>
+
+      <div className="methodology-formula">
+        <h3>نرخ بازگشت اجتماعی سرمایه گذاری (SROI) چیست؟</h3>
+        <p>SROI یا <b>Social Return on Investment</b> روشی برای سنجش ارزش اجتماعی ایجادشده توسط یک پروژه در مقایسه با منابعی است که برای اجرای آن مصرف شده‌اند. در این روش ابتدا مشخص می‌شود پروژه چه کسانی را تحت تأثیر قرار داده و چه تغییراتی در زندگی یا وضعیت آنها ایجاد کرده است، سپس این تغییرات با استفاده از داده و شواهد اندازه‌گیری و تا حد امکان با <b>Financial Proxy</b> به ارزش پولی تقریبی تبدیل می‌شوند؛ بعد اثر عواملی که مستقل از پروژه بوده‌اند، مانند آنچه بدون اجرای پروژه نیز اتفاق می‌افتاد (<b>Deadweight</b>) یا سهم سایر عوامل (<b>Attribution</b>) از محاسبه کسر می‌شود. در نهایت، ارزش فعلی منافع اجتماعی با ارزش سرمایه‌گذاری مقایسه می‌شود.</p>
+        <p>مثلاً SROI برابر <bdi dir="ltr"><b>3:1</b></bdi> یعنی به ازای هر ۱ واحد سرمایه‌گذاری، حدود ۳ واحد ارزش اجتماعی برآورد شده است. نکته مهم این است که SROI صرفاً یک نسبت مالی نیست، بلکه یک <b>فرایند نظام‌مند برای فهم، اندازه‌گیری، ارزش‌گذاری و گزارش اثر اجتماعی</b> است.</p>
+        <p>برای مطالعه بیشتر درخصوص نرخ بازگشت اجتماعی سرمایه گذاری، این پژوهش به بررسی ۲۸۴ مقاله تخصصی در حوزه SROI میپردازد: <a href="https://www.sciencedirect.com/org/science/article/pii/S2049372X22000107?utm_source=chatgpt.com" target="_blank" rel="noopener noreferrer">مطالعهٔ پژوهش در ScienceDirect</a></p>
+        <p className="sroi-formula-label">فرمول استاندارد نسبت بازگشت اجتماعی سرمایه‌گذاری</p>
+        <div className="sroi-equation" dir="ltr" aria-label="SROI equals present value of social outcomes divided by present value of investment">
+          <span>SROI</span><span>=</span>
+          <span className="sroi-fraction"><span>PV (Social Outcomes)</span><span>PV (Investment)</span></span>
+        </div>
+        <p className="sroi-formula-label">صورت فارسی فرمول</p>
+        <div className="sroi-equation sroi-equation-fa" dir="rtl" aria-label="نرخ بازگشت اجتماعی سرمایه گذاری برابر است با ارزش فعلی پیامدهای اجتماعی تقسیم بر ارزش فعلی سرمایه گذاری">
+          <span>نرخ بازگشت اجتماعی سرمایه‌گذاری</span><span>=</span>
+          <span className="sroi-fraction"><span>ارزش فعلی پیامدهای اجتماعی</span><span>ارزش فعلی سرمایه‌گذاری</span></span>
+        </div>
+        <p className="sroi-formula-label">اجزای محاسبهٔ ارزش فعلی پیامدها</p>
+        <div className="sroi-equation sroi-equation-detail" dir="ltr">
+          <span>Gross Outcome Value<sub>i,t</sub> = Quantity<sub>i,t</sub> × Financial Proxy<sub>i</sub></span>
+          <span>Adjusted Outcome Value<sub>i,t</sub> = Gross Outcome Value<sub>i,t</sub> × (1 − Deadweight<sub>i</sub>) × (1 − Attribution<sub>i</sub>) × (1 − Displacement<sub>i</sub>) × Drop-off Factor<sub>i,t</sub></span>
+          <span>Drop-off Factor<sub>i,t</sub> = ∏<sub>k=1</sub><sup>t</sup> (1 − Drop-off Rate<sub>i,k</sub>)</span>
+          <span>PV (Social Outcomes) = ∑<sub>i=1</sub><sup>n</sup> ∑<sub>t=0</sub><sup>T</sup> Adjusted Outcome Value<sub>i,t</sub> / (1 + r)<sup>t</sup></span>
+          <span>PV (Investment) = ∑<sub>t=0</sub><sup>T</sup> Investment<sub>t</sub> / (1 + r)<sup>t</sup></span>
+        </div>
+        <p className="sroi-formula-label">توضیح نمادها</p>
+        <ul className="sroi-definitions">
+          <li><b>i</b>: پیامد مورد سنجش؛ <b>t</b>: سال وقوع پیامد؛ <b>T</b>: آخرین سال دورهٔ ارزیابی.</li>
+          <li><b>Quantity</b>: مقدار پیامد؛ <b>Financial Proxy</b>: تقریب مالی مستند به‌ازای یک واحد پیامد.</li>
+          <li><b>Deadweight</b>: سهم تغییری که بدون پروژه نیز رخ می‌داد؛ <b>Attribution</b>: سهم عوامل و سازمان‌های دیگر؛ <b>Displacement</b>: سهم جابه‌جایی اثر.</li>
+          <li><b>Drop-off Rate</b>: نرخ افت سالانه؛ عامل افت تجمعی حاصل‌ضربِ سهم باقی‌مانده در هر سال است. <b>r</b>: نرخ تنزیل مستند؛ <b>PV</b>: ارزش فعلی.</li>
+        </ul>
+        <p className="sroi-implementation-note">این فرمول، چارچوب روش‌شناختی SROI را نشان می‌دهد. محاسبهٔ فعلی داشبورد تنزیل و ارزش فعلی چندساله را اعمال نمی‌کند؛ بنابراین نسبت نمایش‌داده‌شده را نباید محاسبهٔ کامل ارزش فعلی SROI تلقی کرد.</p>
+      </div>
+
+    </section>
+  );
+}
+
 function Overview({ form, result, locale }: { form: Form; result: Result; locale: Locale }) {
   const fa = locale === "fa";
   const total = result.total;
@@ -1474,12 +1559,16 @@ function Overview({ form, result, locale }: { form: Form; result: Result; locale
               <small>{fa ? faCopy.wasteRecovered : "Waste recovered"}</small>
             </div>
           </div>
-          <div className="scenario-box">
-            <span className="label">{fa ? faCopy.scenario : "Scenario"}</span>
-            <span className="scenario-pill">{fa ? faCopy.conservative : "Conservative"} {formatNumber(scenario(form, "low"), locale, 2)}</span>
-            <span className="scenario-pill primary">{fa ? faCopy.expected : "Expected"} {formatNumber(result.ratio, locale, 2)}</span>
-            <span className="scenario-pill">{fa ? faCopy.optimistic : "Optimistic"} {formatNumber(scenario(form, "high"), locale, 2)}</span>
-          </div>
+          {fa ? (
+            <p className="estimate-integrity-note">این برآورد فقط به اندازهٔ کیفیت ورودی‌ها و منابعِ پشت آن قابل اتکاست؛ سناریوی خوش‌بینانه یا دادهٔ ساختگی به‌عنوان نتیجه نمایش داده نمی‌شود.</p>
+          ) : (
+            <div className="scenario-box">
+              <span className="label">Scenario</span>
+              <span className="scenario-pill">Conservative {formatNumber(scenario(form, "low"), locale, 2)}</span>
+              <span className="scenario-pill primary">Expected {formatNumber(result.ratio, locale, 2)}</span>
+              <span className="scenario-pill">Optimistic {formatNumber(scenario(form, "high"), locale, 2)}</span>
+            </div>
+          )}
         </div>
       </section>
     </div>
@@ -1528,7 +1617,7 @@ function Inputs({ stage, form, update, locale }: { stage: Stage; form: Form; upd
         {displayedFields.map((field) => (
           <div key={field.key} className="field">
             <label htmlFor={`impact-${field.key}`}>{field.label}</label>
-            <div className="help">{field.help}</div>
+            <div className="help" id={`impact-help-${field.key}`}>{field.help}</div>
             <div className="control">
               {field.prefix && <span>{field.prefix}</span>}
               <input
@@ -1537,6 +1626,7 @@ function Inputs({ stage, form, update, locale }: { stage: Stage; form: Form; upd
                 inputMode="numeric"
                 dir={locale === "fa" ? "ltr" : undefined}
                 value={locale === "fa" ? formatNumber(form[field.key], locale) : form[field.key]}
+                aria-describedby={`impact-help-${field.key}`}
                 onChange={(event) => update(field.key, event.target.value)}
               />
               {field.suffix && <span>{field.suffix}</span>}
@@ -1631,7 +1721,11 @@ export default function ImpactConsoleDashboard({ locale = "en" }: { locale?: Loc
   const localizedStages = stages.map((item) => ({ ...item, label: fa ? faCopy.stages[item.id] : item.label }));
 
   const update = (key: keyof Form, value: string) => {
-    setForm((current) => ({ ...current, [key]: number(value) }));
+    const parsed = Math.max(0, number(value));
+    const bounded = ["changeRate", "deadweight", "attribution", "displacement", "dropoff"].includes(key)
+      ? Math.min(100, parsed)
+      : parsed;
+    setForm((current) => ({ ...current, [key]: bounded }));
   };
 
   const exportPdf = () => {
@@ -1653,7 +1747,7 @@ export default function ImpactConsoleDashboard({ locale = "en" }: { locale?: Loc
 
   return (
     <main className={`er-console${fa ? " is-persian" : ""}`} dir={fa ? "rtl" : "ltr"}>
-      <style>{styles + fidelityStyles + (fa ? persianStyles : "")}</style>
+      <style>{styles + fidelityStyles + (fa ? persianStyles + lightPersianStyles : "")}</style>
       <div className="er-overlay" />
       <div className="er-shell">
         <header className="er-topbar">
@@ -1704,7 +1798,7 @@ export default function ImpactConsoleDashboard({ locale = "en" }: { locale?: Loc
                   <span className="icon-shell"><Icon size={15} /></span>
                   <span className="copy">
                     <strong>{label}</strong>
-                    <small>{stage === id ? (fa ? faCopy.activeView : "Active view") : (fa ? faCopy.ready : "Ready")}</small>
+                    <small>{stage === id ? (fa ? id === "overview" ? faCopy.dashboardGuide : faCopy.activeView : "Active view") : (fa ? faCopy.ready : "Ready")}</small>
                   </span>
                   <span className="state-mark"><Check size={13} /></span>
                 </button>
@@ -1745,7 +1839,12 @@ export default function ImpactConsoleDashboard({ locale = "en" }: { locale?: Loc
               </div>
             </div>
 
-            {stage === "overview" ? <Overview form={form} result={result} locale={locale} /> : stage === "results" ? <Results result={result} exportPdf={exportPdf} locale={locale} /> : <Inputs stage={stage} form={form} update={update} locale={locale} />}
+            {stage === "overview" ? (
+              <>
+                {fa && <PersianMethodology />}
+                <Overview form={form} result={result} locale={locale} />
+              </>
+            ) : stage === "results" ? <Results result={result} exportPdf={exportPdf} locale={locale} /> : <Inputs stage={stage} form={form} update={update} locale={locale} />}
           </section>
 
           <div className="er-right-column">
@@ -1754,7 +1853,7 @@ export default function ImpactConsoleDashboard({ locale = "en" }: { locale?: Loc
             <small>{fa ? "نسبت بازده اجتماعی سرمایه‌گذاری" : "SROI ratio"}</small>
             <div className="ratio-row">
               <strong dir="ltr">{formatNumber(result.ratio, locale, 2)}</strong>
-              <span>{fa ? "نسبت فعلی" : "↗ +0.12"}</span>
+              <span>{fa ? "برآورد فعلی" : "↗ +0.12"}</span>
             </div>
             <p>
               {fa ? <>{faCopy.ratioSentenceBefore} <b dir="rtl">{formatNumber(result.ratio, locale, 2)} ریال</b> {faCopy.ratioSentenceAfter}</> : <>Every $1 invested creates an estimated <b>${result.ratio.toFixed(2)}</b> in social value.</>}
@@ -1979,7 +2078,7 @@ const persianStyles = `
   .er-console.is-persian .legend-item .amount { direction: rtl; unicode-bidi: isolate; }
   .er-console.is-persian .legend-item .pct { direction: ltr; unicode-bidi: isolate; }
   .er-console.is-persian button { letter-spacing: 0; }
-  @media (min-width: 1201px) and (min-height: 700px) {
+  @media (min-width: 1401px) and (min-height: 700px) {
     .er-console.is-persian { height: 100dvh; min-height: 0; overflow: hidden; padding: 10px 22px 8px; }
     .er-console.is-persian .er-shell {
       height: calc(100dvh - 18px);
@@ -2012,5 +2111,366 @@ const persianStyles = `
     .er-console.is-persian .scenario-box { border-right: 0; border-top: 1px solid var(--line); padding: 14px 0 0; }
     .er-console.is-persian .er-status { display: none; }
     .er-console.is-persian .er-brand { width: 188px; height: 39px; margin-right: 0; }
+  }
+`;
+
+const lightPersianStyles = `
+  .er-console.is-persian {
+    --social: #28735f;
+    --economic: #a56b21;
+    --environmental: #4d7890;
+    --gold: #936a20;
+    --coral: #a64249;
+    --text-primary: #26332f;
+    --text-secondary: #53635d;
+    --text-muted: #68766f;
+    --panel: #fff;
+    --panel-soft: #f5f8f5;
+    --line: #dce5de;
+    color: #26332f;
+    min-height: 100vh;
+    height: auto;
+    overflow: visible;
+    padding: 20px clamp(14px, 2.8vw, 42px) 36px;
+    background: #f4f6f2;
+  }
+  .er-console.is-persian::before,
+  .er-console.is-persian::after { display: none; content: none; }
+  .er-console.is-persian .er-overlay { display: none; }
+  .er-console.is-persian .er-shell {
+    width: min(100%, 1580px);
+    height: auto;
+    min-height: calc(100vh - 56px);
+    grid-template-rows: auto 1fr auto;
+    gap: 20px;
+  }
+  .er-console.is-persian .er-topbar {
+    min-height: 54px;
+    padding: 8px 14px;
+    border: 1px solid #e3e9e3;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 5px 18px rgba(35, 56, 44, .045);
+  }
+  .er-console.is-persian .er-brand { width: 240px; height: 38px; }
+  .er-console.is-persian .er-brand img { filter: none; }
+  .er-console.is-persian .er-status { color: #53635d; letter-spacing: 0; }
+  .er-console.is-persian .er-status .dot,
+  .er-console.is-persian .result-head .dot,
+  .er-console.is-persian .er-foot .dot { background: #43836a; box-shadow: 0 0 0 3px rgba(67,131,106,.13); }
+  .er-console.is-persian .er-icon-btn,
+  .er-console.is-persian .er-topbar-actions a {
+    color: #46574f;
+    border-color: #dce5de;
+    background: #fff;
+  }
+  .er-console.is-persian .er-topbar-actions a { gap: 7px; }
+  .er-console.is-persian .er-body {
+    min-height: 0;
+    align-items: start;
+    grid-template-columns: 218px minmax(0, 1fr) 314px;
+    gap: 16px;
+  }
+  .er-console.is-persian .er-rail,
+  .er-console.is-persian .er-result,
+  .er-console.is-persian .panel,
+  .er-console.is-persian .total-value {
+    color: #26332f;
+    border: 1px solid #dfe7e0;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(35, 56, 44, .055);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .er-console.is-persian .er-rail {
+    position: sticky;
+    top: 16px;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    padding: 16px 12px;
+    border-radius: 16px;
+  }
+  .er-console.is-persian .er-rail-head { color: #6e7b73; }
+  .er-console.is-persian .er-rail nav { gap: 7px; }
+  .er-console.is-persian .rail-item {
+    color: #34443c;
+    padding: 10px 8px;
+    border-color: transparent;
+  }
+  .er-console.is-persian .rail-item .icon-shell {
+    color: #66766c;
+    border-color: #e6ece7;
+    background: #f5f8f5;
+  }
+  .er-console.is-persian .rail-item.active {
+    color: #245d4d;
+    border-color: #d1e5d9;
+    background: #edf6f0;
+    box-shadow: none;
+  }
+  .er-console.is-persian .rail-item.active .icon-shell { color: #28735f; background: #e0f0e6; }
+  .er-console.is-persian .rail-item .copy small { color: #77847b; }
+  .er-console.is-persian .rail-item.active .copy small { color: #28735f; }
+  .er-console.is-persian .rail-item .state-mark { color: #28735f; }
+  .er-console.is-persian .rail-tip { color: #64736a; border-color: #e5ebe5; }
+  .er-console.is-persian .rail-tip strong { color: #2d4438; }
+  .er-console.is-persian .er-main { min-height: 0; gap: 16px; }
+  .er-console.is-persian .er-heading {
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr) minmax(235px, .8fr);
+    align-items: stretch;
+    gap: 14px;
+  }
+  .er-console.is-persian .eyebrow,
+  .er-console.is-persian .panel-head span { color: #68786e; letter-spacing: 0; }
+  .er-console.is-persian .er-heading h1 { color: #27382f; font-size: clamp(2rem, 3.3vw, 3.2rem); line-height: 1.35; letter-spacing: 0; }
+  .er-console.is-persian .er-heading h1 em { color: #28735f; }
+  .er-console.is-persian .er-heading p { color: #5d6b63; }
+  .er-console.is-persian .total-value {
+    position: relative;
+    height: auto;
+    min-height: 120px;
+    padding: 16px 20px;
+    overflow: hidden;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #edf6ef, #e5f0e8);
+  }
+  .er-console.is-persian .total-value::after { display: none; }
+  .er-console.is-persian .total-value-label { color: #52675b; }
+  .er-console.is-persian .total-value strong { color: #245d4d; font-size: clamp(1.8rem, 2.8vw, 2.8rem); }
+  .er-console.is-persian .total-value small { color: #607268; }
+  .er-console.is-persian .total-value small b { color: #28735f; }
+  .er-console.is-persian .total-value .value-pill { color: #52675b; background: rgba(255,255,255,.76); }
+  .er-console.is-persian .panel { border-radius: 16px; padding: 18px; }
+  .er-console.is-persian .panel h2,
+  .er-console.is-persian .panel h3 { color: #2d4438; }
+  .er-console.is-persian .panel-head small { color: #758178; }
+  .er-console.is-persian .value-panel,
+  .er-console.is-persian .bridge-panel { min-height: 0; }
+  .er-console.is-persian .value-layout { min-height: 0; }
+  .er-console.is-persian .donut,
+  .er-console.is-persian .result-donut { filter: none; }
+  .er-console.is-persian .donut::after,
+  .er-console.is-persian .result-donut::after { background: #fff; box-shadow: inset 0 0 0 1px #e5ebe5; }
+  .er-console.is-persian .donut .center strong,
+  .er-console.is-persian .result-donut .center strong { color: #2d4438; }
+  .er-console.is-persian .bar-track { background: #edf1ed; border-color: #e0e7e0; }
+  .er-console.is-persian .bar-fill { box-shadow: none; }
+  .er-console.is-persian .bar-item-header,
+  .er-console.is-persian .bridge-row-head { color: #46574e; }
+  .er-console.is-persian .bridge-row-head b { color: #2d4438; }
+  .er-console.is-persian .bridge-note { color: #68776e; }
+  .er-console.is-persian .metric-strip,
+  .er-console.is-persian .snapshot-strip { min-height: 0; }
+  .er-console.is-persian .metric-pill small,
+  .er-console.is-persian .snapshot-item small { color: #68776e; }
+  .er-console.is-persian .metric-pill strong,
+  .er-console.is-persian .snapshot-item strong { color: #2d4438; }
+  .er-console.is-persian .metric-pill + .metric-pill,
+  .er-console.is-persian .snapshot-item + .snapshot-item { border-color: #e3e9e3; }
+  .er-console.is-persian .er-right-column { gap: 14px; }
+  .er-console.is-persian .er-result {
+    position: sticky;
+    top: 16px;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    padding: 18px;
+    border-radius: 16px;
+  }
+  .er-console.is-persian .result-head,
+  .er-console.is-persian .er-result small { color: #64736a; }
+  .er-console.is-persian .ratio-row strong { color: #245d4d; font-size: 3rem; }
+  .er-console.is-persian .ratio-row span { color: #28735f; }
+  .er-console.is-persian .er-result p { color: #53635a; }
+  .er-console.is-persian .legend-item,
+  .er-console.is-persian .legend-item .amount { color: #526259; }
+  .er-console.is-persian .legend-item .amount { color: #2d4438; }
+  .er-console.is-persian .download-btn {
+    min-height: 40px;
+    color: #fff;
+    border: 1px solid #28735f;
+    background: #28735f;
+  }
+  .er-console.is-persian .download-btn:hover { background: #1f5f4e; }
+  .er-console.is-persian .result-disclaimer { color: #718077; }
+  .er-console.is-persian .er-foot { color: #738178; }
+  .er-console.is-persian .stage-guide { max-height: none; overflow: visible; color: #586960; line-height: 1.8; }
+  .er-console.is-persian .input-panel,
+  .er-console.is-persian .results-panel { min-height: 0; }
+  .er-console.is-persian .field label { color: #30443a; }
+  .er-console.is-persian .field .help { color: #68776e; line-height: 1.8; }
+  .er-console.is-persian .field .control {
+    min-height: 44px;
+    border: 1px solid #d7e1d9;
+    border-radius: 10px;
+    background: #fff;
+  }
+  .er-console.is-persian .field .control:focus-within { border-color: #63977a; box-shadow: 0 0 0 3px rgba(40,115,95,.12); }
+  .er-console.is-persian .field input:not([type="range"]) { color: #26332f; }
+  .er-console.is-persian .field .control span { color: #6c7b72; }
+  .er-console.is-persian .field input[type="range"] { accent-color: #28735f; }
+  .er-console.is-persian .result-card { border-color: #e1e8e1; background: #f7f9f6; }
+  .er-console.is-persian .result-card span { color: #66756c; }
+  .er-console.is-persian .result-card strong { color: #245d4d; }
+  .er-console.is-persian .scenario-box { border-color: #e1e8e1; }
+  .er-console.is-persian .estimate-integrity-note {
+    margin: 14px 0 0;
+    padding: 12px 14px;
+    border: 1px solid #dbe9de;
+    border-radius: 11px;
+    color: #4d6858;
+    background: #f1f7f1;
+    font-size: 11px;
+    line-height: 1.8;
+  }
+  .er-console.is-persian .methodology-overview {
+    display: grid;
+    gap: 14px;
+    width: 100%;
+    min-width: 0;
+    color: #36463d;
+  }
+  .er-console.is-persian .methodology-overview > * { min-width: 0; }
+  .er-console.is-persian .methodology-overview p,
+  .er-console.is-persian .methodology-overview h3 { overflow-wrap: anywhere; }
+  .er-console.is-persian .methodology-overview h2,
+  .er-console.is-persian .methodology-overview h3,
+  .er-console.is-persian .methodology-overview p { margin-top: 0; }
+  .er-console.is-persian .methodology-intro,
+  .er-console.is-persian .methodology-concepts article,
+  .er-console.is-persian .methodology-preparation,
+  .er-console.is-persian .methodology-formula {
+    border: 1px solid #dfe7e0;
+    border-radius: 15px;
+    background: #fff;
+    box-shadow: 0 7px 20px rgba(35, 56, 44, .04);
+  }
+  .er-console.is-persian .methodology-intro { padding: 22px; }
+  .er-console.is-persian .methodology-kicker { color: #28735f; font-size: 11px; font-weight: 700; }
+  .er-console.is-persian .methodology-intro h2 { margin: 8px 0; color: #263b30; font-size: 23px; }
+  .er-console.is-persian .methodology-intro > p { max-width: 920px; margin-bottom: 16px; color: #58685f; font-size: 13px; line-height: 2; }
+  .er-console.is-persian .methodology-chain {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    align-items: center;
+  }
+  .er-console.is-persian .methodology-chain span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 10px;
+    border: 1px solid #e2e9e3;
+    border-radius: 999px;
+    color: #44584c;
+    background: #f7f9f6;
+    font-size: 10px;
+  }
+  .er-console.is-persian .methodology-chain b {
+    display: grid;
+    width: 19px;
+    height: 19px;
+    place-items: center;
+    border-radius: 50%;
+    color: #28735f;
+    background: #e4f1e8;
+    font-size: 10px;
+  }
+  .er-console.is-persian .methodology-concepts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .er-console.is-persian .methodology-concepts article { padding: 15px; }
+  .er-console.is-persian .methodology-concepts article > span { color: #28735f; font-size: 10px; font-weight: 700; }
+  .er-console.is-persian .methodology-concepts h3 { margin: 5px 0; color: #2e4237; font-size: 13px; }
+  .er-console.is-persian .methodology-concepts p { margin-bottom: 0; color: #65736a; font-size: 11px; line-height: 1.8; }
+  .er-console.is-persian .methodology-preparation { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(220px, .8fr); gap: 18px; padding: 18px; }
+  .er-console.is-persian .methodology-preparation h3 { margin: 5px 0 10px; color: #2e4237; font-size: 16px; }
+  .er-console.is-persian .methodology-preparation ul { display: grid; gap: 8px; margin: 0; padding: 0 18px 0 0; color: #596960; font-size: 11px; line-height: 1.9; }
+  .er-console.is-persian .methodology-preparation li::marker { color: #43836a; }
+  .er-console.is-persian .methodology-preparation li b { color: #394d41; }
+  .er-console.is-persian .methodology-preparation aside { padding: 14px; border-radius: 12px; background: #f5f7f3; }
+  .er-console.is-persian .methodology-preparation aside strong { color: #765b22; font-size: 12px; }
+  .er-console.is-persian .methodology-preparation aside p { margin: 7px 0 0; color: #667268; font-size: 10px; line-height: 1.85; }
+  .er-console.is-persian .methodology-formula { padding: 15px 18px; background: #f1f7f2; }
+  .er-console.is-persian .methodology-formula h3 { margin: 0 0 12px; color: #2d5946; font-size: 18px; line-height: 1.6; }
+  .er-console.is-persian .methodology-formula p { margin: 9px 0; color: #52645a; font-size: 11px; line-height: 2; }
+  .er-console.is-persian .methodology-formula a { color: #236c56; font-weight: 700; text-underline-offset: 3px; }
+  .er-console.is-persian .sroi-formula-label { margin: 18px 0 8px !important; color: #315c48 !important; font-size: 12px !important; font-weight: 700; }
+  .er-console.is-persian .sroi-equation {
+    display: flex !important;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin: 0 auto;
+    padding: 16px;
+    border: 1px solid #d7e5d9;
+    border-radius: 12px;
+    color: #263b30;
+    background: #fff;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.6;
+    text-align: center;
+  }
+  .er-console.is-persian .sroi-fraction { display: inline-grid; min-width: 215px; text-align: center; }
+  .er-console.is-persian .sroi-fraction span { display: block; padding: 3px 12px; }
+  .er-console.is-persian .sroi-fraction span:first-child { border-bottom: 1.5px solid #40594a; }
+  .er-console.is-persian .sroi-equation-fa { font-family: Vazirmatn, Tahoma, sans-serif; font-size: 13px; }
+  .er-console.is-persian .sroi-equation-detail { display: grid !important; justify-content: stretch; gap: 10px; text-align: left; overflow-x: auto; font-size: 13px; font-weight: 500; }
+  .er-console.is-persian .sroi-equation-detail > span { display: block; min-width: max-content; }
+  .er-console.is-persian .sroi-equation sub,
+  .er-console.is-persian .sroi-equation sup { font-size: .72em; }
+  .er-console.is-persian .sroi-definitions { display: grid; gap: 6px; margin: 8px 0; padding-right: 20px; color: #53655a; font-size: 11px; line-height: 1.9; }
+  .er-console.is-persian .sroi-definitions li::marker { color: #43836a; }
+  .er-console.is-persian .sroi-definitions b { color: #315c48; }
+  .er-console.is-persian .sroi-implementation-note { margin-top: 16px !important; padding: 11px 13px; border-right: 3px solid #b18939; border-radius: 5px; color: #6a592f !important; background: #fbf7e9; }
+  @media (max-width: 1200px) {
+    .er-console.is-persian .er-body {
+      grid-template-columns: 190px minmax(0, 1fr);
+      grid-template-areas: "rail main" "result result";
+      align-items: start;
+    }
+    .er-console.is-persian .er-rail { grid-area: rail; }
+    .er-console.is-persian .er-main { grid-area: main; min-width: 0; }
+    .er-console.is-persian .er-right-column {
+      grid-area: result;
+      grid-column: auto;
+      min-width: 0;
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .er-console.is-persian .er-result { position: static; width: 100%; min-width: 0; }
+  }
+  @media (max-width: 820px) {
+    .er-console.is-persian { height: auto; min-height: 100vh; overflow: visible; padding: 12px; }
+    .er-console.is-persian .er-shell { height: auto; min-height: calc(100vh - 24px); grid-template-rows: auto 1fr auto; gap: 12px; }
+    .er-console.is-persian .er-topbar { flex-wrap: wrap; }
+    .er-console.is-persian .er-body { display: block; }
+    .er-console.is-persian .er-rail { position: static; margin-bottom: 14px; }
+    .er-console.is-persian .er-main { margin-bottom: 14px; }
+    .er-console.is-persian .er-heading { display: flex; flex-direction: column; }
+    .er-console.is-persian .er-heading h1 { font-size: clamp(2rem, 9vw, 3rem); }
+    .er-console.is-persian .total-value { width: 100%; }
+    .er-console.is-persian .er-right-column { display: grid; grid-template-columns: 1fr; }
+    .er-console.is-persian .overview-grid { grid-template-columns: 1fr; grid-template-rows: auto; flex: initial; }
+    .er-console.is-persian .panel { padding: 15px; }
+    .er-console.is-persian .methodology-preparation { grid-template-columns: 1fr; }
+    .er-console.is-persian .er-status { display: none; }
+  }
+  @media (max-width: 520px) {
+    .er-console.is-persian .methodology-concepts { grid-template-columns: 1fr; }
+    .er-console.is-persian .methodology-intro { padding: 17px; }
+    .er-console.is-persian .methodology-intro h2 { font-size: 19px; }
+    .er-console.is-persian .methodology-chain span { font-size: 9px; }
+    .er-console.is-persian .sroi-equation { gap: 8px; padding: 12px; font-size: 14px; }
+    .er-console.is-persian .sroi-equation-fa { font-size: 11px; }
+    .er-console.is-persian .sroi-equation-detail { font-size: 11px; }
+    .er-console.is-persian .value-layout { grid-template-columns: 1fr; }
+    .er-console.is-persian .donut { width: 150px; }
   }
 `;
