@@ -11,8 +11,10 @@ import {
   BarChart3,
   BriefcaseBusiness,
   Check,
+  ChevronDown,
   CircleHelp,
   Download,
+  FileText,
   Gauge,
   Menu,
   Recycle,
@@ -102,17 +104,17 @@ const faCopy = {
   activeView: "نمای فعلی",
   dashboardGuide: "راهنمای کار با داشبورد",
   ready: "آماده",
-  dataTip: "راهنمای داده",
-  dataTipText: "اولویت با داده‌های سنجیده و مستند است؛ از برآوردهای جایگزین فقط وقتی استفاده کنید که شواهد مستقیم در دسترس نیست.",
-  decisionSupport: "پشتیبانی از تصمیم‌گیری",
+  dataTip: "منبع علمی",
+  referenceGuide: "فایل راهنمای مرجع",
+  decisionSupport: "نرخ بازگشت اجتماعی سرمایه‌گذاری، به‌عنوان یک ابزار تصمیم‌یار",
   heading: "ارزیابی اثر اجتماعی",
   totalValue: "ارزش اجتماعی برآوردشده",
   valueCreated: "بر پایهٔ فرض‌های واردشده",
   netValue: "ارزش خالص",
   liveResult: "نتیجهٔ زنده",
-  ratio: "نسبت بازده اجتماعی سرمایه‌گذاری (SROI)",
-  ratioSentenceBefore: "به‌ازای هر ۱ ریال سرمایه‌گذاری، حدود",
-  ratioSentenceAfter: "ریال ارزش اجتماعی ایجاد می‌شود.",
+  ratio: "نسبت بازگشت اجتماعی سرمایه‌گذاری (SROI)",
+  ratioSentenceBefore: "به‌ازای هر ۱ تومان سرمایه‌گذاری، حدود",
+  ratioSentenceAfter: "ارزش اجتماعی ایجاد می‌شود.",
   valueMix: "ترکیب ارزش",
   currentEstimate: "برآورد فعلی",
   valueBridge: "مسیر تبدیل ارزش",
@@ -137,38 +139,38 @@ const faCopy = {
   downloadPdf: "چاپ / ذخیرهٔ گزارش PDF",
   screeningEstimate: "این برآورد اولیه است و ارزش‌گذاری حسابرسی‌شده محسوب نمی‌شود.",
   stages: {
-    overview: "اثر اجتماعی چیست",
-    financial: "منابع مالی",
-    outputs: "خروجی‌های مستقیم",
+    overview: "اثر اجتماعی چیست؟",
+    financial: "منابع مالی پروژه",
+    outputs: "خروجی پروژه",
     outcomes: "پیامدها و ارزش‌ها",
-    adjustments: "تعدیل اثر",
+    adjustments: "تعدیل و پالایش اثر",
     results: "نتیجهٔ ارزیابی",
   } satisfies Record<Stage, string>,
   guides: {
     overview: "با فرض‌هایی شروع کنید که برایشان شواهد دارید و هر ورودی را با اطلاعات محلی دقیق‌تر کنید. برآورد با تغییر داده‌ها به‌روز می‌شود.",
-    financial: "مبالغی را وارد کنید که واقعاً به برنامه اختصاص یافته‌اند. ارزش زمان داوطلبان را فقط زمانی حساب کنید که مبنای نرخ ساعتی و دورهٔ سنجش روشن باشد.",
-    outputs: "افراد، مشاغل و موادی را بشمارید که مستقیماً و به‌طور قابل‌راستی‌آزمایی تحت تأثیر برنامه بوده‌اند؛ از پیش‌بینی‌های بی‌پشتوانه استفاده نکنید.",
-    outcomes: "ارزشِ تغییر معنادار را بسنجید، نه صرفاً حجم فعالیت را. منبع هر برآورد را ثبت کنید و در نبود شواهد کافی، نرخ تغییر محتاطانه‌ای در نظر بگیرید.",
-    adjustments: "برای جلوگیری از انتساب بیش‌ازحد، تغییراتِ مستقل از برنامه، سهم دیگران، پیامدهای ناخواسته و کاهش اثر در گذر زمان را لحاظ کنید.",
-    results: "نسبت را در کنار فرض‌های محاسبه‌شده بررسی کنید، سناریوها را بسنجید و شواهد خود را ثبت کنید. این نتیجه برآورد اولیه است، نه ارزش‌گذاری حسابرسی‌شده.",
+    financial: "",
+    outputs: "",
+    outcomes: "",
+    adjustments: "",
+    results: "",
   } satisfies Record<Stage, string>,
 } as const;
 
 const faFields = {
-  budget: { label: "بودجه / سرمایه‌گذاری نقدی", help: "مجموع منابع نقدی مصرف‌شده برای همین پروژه و همین دورهٔ ارزیابی را وارد کنید؛ هزینهٔ سالانه را با کل هزینهٔ چندساله مخلوط نکنید. پیش‌نیاز: بودجهٔ مصوب یا اسناد مالی پروژه.", suffix: "ریال" },
-  volunteerHours: { label: "ساعت کار داوطلبانه", help: "ساعت‌هایی که داوطلبان واقعاً برای پروژه صرف کرده‌اند؛ این ورودی خروجی پروژه است، نه تعداد افراد. پیش‌نیاز: برگهٔ ثبت ساعت، حضور و غیاب یا گزارش معتبر دورهٔ ارزیابی.", suffix: "ساعت" },
-  hourlyRate: { label: "ارزش هر ساعت داوطلبی", help: "نرخ پولیِ مستند برای ارزش‌گذاری زمان داوطلبان است و باید با نوع کار و محل پروژه تناسب داشته باشد. پیش‌نیاز: نرخ دستمزد مرجع رسمی/محلی یا روش ارزش‌گذاری مکتوب؛ عدد دلخواه وارد نکنید.", suffix: "ریال / ساعت" },
+  budget: { label: "منابع مالی پروژه", help: "مجموع منابع نقدی مصرف‌شده برای همین پروژه و دورهٔ ارزیابی را وارد کنید. هزینهٔ سالانه را با کل هزینهٔ چندساله جمع نکنید. پیش‌نیاز: بودجهٔ مصوب یا اسناد مالی پروژه.", suffix: "تومان" },
+  volunteerHours: { label: "ساعت کار داوطلبانه", help: "ساعت‌هایی را وارد کنید که داوطلبان واقعاً برای پروژه صرف کرده‌اند؛ این مقدار یکی از منابع پروژه است، نه تعداد افراد. پیش‌نیاز: برگهٔ ثبت ساعت، حضور و غیاب یا گزارش معتبر دورهٔ ارزیابی.", suffix: "ساعت" },
+  hourlyRate: { label: "ارزش هر ساعت داوطلبی", help: "نرخ مستند برای ارزش‌گذاری زمان داوطلبان است و باید با نوع کار و محل پروژه تناسب داشته باشد. پیش‌نیاز: نرخ دستمزد مرجع محلی یا روش ارزش‌گذاری مکتوب؛ عدد دلخواه وارد نکنید.", suffix: "تومان / ساعت" },
   beneficiaries: { label: "افرادِ مستقیمِ تحت‌تأثیر", help: "تعداد افراد یکتایی که خدمت یا حمایت مستقیم گرفته‌اند؛ مراجعه‌های تکراری را دوباره نشمارید. پیش‌نیاز: فهرست ثبت‌نام یا دادهٔ اجراییِ تجمیع‌شده؛ برای فهم تجربه و تغییر آنان، با خود افراد هم مشورت کنید.", suffix: "نفر" },
   jobs: { label: "مشاغل پایدار ایجادشده", help: "تعداد شغل‌هایی که واقعاً به ایجاد یا حفظ آن‌ها کمک شده، نه فرصت‌های اعلام‌شده یا موقت. «پایدار» را برای پروژه تعریف کنید. پیش‌نیاز: سوابق اشتغال/کارفرما و در صورت امکان پیگیری وضعیت افراد.", suffix: "شغل" },
-  waste: { label: "پسماند بازیابی‌شده", help: "وزن ماده‌ای که واقعاً از دفع جلوگیری شده یا بازیابی شده است؛ نوع ماده و دورهٔ شمارش باید یکسان باشد. پیش‌نیاز: قبض باسکول، رسید بازیافت یا ثبت عملیاتی؛ از تخمین بدون مبنا پرهیز کنید.", suffix: "کیلوگرم" },
-  changeRate: { label: "درصد افرادِ دارای تغییر", help: "سهم افراد تحت‌تأثیر است که تغییرِ تعریف‌شده و مهم را تجربه کرده‌اند؛ این عدد صرفاً نرخ حضور یا رضایت نیست. پیش‌نیاز: تعریف Outcome و شاخص، سپس دادهٔ قبل/بعد یا پیگیری معتبر. معمولاً به نظرسنجی از ذی‌نفعان نیاز دارید؛ پرسش‌ها و زمان سنجش را ثبت کنید.", suffix: "٪" },
-  socialProxy: { label: "ارزش مالی پیامد اجتماعی", help: "تقریب مالیِ مستند برای یک Outcome اجتماعی به ازای هر فرد است، نه قیمت واقعیِ انسان یا پیامد. پیش‌نیاز: Outcome و واحد آن را مشخص کنید، سپس منبع معتبر (پژوهش، آمار رسمی یا هزینهٔ جایگزین) و سال/واحد پول را ثبت کنید. اگر منبع ندارید، عدد نسازید و پیامد را غیرپولی گزارش کنید.", suffix: "ریال / نفر" },
-  environmentalProxy: { label: "ارزش مالی هر کیلوگرم پسماند", help: "تقریب مالیِ مستند برای اثر زیست‌محیطیِ همان نوع ماده است؛ ارزش چند پیامد را بدون تفکیک با هم جمع نکنید. پیش‌نیاز: نوع ماده، روش محاسبه و منبعی مانند تعرفهٔ رسمی یا پژوهش معتبر. اگر منبع ندارید، عدد نسازید.", suffix: "ریال / کیلوگرم" },
-  economicProxy: { label: "ارزش مالی هر شغل", help: "تقریب مالیِ مستند برای Outcome اشتغال است، نه حقوق سالانهٔ شاغل مگر آنکه روش شما دقیقاً همین را توجیه کند. پیش‌نیاز: تعریف شغل پایدار، مدت اثر، واحد محاسبه و منبع معتبر؛ از شمارش هم‌زمان درآمد و منفعتی که همان درآمد را بازتاب می‌دهد پرهیز کنید.", suffix: "ریال / شغل" },
-  deadweight: { label: "تغییری که بدون پروژه رخ می‌داد", help: "درصد Outcomeای است که احتمالاً حتی بدون مداخلهٔ شما رخ می‌داد؛ هرچه این سهم بیشتر باشد، سهم قابل‌انتساب کمتر است. پیش‌نیاز: خط پایه، گروه مقایسه یا پرسش از ذی‌نفعان دربارهٔ وضعیتِ بدون پروژه؛ معمولاً نظرسنجی/مصاحبهٔ پیگیری لازم است.", suffix: "٪" },
+  waste: { label: "پسماند بازیابی‌شده", help: "وزن موادی را وارد کنید که واقعاً بازیابی شده یا از دفع آن‌ها جلوگیری شده است؛ نوع ماده و دورهٔ شمارش باید یکسان باشد. پیش‌نیاز: قبض باسکول، رسید بازیافت یا ثبت عملیاتی؛ از برآورد بدون مبنا بپرهیزید.", suffix: "کیلوگرم" },
+  changeRate: { label: "درصد افرادِ دارای تغییر", help: "درصد افرادی را وارد کنید که تغییرِ تعریف‌شده و مهم را تجربه کرده‌اند؛ این عدد صرفاً نرخ حضور یا رضایت نیست. پیش‌نیاز: پیامد و شاخص آن را تعریف کنید و دادهٔ معتبرِ قبل و بعد یا پیگیری فراهم کنید. معمولاً لازم است از ذی‌نفعان نظرسنجی کنید؛ پرسش‌ها و زمان سنجش را ثبت کنید.", suffix: "٪" },
+  socialProxy: { label: "ارزش مالی پیامد اجتماعی", help: "برآورد مالیِ مستندِ یک پیامد اجتماعی به‌ازای هر فرد است؛ این مبلغ به معنای قیمت‌گذاری انسان یا خودِ پیامد نیست. پیش‌نیاز: پیامد و واحد آن را مشخص کنید و منبع معتبر، سال و واحد پول را ثبت کنید. اگر منبعی ندارید، عدد نسازید و پیامد را به‌صورت غیرپولی گزارش کنید.", suffix: "تومان / نفر" },
+  environmentalProxy: { label: "ارزش مالی هر کیلوگرم پسماند", help: "برآورد مالیِ مستند برای اثر زیست‌محیطی همان نوع ماده است. ارزش چند پیامد را بدون تفکیک با هم جمع نکنید. پیش‌نیاز: نوع ماده، روش محاسبه و منبع معتبری مانند تعرفهٔ رسمی یا پژوهش را مشخص کنید. اگر منبعی ندارید، عدد نسازید.", suffix: "تومان / کیلوگرم" },
+  economicProxy: { label: "ارزش مالی هر شغل", help: "برآورد مالیِ مستند برای پیامد اشتغال است؛ آن را با حقوق سالانهٔ فرد یکی نگیرید، مگر اینکه روش محاسبه چنین چیزی را توجیه کند. پیش‌نیاز: تعریف شغل پایدار، مدت اثر، واحد محاسبه و منبع معتبر را مشخص کنید. از دوباره‌شماری درآمد و منافعی که همان درآمد را بازتاب می‌دهند بپرهیزید.", suffix: "تومان / شغل" },
+  deadweight: { label: "تغییری که بدون پروژه رخ می‌داد", help: "درصدِ تغییری را وارد کنید که احتمالاً بدون مداخلهٔ شما نیز رخ می‌داد؛ هرچه این سهم بیشتر باشد، سهم قابل‌انتساب به پروژه کمتر است. پیش‌نیاز: خط پایه، گروه مقایسه یا پرسش از ذی‌نفعان دربارهٔ وضعیتِ بدون پروژه؛ معمولاً نظرسنجی یا مصاحبهٔ پیگیری لازم است.", suffix: "٪" },
   attribution: { label: "سهم سایر عوامل و سازمان‌ها", help: "درصد تغییری است که به همکاری نهادهای دیگر یا عوامل بیرونی مربوط می‌شود. پیش‌نیاز: گفت‌وگو با ذی‌نفعان و شرکا، بررسی خدمات هم‌زمان و ثبت منطق تقسیم سهم؛ نظرسنجی داخلی به‌تنهایی کافی نیست مگر روش آن روشن باشد.", suffix: "٪" },
   displacement: { label: "جابه‌جایی یا انتقال اثر", help: "درصد منفعتی است که با زیان یا کاهش منفعت در جای دیگری همراه شده است؛ نبودِ داده به معنی صفر بودن آن نیست. پیش‌نیاز: شواهد بازار/خدمت یا پرسش از افراد و گروه‌های متأثر. اگر جابه‌جایی رخ نداده یا داده‌ای ندارید، دلیل و سطح اطمینان را بیرون از این فرم ثبت کنید.", suffix: "٪" },
-  dropoff: { label: "کاهش سالانهٔ اثر", help: "درصد کاهش شدت Outcome در هر سال پس از سال اول است؛ با مدت ماندگاری اثر فرق دارد. پیش‌نیاز: دادهٔ پیگیری در چند مقطع، نظرسنجی تکرارشونده یا مطالعهٔ معتبر. نسخهٔ فعلی مدت اثر و تنزیل را نمی‌سنجد و این نرخ را فقط به‌صورت یک تعدیل ساده اعمال می‌کند.", suffix: "٪" },
+  dropoff: { label: "کاهش سالانهٔ اثر", help: "درصد کاهش شدت پیامد در هر سال پس از سال اول است و با مدت ماندگاری اثر تفاوت دارد. پیش‌نیاز: دادهٔ پیگیری در چند مقطع، نظرسنجی تکرارشونده یا مطالعهٔ معتبر. نسخهٔ فعلی مدت اثر و تنزیل را نمی‌سنجد و این نرخ را فقط به‌صورت تعدیلی ساده اعمال می‌کند.", suffix: "٪" },
 } satisfies Record<keyof Form, { label: string; help: string; suffix: string }>;
 
 const styles = `
@@ -372,6 +374,11 @@ const styles = `
     transition: background 180ms ease, border-color 180ms ease;
   }
 
+  a.rail-item {
+    font: inherit;
+    text-decoration: none;
+  }
+
   .rail-item.active {
     background: rgba(152, 164, 172, 0.12);
     border-color: rgba(255,255,255,0.15);
@@ -429,6 +436,115 @@ const styles = `
     border-top: 1px solid rgba(255,255,255,0.08);
     font-size: 10px;
     line-height: 1.4;
+  }
+
+  .rail-tip p {
+    margin: 0;
+    font-size: 11px;
+    line-height: 1.65;
+  }
+
+  .rail-tip a {
+    color: inherit;
+    text-underline-offset: 2px;
+  }
+
+  .rail-tip-disclosure {
+    display: block;
+  }
+
+  .er-console.is-persian .rail-tip-section {
+    margin-top: 8px;
+    padding: 0 10px;
+    color: var(--text-secondary);
+  }
+
+  .er-console.is-persian .rail-tip-disclosure {
+    position: relative;
+    margin: 8px 0 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .rail-tip-disclosure > .rail-tip-summary .rail-tip-summary-copy > strong {
+    color: #e65100;
+    font-size: 15px;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .rail-tip-summary {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .rail-tip-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .rail-tip-summary-copy {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .rail-tip-preview {
+    display: -webkit-box;
+    overflow: hidden;
+    color: inherit;
+    font-size: 11px;
+    line-height: 1.5;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .rail-tip-chevron {
+    flex: 0 0 auto;
+    margin-top: 2px;
+    transition: transform 160ms ease;
+  }
+
+  .rail-tip-disclosure[open] .rail-tip-chevron {
+    transform: rotate(180deg);
+  }
+
+  .er-console.is-persian .rail-tip-content {
+    position: absolute;
+    z-index: 5;
+    top: auto;
+    bottom: 0;
+    right: calc(100% + 12px);
+    width: min(560px, calc(100vw - 340px));
+    max-height: min(70vh, 520px);
+    margin: 0;
+    padding: 16px 18px;
+    overflow: auto;
+    border: 1px solid #dfe7e0;
+    border-radius: 14px;
+    color: #53635d;
+    background: #fff;
+    box-shadow: 0 12px 32px rgba(35, 56, 44, .16);
+  }
+
+  .rail-tip-download {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0;
+    padding: 8px 10px;
+    border: 1px solid rgba(67, 131, 106, .24);
+    border-radius: 9px;
+    color: inherit;
+    background: rgba(67, 131, 106, .06);
+    font-size: 11px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .rail-tip-download:hover {
+    background: rgba(67, 131, 106, .12);
   }
 
   .rail-tip strong {
@@ -1303,7 +1419,7 @@ function money(value: number, compact = false, locale: Locale = "en") {
     ];
     const scale = compact ? scales.find(({ limit }) => amount >= limit) : undefined;
     const formatted = formatNumber(scale ? amount / scale.divisor : amount, "fa", scale ? 1 : 0);
-    return `${formatted}${scale ? ` ${scale.label}` : ""} ریال`;
+    return `${formatted}${scale ? ` ${scale.label}` : ""} تومان`;
   }
   if (compact && amount >= 1000000) return `$${(amount / 1000000).toFixed(1)}M`;
   if (compact && amount >= 1000) return `$${(amount / 1000).toFixed(0)}K`;
@@ -1355,57 +1471,58 @@ function PersianMethodology() {
   return (
     <section className="methodology-overview" aria-labelledby="methodology-title">
       <header className="methodology-intro">
-        <span className="methodology-kicker">مبتنی بر روش بازگشت اجتماعی سرمایه گذاری (SROI)</span>
+        <span className="methodology-kicker">بر پایهٔ روش نرخ بازگشت اجتماعی سرمایه‌گذاری (SROI)</span>
         <h2 id="methodology-title">اثر اجتماعی چیست؟</h2>
         <p>
-          ارزیابی اثر اجتماعی یک شاخص مبتنی بر ارزش اجتماعی و یک ابزار تصمیم یاری برای مدیران پروژه هاست که به آنها کمک میکند تا ابعاد نتایج پروژه را بر زندگی افراد و محیط محاسبه کنند. این ارزیابی بسته به نوع پروژه و منابع مادی که در آن درگیر میشود شاخصها و استانداردهای متفاوتی برای سنجش دارد. اما شیوه محاسبه ارزیابی اثر اجتماعی مبتنی بر نرخ بازگشت اجتماعی سرمایه گذاری(SROI) یک شیوه رایج و عمومی است که شواهد و تقریبهای مالی قابل دفاع و منابع مصرف شده را دریافت کرده و میزان ارزش اجتماعی که سرمایه گذاری در این پروژه تولید کرده است را محاسبه میکند.
+          ارزیابی اثر اجتماعی، روشی برای شناخت و سنجش تغییراتی است که یک پروژه در زندگی افراد و محیط ایجاد می‌کند. شاخص‌ها و استانداردهای سنجش، بسته به نوع پروژه و منابع به‌کاررفته متفاوت‌اند. یکی از روش‌های رایج، نرخ بازگشت اجتماعی سرمایه‌گذاری (SROI) است. این روش، شواهد و برآوردهای مالیِ قابل‌دفاع را در کنار منابع مصرف‌شده بررسی می‌کند تا ارزش اجتماعی ایجادشده را برآورد کند.
         </p>
-        <div className="methodology-chain" aria-label="زنجیره ارزیابی اثر">
-          {["منابع", "فعالیت", "خروجی", "پیامد", "شواهد و ارزش‌گذاری", "تعدیل اثر", "SROI"].map((step, index) => (
-            <span key={step}><b>{index + 1}</b>{step}</span>
-          ))}
-        </div>
       </header>
 
       <div className="methodology-concepts">
-        <article><span>۱ · ورودی پروژه</span><h3>منابعی که پروژه مصرف کرده است.</h3><p>منابع شامل منابع مالی و زمان صرف شده توسط نیروی انسانی است.</p></article>
-        <article><span>۲ · فعالیت و خروجی پروژه</span><h3>در پروژه چه کردید و خروجی چه بود؟</h3><p>منظور نوع فعالیت پروژه (آموزشی، تولیدی، فرهنگی، دیجیتال و...) و خروجی مادی آن است. منظور از خروجی، نتایجی مانند مشارکت ۲۰۰ نفر در پروژه یا سود مالی و... است.</p></article>
-        <article><span>۳ · پیامد پروژه</span><h3>انجام پروژه چه تاثیر مثبت یا منفی بر افراد داشت</h3><p>برای نمونه افزایش مهارت نیروی انسانی، احساس رضایت شغلی یا حتی تعدیل نیرو در پایان یک پروژه موفق که نتایج نامطلوبی بر کارکنان دارد.</p></article>
-        <article><span>۴ · اثر واقعی پروژه</span><h3>چه میزان از پیامدهای پروژه بر افراد را واقعا میتوان به پروژه نسبت داد؟</h3><p>اصولا همه تغییرات مشاهده شده به پروژه مرتبط نیستند. بنابراین باید پایش و تعدیل صورت گیرد تا اثر واقعی پروژه شناسایی شود.</p></article>
+        <article><span>۱ · منابع پروژه</span><h3>پروژه از چه منابعی استفاده کرده است؟</h3><p>منابع پروژه شامل بودجه و زمانِ صرف‌شده از سوی کارکنان و داوطلبان است.</p></article>
+        <article><span>۲ · فعالیت و خروجی پروژه</span><h3>پروژه چه فعالیت‌هایی انجام داده و چه خروجی‌هایی داشته است؟</h3><p>فعالیت‌ها می‌توانند آموزشی، تولیدی، فرهنگی یا دیجیتال باشند. خروجی‌ها نیز نتایج مستقیم و قابل‌شمارشی مانند مشارکت ۲۰۰ نفر یا تولید محصول‌اند.</p></article>
+        <article><span>۳ · پیامدهای پروژه</span><h3>پروژه چه تغییرات مثبت یا منفی‌ای در زندگی افراد ایجاد کرده است؟</h3><p>برای نمونه، افزایش مهارت یا رضایت شغلی می‌تواند پیامد مثبت باشد؛ کاهش نیرو پس از پایان پروژه نیز ممکن است پیامدی منفی باشد.</p></article>
+        <article><span>۴ · اثر واقعی پروژه</span><h3>چه میزان از تغییرات را می‌توان به پروژه نسبت داد؟</h3><p>همهٔ تغییرات مشاهده‌شده لزوماً حاصل پروژه نیستند. با بررسی سهم عوامل دیگر و پالایش برآورد، اثر واقعی پروژه را مشخص کنید.</p></article>
       </div>
 
       <div className="methodology-preparation">
         <div>
-          <span className="methodology-kicker">پیش نیازها</span>
-          <h3>برای استفاده از داشبورد، چه داده هایی باید آماده کنید؟</h3>
+          <span className="methodology-kicker">پیش‌نیازها</span>
+          <h3>برای استفاده از داشبورد، چه داده‌هایی باید آماده کنید؟</h3>
           <ul>
-            <li><b>منابع و خروجی های پروژه:</b> باید بودجه پروژه، فهرست کارکنان، سوابق شغلی و اسناد وزن پسماند (اگر پروژه شما پسماند طبیعی دارد) را در اختیار داشته باشید.</li>
-            <li><b>معنای تغییر واقعی:</b> شما باید پیامدها را در پروژه خود تعریف کنید. بنابراین باید از ذی نفعان درباره میزان اثرگذاری پروژه بر آنها و نوع اثر نظرسنجی یا مصاحبه کنید. (راهنمای نظرسنجی)</li>
-            <li><b>باید صورت حساب منابع مالی خود را از صفر تا صد پروژه در اختیار داشته باشید.</b></li>
+            <li><b>منابع و خروجی‌های پروژه:</b> بودجه، فهرست کارکنان، سوابق اشتغال و در صورت ارتباط، اسناد وزن‌کشی پسماند را آماده کنید.</li>
+            <li><b>تعریف تغییر واقعی:</b> پیامدهای موردنظر را مشخص کنید و با نظرسنجی یا مصاحبه از ذی‌نفعان، نوع و میزان تغییر را بسنجید.</li>
+            <li><b>اسناد مالی:</b> اسناد منابع مالی مصرف‌شده در کل دورهٔ اجرای پروژه را در اختیار داشته باشید.</li>
           </ul>
         </div>
         <aside>
           <strong>این داشبورد چقدر قابل اعتماد است؟</strong>
-          <p>ابزارهای تصمیم یاری برای مدیران پروژه ها تنوع بسیار گسترده ای دارد. اما این ابزار که بر اساس متدولوژی SROI یا همان بازگشت سرمایه اجتماعی تنظیم شده است که به عنوان عمومی ترین و همه شمول ترین ابزار محاسبه اثرگذاری اجتماعی شناخته میشود. این روش شناسی، پیامدهای نهایی را بصورت دسته های اجتماعی، اقتصادی و زیست محیطی برآورد میکند.</p>
+          <p>
+            این داشبورد بر اساس فایل راهنمای محاسبهٔ نرخ بازگشت سرمایه‌گذاری منتشر شده است. این سند مورد تأیید{" "}
+            <a href="https://andeglobal.org/writer/the-sroi-network/" target="_blank" rel="noopener noreferrer">
+              شبکهٔ جهانی بازگشت اجتماعی سرمایه‌گذاری
+            </a>
+            ، دفتر کابینهٔ بریتانیا، بنیاد اقتصاد نو در بریتانیا و کنسرسیوم‌های پژوهشی است و در وب‌سایت شبکهٔ جهانی SROI، تحت حمایت برنامهٔ توسعهٔ سازمان ملل متحد (UNDP)، منتشر شده است. این چارچوب امروزه از سوی سازمان‌های بین‌المللی، بخش‌های دولتی، سرمایه‌گذاران اجتماعی، مؤسسات خیریه و شرکت‌های خصوصی در سراسر جهان، به‌عنوان استانداردی جامع برای سنجش ارزش اجتماعی، محیط‌زیستی و اقتصادی پذیرفته شده است.
+          </p>
         </aside>
       </div>
 
       <div className="methodology-formula">
-        <h3>نرخ بازگشت اجتماعی سرمایه گذاری (SROI) چیست؟</h3>
-        <p>SROI یا <b>Social Return on Investment</b> روشی برای سنجش ارزش اجتماعی ایجادشده توسط یک پروژه در مقایسه با منابعی است که برای اجرای آن مصرف شده‌اند. در این روش ابتدا مشخص می‌شود پروژه چه کسانی را تحت تأثیر قرار داده و چه تغییراتی در زندگی یا وضعیت آنها ایجاد کرده است، سپس این تغییرات با استفاده از داده و شواهد اندازه‌گیری و تا حد امکان با <b>Financial Proxy</b> به ارزش پولی تقریبی تبدیل می‌شوند؛ بعد اثر عواملی که مستقل از پروژه بوده‌اند، مانند آنچه بدون اجرای پروژه نیز اتفاق می‌افتاد (<b>Deadweight</b>) یا سهم سایر عوامل (<b>Attribution</b>) از محاسبه کسر می‌شود. در نهایت، ارزش فعلی منافع اجتماعی با ارزش سرمایه‌گذاری مقایسه می‌شود.</p>
-        <p>مثلاً SROI برابر <bdi dir="ltr"><b>3:1</b></bdi> یعنی به ازای هر ۱ واحد سرمایه‌گذاری، حدود ۳ واحد ارزش اجتماعی برآورد شده است. نکته مهم این است که SROI صرفاً یک نسبت مالی نیست، بلکه یک <b>فرایند نظام‌مند برای فهم، اندازه‌گیری، ارزش‌گذاری و گزارش اثر اجتماعی</b> است.</p>
-        <p>برای مطالعه بیشتر درخصوص نرخ بازگشت اجتماعی سرمایه گذاری، این پژوهش به بررسی ۲۸۴ مقاله تخصصی در حوزه SROI میپردازد: <a href="https://www.sciencedirect.com/org/science/article/pii/S2049372X22000107?utm_source=chatgpt.com" target="_blank" rel="noopener noreferrer">مطالعهٔ پژوهش در ScienceDirect</a></p>
+        <h3>نرخ بازگشت اجتماعی سرمایه‌گذاری (SROI) چیست؟</h3>
+        <p>SROI یا <b>Social Return on Investment</b> روشی برای مقایسهٔ ارزش اجتماعی ایجادشده با منابع مصرف‌شده در یک پروژه است. ابتدا مشخص می‌شود پروژه چه کسانی را تحت‌تأثیر قرار داده و چه تغییراتی ایجاد کرده است؛ سپس این تغییرات با داده‌ها و شواهد سنجیده و در صورت امکان، با استفاده از <b>معادل مالی</b> به ارزش پولی تقریبی تبدیل می‌شوند. در ادامه، سهم عواملی که مستقل از پروژه‌اند، مانند تغییراتی که بدون اجرای پروژه نیز رخ می‌داد و سهم سایر عوامل، از برآورد کسر می‌شود. در محاسبهٔ کامل SROI، ارزش فعلی منافع اجتماعی با ارزش فعلی سرمایه‌گذاری مقایسه می‌شود.</p>
+        <p>برای نمونه، نسبت <bdi dir="ltr"><b>3:1</b></bdi> یعنی در برابر هر ۱ واحد سرمایه‌گذاری، حدود ۳ واحد ارزش اجتماعی برآورد شده است. SROI فقط یک نسبت مالی نیست، بلکه <b>فرایندی نظام‌مند برای شناخت، سنجش، ارزش‌گذاری و گزارش اثر اجتماعی</b> است.</p>
+        <p>برای مطالعهٔ بیشتر دربارهٔ SROI، این پژوهش ۲۸۴ مقالهٔ تخصصی در این حوزه را بررسی می‌کند: <a href="https://www.sciencedirect.com/org/science/article/pii/S2049372X22000107?utm_source=chatgpt.com" target="_blank" rel="noopener noreferrer">خواندن پژوهش</a></p>
         <p className="sroi-formula-label">فرمول استاندارد نسبت بازگشت اجتماعی سرمایه‌گذاری</p>
         <div className="sroi-equation" dir="ltr" aria-label="SROI equals present value of social outcomes divided by present value of investment">
           <span>SROI</span><span>=</span>
           <span className="sroi-fraction"><span>PV (Social Outcomes)</span><span>PV (Investment)</span></span>
         </div>
-        <p className="sroi-formula-label">صورت فارسی فرمول</p>
-        <div className="sroi-equation sroi-equation-fa" dir="rtl" aria-label="نرخ بازگشت اجتماعی سرمایه گذاری برابر است با ارزش فعلی پیامدهای اجتماعی تقسیم بر ارزش فعلی سرمایه گذاری">
+        <p className="sroi-formula-label">بیان فارسی فرمول</p>
+        <div className="sroi-equation sroi-equation-fa" dir="rtl" aria-label="نرخ بازگشت اجتماعی سرمایه‌گذاری برابر است با ارزش فعلی پیامدهای اجتماعی تقسیم بر ارزش فعلی سرمایه‌گذاری">
           <span>نرخ بازگشت اجتماعی سرمایه‌گذاری</span><span>=</span>
           <span className="sroi-fraction"><span>ارزش فعلی پیامدهای اجتماعی</span><span>ارزش فعلی سرمایه‌گذاری</span></span>
         </div>
-        <p className="sroi-formula-label">اجزای محاسبهٔ ارزش فعلی پیامدها</p>
+        <p className="sroi-formula-label">محاسبهٔ ارزش فعلی پیامدها</p>
         <div className="sroi-equation sroi-equation-detail" dir="ltr">
           <span>Gross Outcome Value<sub>i,t</sub> = Quantity<sub>i,t</sub> × Financial Proxy<sub>i</sub></span>
           <span>Adjusted Outcome Value<sub>i,t</sub> = Gross Outcome Value<sub>i,t</sub> × (1 − Deadweight<sub>i</sub>) × (1 − Attribution<sub>i</sub>) × (1 − Displacement<sub>i</sub>) × Drop-off Factor<sub>i,t</sub></span>
@@ -1413,13 +1530,6 @@ function PersianMethodology() {
           <span>PV (Social Outcomes) = ∑<sub>i=1</sub><sup>n</sup> ∑<sub>t=0</sub><sup>T</sup> Adjusted Outcome Value<sub>i,t</sub> / (1 + r)<sup>t</sup></span>
           <span>PV (Investment) = ∑<sub>t=0</sub><sup>T</sup> Investment<sub>t</sub> / (1 + r)<sup>t</sup></span>
         </div>
-        <p className="sroi-formula-label">توضیح نمادها</p>
-        <ul className="sroi-definitions">
-          <li><b>i</b>: پیامد مورد سنجش؛ <b>t</b>: سال وقوع پیامد؛ <b>T</b>: آخرین سال دورهٔ ارزیابی.</li>
-          <li><b>Quantity</b>: مقدار پیامد؛ <b>Financial Proxy</b>: تقریب مالی مستند به‌ازای یک واحد پیامد.</li>
-          <li><b>Deadweight</b>: سهم تغییری که بدون پروژه نیز رخ می‌داد؛ <b>Attribution</b>: سهم عوامل و سازمان‌های دیگر؛ <b>Displacement</b>: سهم جابه‌جایی اثر.</li>
-          <li><b>Drop-off Rate</b>: نرخ افت سالانه؛ عامل افت تجمعی حاصل‌ضربِ سهم باقی‌مانده در هر سال است. <b>r</b>: نرخ تنزیل مستند؛ <b>PV</b>: ارزش فعلی.</li>
-        </ul>
         <p className="sroi-implementation-note">این فرمول، چارچوب روش‌شناختی SROI را نشان می‌دهد. محاسبهٔ فعلی داشبورد تنزیل و ارزش فعلی چندساله را اعمال نمی‌کند؛ بنابراین نسبت نمایش‌داده‌شده را نباید محاسبهٔ کامل ارزش فعلی SROI تلقی کرد.</p>
       </div>
 
@@ -1605,6 +1715,7 @@ function Inputs({ stage, form, update, locale }: { stage: Stage; form: Form; upd
   const displayedFields = locale === "fa"
     ? fields.map((field) => ({ ...field, ...faFields[field.key], prefix: undefined }))
     : fields;
+  const guide = stageGuide(stage, locale);
 
   return (
     <div className="input-stage">
@@ -1638,7 +1749,7 @@ function Inputs({ stage, form, update, locale }: { stage: Stage; form: Form; upd
         ))}
       </div>
       </div>
-      <p className="stage-guide">{stageGuide(stage, locale)}</p>
+      {guide && <p className="stage-guide">{guide}</p>}
     </div>
   );
 }
@@ -1676,7 +1787,7 @@ function printPersianReport(form: Form, result: Result) {
     "'": "&#39;",
   })[character]!);
   const rows = [
-    ["نسبت بازده اجتماعی سرمایه‌گذاری (SROI)", `${formatNumber(result.ratio, "fa", 2)} : 1`],
+    ["نسبت بازگشت اجتماعی سرمایه‌گذاری (SROI)", `${formatNumber(result.ratio, "fa", 2)} : 1`],
     ["ارزش خالص اجتماعی", money(result.total, false, "fa")],
     ["کل سرمایه‌گذاری", money(result.investment, false, "fa")],
     ["ارزش اجتماعی", money(result.values.social, false, "fa")],
@@ -1684,7 +1795,7 @@ function printPersianReport(form: Form, result: Result) {
     ["ارزش زیست‌محیطی", money(result.values.environmental, false, "fa")],
   ];
   const assumptions = [
-    ["بودجهٔ سالانه / سرمایه‌گذاری اولیه", money(form.budget, false, "fa")],
+    ["منابع مالی پروژه", money(form.budget, false, "fa")],
     ["ساعت داوطلبی", `${formatNumber(form.volunteerHours, "fa")} ساعت`],
     ["ارزش هر ساعت داوطلبی", money(form.hourlyRate, false, "fa")],
     ["ذی‌نفعان مستقیم", formatNumber(form.beneficiaries, "fa")],
@@ -1804,19 +1915,48 @@ export default function ImpactConsoleDashboard({ locale = "en" }: { locale?: Loc
                 </button>
               ))}
             </nav>
-            <div className="rail-tip">
-              <CircleHelp size={14} />
-              <div>
-                <strong>{fa ? faCopy.dataTip : "Data tip"}</strong>
-                {fa ? faCopy.dataTipText : "Use measured evidence before proxies."}
+            {fa ? (
+              <div className="rail-tip-section">
+                <a
+                  className="rail-tip-download"
+                  href="https://www.socialvalueint.org/s/The-SROI-Guide-2012.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <FileText size={15} aria-hidden="true" />
+                  <span>{faCopy.referenceGuide}</span>
+                </a>
+                <details className="rail-tip rail-tip-disclosure">
+                  <summary className="rail-tip-summary">
+                    <CircleHelp size={14} />
+                    <span className="rail-tip-summary-copy">
+                      <strong>{faCopy.dataTip}</strong>
+                      <span className="rail-tip-preview">این داشبورد بر پایهٔ راهنمای محاسبهٔ نرخ بازگشت سرمایه‌گذاری تهیه شده است.</span>
+                    </span>
+                    <ChevronDown className="rail-tip-chevron" size={14} aria-hidden="true" />
+                  </summary>
+                  <div className="rail-tip-content">
+                    <p>
+                      این داشبورد بر اساس فایل راهنمای محاسبهٔ نرخ بازگشت سرمایه‌گذاری منتشر شده است. این سند مورد تأیید شبکهٔ جهانی بازگشت اجتماعی سرمایه‌گذاری، دفتر کابینهٔ بریتانیا، بنیاد اقتصاد نو در بریتانیا و کنسرسیوم‌های پژوهشی است و در وب‌سایت شبکهٔ جهانی SROI، تحت حمایت برنامهٔ توسعهٔ سازمان ملل متحد (UNDP)، منتشر شده است. این چارچوب امروزه از سوی سازمان‌های بین‌المللی، بخش‌های دولتی، سرمایه‌گذاران اجتماعی، مؤسسات خیریه و شرکت‌های خصوصی در سراسر جهان، به‌عنوان استانداردی جامع برای سنجش ارزش اجتماعی، محیط‌زیستی و اقتصادی پذیرفته شده است.
+                    </p>
+                  </div>
+                </details>
               </div>
-            </div>
+            ) : (
+              <div className="rail-tip">
+                <CircleHelp size={14} />
+                <div>
+                  <strong>Data tip</strong>
+                  Use measured evidence before proxies.
+                </div>
+              </div>
+            )}
           </aside>
 
           <section className="er-main">
             <div className="er-heading">
               <div className="er-heading-copy">
-                <span className="eyebrow">{fa ? faCopy.decisionSupport : "Decision support"} / {currentStage.label.toUpperCase()}</span>
+                <span className="eyebrow">{fa ? faCopy.decisionSupport : `Decision support / ${currentStage.label.toUpperCase()}`}</span>
                 <h1>
                   {stage === "overview" && fa ? (
                     <>ارزیابی اثر<em>اجتماعی</em></>
@@ -1850,13 +1990,13 @@ export default function ImpactConsoleDashboard({ locale = "en" }: { locale?: Loc
           <div className="er-right-column">
           <aside className="er-result glass">
             <div className="result-head"><span className="dot" /> {fa ? faCopy.liveResult : "Live result"}</div>
-            <small>{fa ? "نسبت بازده اجتماعی سرمایه‌گذاری" : "SROI ratio"}</small>
+            <small>{fa ? "نسبت بازگشت اجتماعی سرمایه‌گذاری" : "SROI ratio"}</small>
             <div className="ratio-row">
               <strong dir="ltr">{formatNumber(result.ratio, locale, 2)}</strong>
               <span>{fa ? "برآورد فعلی" : "↗ +0.12"}</span>
             </div>
             <p>
-              {fa ? <>{faCopy.ratioSentenceBefore} <b dir="rtl">{formatNumber(result.ratio, locale, 2)} ریال</b> {faCopy.ratioSentenceAfter}</> : <>Every $1 invested creates an estimated <b>${result.ratio.toFixed(2)}</b> in social value.</>}
+              {fa ? <>{faCopy.ratioSentenceBefore} <b dir="rtl">{formatNumber(result.ratio, locale, 2)} تومان</b> {faCopy.ratioSentenceAfter}</> : <>Every $1 invested creates an estimated <b>${result.ratio.toFixed(2)}</b> in social value.</>}
             </p>
 
             <div className="result-donut" style={{ background: ring(result) }}>
@@ -2078,33 +2218,6 @@ const persianStyles = `
   .er-console.is-persian .legend-item .amount { direction: rtl; unicode-bidi: isolate; }
   .er-console.is-persian .legend-item .pct { direction: ltr; unicode-bidi: isolate; }
   .er-console.is-persian button { letter-spacing: 0; }
-  @media (min-width: 1401px) and (min-height: 700px) {
-    .er-console.is-persian { height: 100dvh; min-height: 0; overflow: hidden; padding: 10px 22px 8px; }
-    .er-console.is-persian .er-shell {
-      height: calc(100dvh - 18px);
-      min-height: 0;
-      grid-template-rows: 42px minmax(0, 1fr) 18px;
-      gap: 8px;
-    }
-    .er-console.is-persian .er-body { min-height: 0; align-items: stretch; grid-template-columns: 218px minmax(0, 1fr) 314px; }
-    .er-console.is-persian .er-rail,
-    .er-console.is-persian .er-result { height: 100%; min-height: 0; overflow: hidden; }
-    .er-console.is-persian .er-main { min-height: 0; gap: 10px; }
-    .er-console.is-persian .er-heading { min-height: 116px; }
-    .er-console.is-persian .total-value { height: 116px; }
-    .er-console.is-persian .value-panel,
-    .er-console.is-persian .bridge-panel { min-height: 0; }
-    .er-console.is-persian .panel { padding: 14px 16px 12px; }
-    .er-console.is-persian .metric-strip,
-    .er-console.is-persian .snapshot-strip { min-height: 66px; padding: 9px 14px; }
-    .er-console.is-persian .value-layout { grid-template-columns: 190px minmax(0, 1fr); min-height: 150px; }
-    .er-console.is-persian .donut { width: min(170px, 22vh); }
-    .er-console.is-persian .result-donut { width: min(170px, 22vh); margin: 10px auto; }
-    .er-console.is-persian .er-result { padding: 14px; }
-    .er-console.is-persian .er-result small { margin-top: 14px; }
-    .er-console.is-persian .legend-list { gap: 7px; }
-    .er-console.is-persian .download-btn { min-height: 32px; margin-top: 10px; }
-  }
   @media (max-width: 820px) {
     .er-console.is-persian .metric-pill + .metric-pill,
     .er-console.is-persian .snapshot-item + .snapshot-item { border-right: 0; padding-right: 0; }
@@ -2133,6 +2246,7 @@ const lightPersianStyles = `
     overflow: visible;
     padding: 20px clamp(14px, 2.8vw, 42px) 36px;
     background: #f4f6f2;
+    text-align: right;
   }
   .er-console.is-persian::before,
   .er-console.is-persian::after { display: none; content: none; }
@@ -2192,7 +2306,11 @@ const lightPersianStyles = `
     border-radius: 16px;
   }
   .er-console.is-persian .er-rail-head { color: #6e7b73; }
-  .er-console.is-persian .er-rail nav { gap: 7px; }
+  .er-console.is-persian .er-rail nav {
+    gap: 7px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e5ebe5;
+  }
   .er-console.is-persian .rail-item {
     color: #34443c;
     padding: 10px 8px;
@@ -2224,9 +2342,14 @@ const lightPersianStyles = `
   }
   .er-console.is-persian .eyebrow,
   .er-console.is-persian .panel-head span { color: #68786e; letter-spacing: 0; }
-  .er-console.is-persian .er-heading h1 { color: #27382f; font-size: clamp(2rem, 3.3vw, 3.2rem); line-height: 1.35; letter-spacing: 0; }
+  .er-console.is-persian .er-heading h1 { color: #27382f; font-size: clamp(1.8rem, 2.8vw, 2.6rem); line-height: 1.35; letter-spacing: 0; }
   .er-console.is-persian .er-heading h1 em { color: #28735f; }
   .er-console.is-persian .er-heading p { color: #5d6b63; }
+  .er-console.is-persian .eyebrow,
+  .er-console.is-persian .panel-head span { font-size: 11px; }
+  .er-console.is-persian .field label { font-size: 12px; }
+  .er-console.is-persian .rail-item .copy small { font-size: 10px; }
+  .er-console.is-persian .result-card span { font-size: 11px; }
   .er-console.is-persian .total-value {
     position: relative;
     height: auto;
@@ -2248,7 +2371,10 @@ const lightPersianStyles = `
   .er-console.is-persian .panel-head small { color: #758178; }
   .er-console.is-persian .value-panel,
   .er-console.is-persian .bridge-panel { min-height: 0; }
+  .er-console.is-persian .value-panel { container: value-panel / inline-size; }
   .er-console.is-persian .value-layout { min-height: 0; }
+  .er-console.is-persian .bar-item-label { white-space: nowrap; }
+  .er-console.is-persian .bar-item-header b { flex: 0 0 auto; white-space: nowrap; }
   .er-console.is-persian .donut,
   .er-console.is-persian .result-donut { filter: none; }
   .er-console.is-persian .donut::after,
@@ -2273,9 +2399,13 @@ const lightPersianStyles = `
   .er-console.is-persian .er-result {
     position: sticky;
     top: 16px;
+    align-self: start;
     height: auto;
     min-height: 0;
-    overflow: visible;
+    max-height: calc(100dvh - 32px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
     padding: 18px;
     border-radius: 16px;
   }
@@ -2287,6 +2417,9 @@ const lightPersianStyles = `
   .er-console.is-persian .legend-item,
   .er-console.is-persian .legend-item .amount { color: #526259; }
   .er-console.is-persian .legend-item .amount { color: #2d4438; }
+  .er-console.is-persian .legend-item { grid-template-columns: minmax(0, 1fr) auto auto; }
+  .er-console.is-persian .legend-item .label,
+  .er-console.is-persian .legend-item .pct { white-space: nowrap; }
   .er-console.is-persian .download-btn {
     min-height: 40px;
     color: #fff;
@@ -2300,7 +2433,7 @@ const lightPersianStyles = `
   .er-console.is-persian .input-panel,
   .er-console.is-persian .results-panel { min-height: 0; }
   .er-console.is-persian .field label { color: #30443a; }
-  .er-console.is-persian .field .help { color: #68776e; line-height: 1.8; }
+  .er-console.is-persian .field .help { color: #68776e; font-size: 12px; line-height: 1.8; }
   .er-console.is-persian .field .control {
     min-height: 44px;
     border: 1px solid #d7e1d9;
@@ -2348,56 +2481,29 @@ const lightPersianStyles = `
     box-shadow: 0 7px 20px rgba(35, 56, 44, .04);
   }
   .er-console.is-persian .methodology-intro { padding: 22px; }
-  .er-console.is-persian .methodology-kicker { color: #28735f; font-size: 11px; font-weight: 700; }
+  .er-console.is-persian .methodology-kicker { color: #28735f; font-size: 12px; font-weight: 700; }
   .er-console.is-persian .methodology-intro h2 { margin: 8px 0; color: #263b30; font-size: 23px; }
-  .er-console.is-persian .methodology-intro > p { max-width: 920px; margin-bottom: 16px; color: #58685f; font-size: 13px; line-height: 2; }
-  .er-console.is-persian .methodology-chain {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 7px;
-    align-items: center;
-  }
-  .er-console.is-persian .methodology-chain span {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 6px 10px;
-    border: 1px solid #e2e9e3;
-    border-radius: 999px;
-    color: #44584c;
-    background: #f7f9f6;
-    font-size: 10px;
-  }
-  .er-console.is-persian .methodology-chain b {
-    display: grid;
-    width: 19px;
-    height: 19px;
-    place-items: center;
-    border-radius: 50%;
-    color: #28735f;
-    background: #e4f1e8;
-    font-size: 10px;
-  }
+  .er-console.is-persian .methodology-intro > p { max-width: 920px; margin-bottom: 16px; color: #58685f; font-size: 14px; line-height: 2; }
   .er-console.is-persian .methodology-concepts {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
   }
   .er-console.is-persian .methodology-concepts article { padding: 15px; }
-  .er-console.is-persian .methodology-concepts article > span { color: #28735f; font-size: 10px; font-weight: 700; }
+  .er-console.is-persian .methodology-concepts article > span { color: #28735f; font-size: 12px; font-weight: 700; }
   .er-console.is-persian .methodology-concepts h3 { margin: 5px 0; color: #2e4237; font-size: 13px; }
-  .er-console.is-persian .methodology-concepts p { margin-bottom: 0; color: #65736a; font-size: 11px; line-height: 1.8; }
-  .er-console.is-persian .methodology-preparation { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(220px, .8fr); gap: 18px; padding: 18px; }
+  .er-console.is-persian .methodology-concepts p { margin-bottom: 0; color: #65736a; font-size: 12px; line-height: 1.8; }
+  .er-console.is-persian .methodology-preparation { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: start; gap: 20px; padding: 20px; }
   .er-console.is-persian .methodology-preparation h3 { margin: 5px 0 10px; color: #2e4237; font-size: 16px; }
-  .er-console.is-persian .methodology-preparation ul { display: grid; gap: 8px; margin: 0; padding: 0 18px 0 0; color: #596960; font-size: 11px; line-height: 1.9; }
+  .er-console.is-persian .methodology-preparation ul { display: grid; gap: 8px; margin: 0; padding: 0 18px 0 0; color: #596960; font-size: 12px; line-height: 1.9; }
   .er-console.is-persian .methodology-preparation li::marker { color: #43836a; }
   .er-console.is-persian .methodology-preparation li b { color: #394d41; }
-  .er-console.is-persian .methodology-preparation aside { padding: 14px; border-radius: 12px; background: #f5f7f3; }
+  .er-console.is-persian .methodology-preparation aside { align-self: start; min-width: 0; padding: 16px 18px; border: 1px solid #e5ebe4; border-radius: 12px; background: linear-gradient(145deg, #f7f9f6, #f1f6f1); }
   .er-console.is-persian .methodology-preparation aside strong { color: #765b22; font-size: 12px; }
-  .er-console.is-persian .methodology-preparation aside p { margin: 7px 0 0; color: #667268; font-size: 10px; line-height: 1.85; }
+  .er-console.is-persian .methodology-preparation aside p { margin: 7px 0 0; color: #667268; font-size: 12px; line-height: 1.75; }
   .er-console.is-persian .methodology-formula { padding: 15px 18px; background: #f1f7f2; }
   .er-console.is-persian .methodology-formula h3 { margin: 0 0 12px; color: #2d5946; font-size: 18px; line-height: 1.6; }
-  .er-console.is-persian .methodology-formula p { margin: 9px 0; color: #52645a; font-size: 11px; line-height: 2; }
+  .er-console.is-persian .methodology-formula p { margin: 9px 0; color: #52645a; font-size: 12px; line-height: 2; }
   .er-console.is-persian .methodology-formula a { color: #236c56; font-weight: 700; text-underline-offset: 3px; }
   .er-console.is-persian .sroi-formula-label { margin: 18px 0 8px !important; color: #315c48 !important; font-size: 12px !important; font-weight: 700; }
   .er-console.is-persian .sroi-equation {
@@ -2426,25 +2532,48 @@ const lightPersianStyles = `
   .er-console.is-persian .sroi-equation-detail > span { display: block; min-width: max-content; }
   .er-console.is-persian .sroi-equation sub,
   .er-console.is-persian .sroi-equation sup { font-size: .72em; }
-  .er-console.is-persian .sroi-definitions { display: grid; gap: 6px; margin: 8px 0; padding-right: 20px; color: #53655a; font-size: 11px; line-height: 1.9; }
-  .er-console.is-persian .sroi-definitions li::marker { color: #43836a; }
-  .er-console.is-persian .sroi-definitions b { color: #315c48; }
   .er-console.is-persian .sroi-implementation-note { margin-top: 16px !important; padding: 11px 13px; border-right: 3px solid #b18939; border-radius: 5px; color: #6a592f !important; background: #fbf7e9; }
   @media (max-width: 1200px) {
     .er-console.is-persian .er-body {
-      grid-template-columns: 190px minmax(0, 1fr);
-      grid-template-areas: "rail main" "result result";
-      align-items: start;
+      grid-template-columns: minmax(180px, .8fr) minmax(0, 2.5fr) minmax(250px, 1fr);
+      align-items: stretch;
     }
-    .er-console.is-persian .er-rail { grid-area: rail; }
-    .er-console.is-persian .er-main { grid-area: main; min-width: 0; }
+    .er-console.is-persian .er-main { min-width: 0; }
+    .er-console.is-persian .input-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .er-console.is-persian .methodology-preparation { grid-template-columns: minmax(0, 1fr); }
+    .er-console.is-persian .result-summary { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
     .er-console.is-persian .er-right-column {
-      grid-area: result;
       grid-column: auto;
       min-width: 0;
       grid-template-columns: minmax(0, 1fr);
     }
-    .er-console.is-persian .er-result { position: static; width: 100%; min-width: 0; }
+    .er-console.is-persian .er-result {
+      position: sticky;
+      top: 16px;
+      align-self: start;
+      width: 100%;
+      min-width: 0;
+    }
+  }
+  @container value-panel (max-width: 520px) {
+    .er-console.is-persian .value-layout {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 16px;
+    }
+    .er-console.is-persian .donut {
+      width: clamp(140px, 45cqi, 190px);
+    }
+    .er-console.is-persian .bar-list {
+      width: 100%;
+      min-width: 0;
+    }
+    .er-console.is-persian .bar-item,
+    .er-console.is-persian .bar-item-header {
+      min-width: 0;
+    }
+    .er-console.is-persian .bar-item-label {
+      flex: 0 1 auto;
+    }
   }
   @media (max-width: 820px) {
     .er-console.is-persian { height: auto; min-height: 100vh; overflow: visible; padding: 12px; }
@@ -2453,24 +2582,37 @@ const lightPersianStyles = `
     .er-console.is-persian .er-body { display: block; }
     .er-console.is-persian .er-rail { position: static; margin-bottom: 14px; }
     .er-console.is-persian .er-main { margin-bottom: 14px; }
+    .er-console.is-persian .input-grid,
+    .er-console.is-persian .result-summary { grid-template-columns: minmax(0, 1fr); }
     .er-console.is-persian .er-heading { display: flex; flex-direction: column; }
-    .er-console.is-persian .er-heading h1 { font-size: clamp(2rem, 9vw, 3rem); }
+    .er-console.is-persian .er-heading h1 { font-size: clamp(1.7rem, 7vw, 2.3rem); }
     .er-console.is-persian .total-value { width: 100%; }
     .er-console.is-persian .er-right-column { display: grid; grid-template-columns: 1fr; }
+    .er-console.is-persian .er-result { position: static; max-height: none; overflow: visible; }
     .er-console.is-persian .overview-grid { grid-template-columns: 1fr; grid-template-rows: auto; flex: initial; }
     .er-console.is-persian .panel { padding: 15px; }
     .er-console.is-persian .methodology-preparation { grid-template-columns: 1fr; }
     .er-console.is-persian .er-status { display: none; }
+    .er-console.is-persian .rail-tip-content {
+      position: static;
+      width: auto;
+      max-height: min(55vh, 420px);
+      margin: 10px 22px 0 0;
+      padding: 12px;
+    }
   }
   @media (max-width: 520px) {
     .er-console.is-persian .methodology-concepts { grid-template-columns: 1fr; }
     .er-console.is-persian .methodology-intro { padding: 17px; }
-    .er-console.is-persian .methodology-intro h2 { font-size: 19px; }
-    .er-console.is-persian .methodology-chain span { font-size: 9px; }
+    .er-console.is-persian .methodology-intro h2 { font-size: 18px; }
     .er-console.is-persian .sroi-equation { gap: 8px; padding: 12px; font-size: 14px; }
     .er-console.is-persian .sroi-equation-fa { font-size: 11px; }
     .er-console.is-persian .sroi-equation-detail { font-size: 11px; }
     .er-console.is-persian .value-layout { grid-template-columns: 1fr; }
     .er-console.is-persian .donut { width: 150px; }
+  }
+  .er-console.is-persian p {
+    text-align: justify;
+    text-justify: inter-word;
   }
 `;
