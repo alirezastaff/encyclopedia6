@@ -267,12 +267,6 @@ export default function ReferenceHome({ locale = "en" }: { locale?: HomeLocale }
         .reference-nav a.active{color:#fff}
         .reference-nav-indicator{position:absolute;left:0;bottom:0;height:2px;background:#c9f1d7;pointer-events:none;transition:left 320ms cubic-bezier(.2,.75,.25,1),width 320ms cubic-bezier(.2,.75,.25,1)}
         @media(prefers-reduced-motion:reduce){.reference-nav a,.reference-nav-indicator{transition:none}}
-        .reference-header{border-color:rgba(235,249,241,.24);background:rgba(5,32,35,.78);box-shadow:inset 0 1px rgba(255,255,255,.12),0 12px 30px rgba(3,24,25,.28);backdrop-filter:blur(20px) saturate(125%);-webkit-backdrop-filter:blur(20px) saturate(125%)}
-        .reference-nav a{color:rgba(248,255,250,.94)}
-        .reference-nav a:hover,.reference-nav a.active{color:#fff}
-        .reference-languages{background:rgba(3,23,26,.46);border-color:rgba(255,255,255,.32)}
-        .reference-languages .active{background:#286a64}
-        .reference-categories{border-color:rgba(235,249,241,.27);background:rgba(5,32,35,.76);box-shadow:inset 0 1px rgba(255,255,255,.12),0 14px 30px rgba(3,24,25,.25);backdrop-filter:blur(18px) saturate(120%);-webkit-backdrop-filter:blur(18px) saturate(120%)}
       `}</style>
       <div className="reference-shell">
         <div className="reference-background-blur reference-background-blur-bottom" aria-hidden="true" />

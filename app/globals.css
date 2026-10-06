@@ -922,7 +922,7 @@ html:has(.reference-home) body {
 }
 
 html:has(.reference-home) .reference-shell::before {
-  background: url('/t7e.png') center / cover no-repeat !important;
+  background: linear-gradient(118deg, rgba(4, 25, 29, .52), rgba(7, 34, 37, .36) 48%, rgba(5, 25, 28, .5)), url('/t7e.png') center / cover no-repeat !important;
 }
 
 html:has(.reference-home) .reference-background-blur {
