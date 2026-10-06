@@ -89,6 +89,7 @@ const faCopy = {
   referenceGuide: "فایل راهنمای مرجع",
   decisionSupport: "نرخ بازگشت اجتماعی سرمایه‌گذاری، به‌عنوان یک ابزار تصمیم‌یار",
   heading: "ارزیابی اثر اجتماعی",
+  methodologySubtitle: "براساس نرخ بازگشت سرمایه اجتماعی (SROI)",
   totalValue: "ارزش اجتماعی برآوردشده",
   valueCreated: "بر پایهٔ فرض‌های واردشده",
   netValue: "ارزش خالص",
@@ -2121,10 +2122,12 @@ export default function ImpactConsoleDashboard({ locale = "en" }: { locale?: Loc
           <section className="er-main">
             <div className="er-heading">
               <div className="er-heading-copy">
-                <span className="eyebrow">{fa ? faCopy.decisionSupport : `Decision support / ${currentStage.label.toUpperCase()}`}</span>
-                <h1>
+                {(!fa || stage !== "overview") && (
+                  <span className="eyebrow">{fa ? faCopy.decisionSupport : `Decision support / ${currentStage.label.toUpperCase()}`}</span>
+                )}
+                <h1 className={stage === "overview" ? fa ? "er-heading-title-persian" : "er-heading-title-english" : undefined}>
                   {stage === "overview" && fa ? (
-                    <>ارزیابی اثر<em>اجتماعی</em></>
+                    faCopy.heading
                   ) : stage === "overview" ? (
                     <>
                       Social impact
@@ -2134,6 +2137,9 @@ export default function ImpactConsoleDashboard({ locale = "en" }: { locale?: Loc
                     stageTitle(stage, locale)
                   )}
                 </h1>
+                {fa && stage === "overview" && (
+                  <p className="er-methodology-subtitle">{faCopy.methodologySubtitle}</p>
+                )}
               </div>
 
               <div className="total-value glass">
@@ -2508,8 +2514,10 @@ const lightPersianStyles = `
   .er-console.is-persian .eyebrow,
   .er-console.is-persian .panel-head span { color: #68786e; letter-spacing: 0; }
   .er-console.is-persian .er-heading h1 { color: #27382f; font-size: clamp(1.8rem, 2.8vw, 2.6rem); line-height: 1.35; letter-spacing: 0; }
+  .er-console.is-persian .er-heading h1.er-heading-title-persian { font-size: clamp(1.6rem, 2.5vw, 2.3rem); line-height: 1.5; white-space: nowrap; }
   .er-console.is-persian .er-heading h1 em { color: #28735f; }
   .er-console.is-persian .er-heading p { color: #5d6b63; }
+  .er-console.is-persian .er-heading .er-methodology-subtitle { margin-top: 6px; }
   .er-console.is-persian .eyebrow,
   .er-console.is-persian .panel-head span { font-size: 11px; }
   .er-console.is-persian .field label { font-size: 12px; }
@@ -2751,6 +2759,7 @@ const lightPersianStyles = `
     .er-console.is-persian .result-summary { grid-template-columns: minmax(0, 1fr); }
     .er-console.is-persian .er-heading { display: flex; flex-direction: column; }
     .er-console.is-persian .er-heading h1 { font-size: clamp(1.7rem, 7vw, 2.3rem); }
+    .er-console.is-persian .er-heading h1.er-heading-title-persian { font-size: clamp(1.3rem, 6vw, 1.8rem); }
     .er-console.is-persian .total-value { width: 100%; }
     .er-console.is-persian .er-right-column { display: grid; grid-template-columns: 1fr; }
     .er-console.is-persian .er-result { position: static; max-height: none; overflow: visible; }
@@ -2796,6 +2805,10 @@ const englishStyles = `
   .er-console.is-english * {
     font-family: "DM Sans", Inter, "Segoe UI", Arial, sans-serif;
     letter-spacing: 0;
+  }
+  .er-console.is-english .er-heading h1.er-heading-title-english { font-size: clamp(3.2rem, 4.2vw, 5rem); }
+  @media (max-width: 820px) {
+    .er-console.is-english .er-heading h1.er-heading-title-english { font-size: clamp(2.8rem, 12vw, 4.4rem); }
   }
   .er-console.is-english { direction: ltr; text-align: left; }
   .er-console.is-english .er-brand { justify-content: flex-start; }

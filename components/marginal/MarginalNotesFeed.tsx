@@ -21,7 +21,8 @@ export default function MarginalNotesFeed() {
   const [kind, setKind] = useState("comment");
   const [filterKind, setFilterKind] = useState("all");
   const [query, setQuery] = useState("");
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [content, setContent] = useState("");
   const [replyFor, setReplyFor] = useState<string | null>(null);
@@ -55,10 +56,10 @@ export default function MarginalNotesFeed() {
     try {
       const response = await fetch("/api/marginal-notes", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, articleSlug, kind, content }),
+        body: JSON.stringify({ firstName, lastName, email, articleSlug, kind, content }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "ارسال دیدگاه ممکن نشد.");
+      const data = await response.json().catch(() => null);
+      if (!response.ok) throw new Error(data?.error || "ارسال دیدگاه ممکن نشد.");
       setContent("");
       setMessage({ type: "success", text: "دیدگاه شما ثبت شد و پس از بررسی منتشر می‌شود." });
     } catch (error) {
@@ -74,10 +75,10 @@ export default function MarginalNotesFeed() {
     try {
       const response = await fetch("/api/marginal-notes", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, articleSlug: post.articleSlug, content: replyContent, replyToId: post.id }),
+        body: JSON.stringify({ firstName, lastName, email, articleSlug: post.articleSlug, content: replyContent, replyToId: post.id }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "ارسال پاسخ ممکن نشد.");
+      const data = await response.json().catch(() => null);
+      if (!response.ok) throw new Error(data?.error || "ارسال پاسخ ممکن نشد.");
       setReplyContent(""); setReplyFor(null);
       setMessage({ type: "success", text: "پاسخ شما ثبت شد و پس از بررسی در گفتگو قرار می‌گیرد." });
     } catch (error) {
@@ -114,7 +115,7 @@ export default function MarginalNotesFeed() {
             <form onSubmit={submit} className="marginal-form">
               <textarea className="marginal-composer-text" value={content} onChange={(event) => setContent(event.target.value)} required maxLength={12000} rows={3} placeholder="پیشنهاد، پرسش، نقد یا تجربه خود را بنویسید..." />
               <div className="marginal-composer-fields"><label>انتخاب مدخل مرتبط<select value={articleSlug} onChange={(event) => setArticleSlug(event.target.value)} required>{articles.map((article) => <option key={article.slug} value={article.slug}>{article.title.fa}</option>)}</select></label><label>نوع دیدگاه<select value={kind} onChange={(event) => setKind(event.target.value)}>{kinds.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label></div>
-              <details className="marginal-identity"><summary>اطلاعات نویسنده</summary><div><label>نام شما<input value={name} onChange={(event) => setName(event.target.value)} required maxLength={120} /></label><label>ایمیل شما<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required dir="ltr" /></label></div></details>
+              <div className="marginal-identity"><strong>مشخصات شما برای ثبت دیدگاه</strong><div><label>نام<input value={firstName} onChange={(event) => setFirstName(event.target.value)} required maxLength={60} autoComplete="given-name" /></label><label>نام خانوادگی<input value={lastName} onChange={(event) => setLastName(event.target.value)} required maxLength={60} autoComplete="family-name" /></label><label>ایمیل<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required maxLength={254} dir="ltr" autoComplete="email" /></label></div><small>ایمیل شما در سایت نمایش داده نمی‌شود.</small></div>
               <div className="marginal-form-foot"><small>{content.length.toLocaleString("fa-IR")} / ۱۲۰۰۰ نویسه · بدون فایل و تصویر</small><button type="submit" disabled={posting}>{posting ? "در حال ارسال..." : "انتشار دیدگاه"}</button></div>
             </form>
             {message ? <div className={`marginal-message ${message.type}`} role="status">{message.text}</div> : null}

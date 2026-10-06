@@ -25,8 +25,12 @@ Copy the values from `.env.example` and replace the placeholders before deployme
 - `DATABASE_URL`: database connection string. For production, prefer PostgreSQL instead of SQLite.
 - `NEXTAUTH_SECRET`: strong secret for NextAuth session signing.
 - `NEXTAUTH_URL`: canonical app URL for authentication flows.
+- `ADMIN1_USERNAME`: private username used to sign in to the marginal-notes moderation page.
+- `ADMIN1_PASSWORD`: private password for that page (at least 12 characters).
 - `NEXT_PUBLIC_WORDPRESS_URL`: WordPress base URL for published editorial content.
 - `GEMINI_API_KEY`: server-only Gemini API key for AI country comparison.
+
+The moderation page is available at `/admin1`. Set `ADMIN1_USERNAME` and `ADMIN1_PASSWORD` as server-side deployment secrets; they are intentionally not given defaults in source code. `NEXTAUTH_SECRET` must be at least 32 characters and is also used to sign the short-lived, HTTP-only admin session cookie. After setting these values in the deployment platform, redeploy the app.
 
 ## Production deployment checklist
 
@@ -60,4 +64,3 @@ npm run db:migrate
 - The app uses Prisma + SQLite in local development by default.
 - For production hosting, move to a managed PostgreSQL database before relying on the app at scale.
 - The AI comparison feature remains optional; if `GEMINI_API_KEY` is missing, the app keeps local comparisons available but disables the Gemini-backed comparison.
-

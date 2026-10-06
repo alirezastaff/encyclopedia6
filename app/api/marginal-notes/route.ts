@@ -59,17 +59,27 @@ export async function POST(request: Request) {
   const articleSlug = typeof input.articleSlug === "string" ? input.articleSlug.trim() : "";
   const kind = typeof input.kind === "string" && postKinds.has(input.kind) ? input.kind : "comment";
   const replyToId = typeof input.replyToId === "string" ? input.replyToId.trim() : "";
-  const sessionEmail = session?.user?.email?.trim().toLowerCase() || "";
-  const sessionName = session?.user?.name?.trim() || "";
-  const name = sessionName || (typeof input.name === "string" ? input.name.trim() : "");
-  const email = sessionEmail || (typeof input.email === "string" ? input.email.trim().toLowerCase() : "");
+  const firstName = typeof input.firstName === "string" ? input.firstName.trim() : "";
+  const lastName = typeof input.lastName === "string" ? input.lastName.trim() : "";
+  const hasNameParts = typeof input.firstName === "string" || typeof input.lastName === "string";
+  const name = firstName || lastName
+    ? `${firstName} ${lastName}`.trim()
+    : typeof input.name === "string" ? input.name.trim() : session?.user?.name?.trim() || "";
+  const email = typeof input.email === "string"
+    ? input.email.trim().toLowerCase()
+    : session?.user?.email?.trim().toLowerCase() || "";
 
-  if (!name || name.length > 120) return json({ error: "نام معتبر الزامی است." }, 400);
-  if (!validEmail(email)) return json({ error: "ایمیل معتبر الزامی است." }, 400);
+  if ((hasNameParts && (!firstName || !lastName)) || (!hasNameParts && !name)) {
+    return json({ error: "نام و نام خانوادگی الزامی است." }, 400);
+  }
+  if (firstName.length > 60 || lastName.length > 60 || name.length > 120) return json({ error: "نام و نام خانوادگی باید حداکثر ۶۰ نویسه باشند." }, 400);
+  if (!validEmail(email) || email.length > 254) return json({ error: "ایمیل معتبر الزامی است." }, 400);
   if (!content || content.length > maxContentLength) return json({ error: "متن دیدگاه باید بین ۱ تا ۱۲۰۰۰ نویسه باشد." }, 400);
   if (!articleSlug || !validArticleSlug(articleSlug)) return json({ error: "انتخاب یک مدخل معتبر الزامی است." }, 400);
 
-  const user = sessionEmail ? await prisma.user.findUnique({ where: { email: sessionEmail } }) : null;
+  const user = session?.user?.email?.trim().toLowerCase() === email
+    ? await prisma.user.findUnique({ where: { email } })
+    : null;
   if (replyToId) {
     const parent = await prisma.marginalPost.findUnique({ where: { id: replyToId } });
     if (!parent || parent.status !== "published" || parent.articleSlug !== articleSlug) return json({ error: "گفت‌وگوی موردنظر یافت نشد." }, 404);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 
 export default function AboutSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -28,7 +29,7 @@ export default function AboutSection() {
     >
       <div id="contact-us" className="sse-about-panel">
         <div className="sse-about-mark">
-          <img src="/sse-logo.png" alt="Social and Solidarity Economy logo" />
+          <Image src="/sse-logo.png" alt="Social and Solidarity Economy logo" width={255} height={252} sizes="255px" />
           <p className="sse-about-kicker">Independent research group</p>
           <h2 id="sse-about-title">About Us</h2>
         </div>

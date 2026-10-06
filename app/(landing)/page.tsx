@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -15,7 +16,7 @@ export default function Home() {
 
       <section className="sse-entry-panel" aria-labelledby="sse-entry-title">
         <div className="sse-entry-brand">
-          <img src="/sse-logo.png" alt="Social and Solidarity Economy logo" />
+          <Image src="/sse-logo.png" alt="Social and Solidarity Economy logo" width={255} height={252} sizes="92px" loading="eager" />
           <div>
             <h1 id="sse-entry-title">Social and Solidarity<span>Economy</span></h1>
             <p>Knowledge platform</p>

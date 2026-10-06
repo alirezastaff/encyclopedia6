@@ -675,7 +675,6 @@ export default function EnglishArchivePage({ initialQuery = "", locale = "en" }:
               width={isPersian ? 1500 : 2048}
               height={isPersian ? 500 : 688}
               sizes="210px"
-              unoptimized
             />
           </Link>
 
@@ -975,8 +974,7 @@ export default function EnglishArchivePage({ initialQuery = "", locale = "en" }:
                     alt={isPersian ? authorTranslations[currentAuthor.name]?.name ?? currentAuthor.name : currentAuthor.name}
                     width={125}
                     height={125}
-                    sizes="(max-width: 700px) 246px, 125px"
-                    unoptimized
+                    sizes="(max-width: 700px) calc(100vw - 24px), 125px"
                   />
                   <div>
                     <h3>{isPersian ? authorTranslations[currentAuthor.name]?.name ?? currentAuthor.name : currentAuthor.name}</h3>
