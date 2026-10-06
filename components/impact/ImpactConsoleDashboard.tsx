@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { jsPDF } from "jspdf";
 import {
   Activity,
   ArrowLeft,
@@ -53,24 +52,6 @@ type Result = {
 };
 
 const initial: Form = {
-  budget: 100000,
-  volunteerHours: 1200,
-  hourlyRate: 12,
-  beneficiaries: 240,
-  jobs: 18,
-  waste: 800,
-  changeRate: 65,
-  socialProxy: 450,
-  environmentalProxy: 30,
-  economicProxy: 8500,
-  deadweight: 15,
-  attribution: 10,
-  displacement: 5,
-  dropoff: 8,
-};
-
-const persianInitial: Form = {
-  ...initial,
   budget: 0,
   volunteerHours: 0,
   hourlyRate: 0,
@@ -156,6 +137,64 @@ const faCopy = {
   } satisfies Record<Stage, string>,
 } as const;
 
+const enCopy = {
+  status: "Assessment in progress",
+  updated: "Estimate based on your inputs",
+  encyclopedia: "Encyclopedia",
+  workspace: "Workspace",
+  activeView: "Current view",
+  dashboardGuide: "Dashboard guide",
+  ready: "Ready",
+  dataTip: "Methodology note",
+  referenceGuide: "Download the SROI guide",
+  decisionSupport: "Social Return on Investment (SROI) · Decision support",
+  totalValue: "Estimated social value",
+  valueCreated: "Based on your assumptions",
+  netValue: "Net value",
+  liveResult: "Live estimate",
+  ratio: "Social Return on Investment (SROI)",
+  valueMix: "Value breakdown",
+  currentEstimate: "Current estimate",
+  valueBridge: "From gross to net value",
+  netEffect: "Estimate pathway",
+  grossOutcomes: "Gross outcome value",
+  adjustments: "Adjustments",
+  adjustmentNote: "Adjustments help avoid overclaiming impact.",
+  social: "Social",
+  economic: "Economic",
+  environmental: "Environmental",
+  peopleReached: "People directly supported",
+  jobsCreated: "Sustained jobs created",
+  wasteRecovered: "Material recovered",
+  scenario: "Scenario",
+  conservative: "Conservative",
+  expected: "Expected",
+  optimistic: "Optimistic",
+  assumptions: "Assumptions",
+  finalReview: "Final review",
+  readyToExport: "Ready to export",
+  netSocialValue: "Net social value",
+  totalInvestment: "Total investment",
+  downloadPdf: "Print / save PDF report",
+  screeningEstimate: "This is an initial screening estimate, not an audited valuation.",
+  stages: {
+    overview: "What is social impact?",
+    financial: "Project resources",
+    outputs: "Activities and outputs",
+    outcomes: "Outcomes and value",
+    adjustments: "Impact adjustments",
+    results: "Assessment results",
+  } satisfies Record<Stage, string>,
+  guides: {
+    overview: "Start with assumptions you can support with evidence. Refine each input using local data; the estimate updates as you work.",
+    financial: "Enter cash spent during the assessment period. Include volunteer time only when you can document the hours and justify the rate used to value them.",
+    outputs: "Count direct, verifiable results such as people supported, sustained jobs created, and material recovered. Avoid forecasts or figures you cannot substantiate.",
+    outcomes: "Estimate meaningful changes in people's lives, not activity alone. Record the source for each financial proxy and use a cautious change rate when evidence is limited.",
+    adjustments: "Account for change that would have happened anyway, contributions from others, displacement, and how outcomes may diminish over time.",
+    results: "Read the ratio alongside its assumptions. Compare scenarios, record your evidence, and treat this as a screening estimate, not a full SROI valuation.",
+  } satisfies Record<Stage, string>,
+} as const;
+
 const faFields = {
   budget: { label: "منابع مالی پروژه", help: "مجموع منابع نقدی مصرف‌شده برای همین پروژه و دورهٔ ارزیابی را وارد کنید. هزینهٔ سالانه را با کل هزینهٔ چندساله جمع نکنید. پیش‌نیاز: بودجهٔ مصوب یا اسناد مالی پروژه.", suffix: "تومان" },
   volunteerHours: { label: "ساعت کار داوطلبانه", help: "ساعت‌هایی را وارد کنید که داوطلبان واقعاً برای پروژه صرف کرده‌اند؛ این مقدار یکی از منابع پروژه است، نه تعداد افراد. پیش‌نیاز: برگهٔ ثبت ساعت، حضور و غیاب یا گزارش معتبر دورهٔ ارزیابی.", suffix: "ساعت" },
@@ -173,8 +212,26 @@ const faFields = {
   dropoff: { label: "کاهش سالانهٔ اثر", help: "درصد کاهش شدت پیامد در هر سال پس از سال اول است و با مدت ماندگاری اثر تفاوت دارد. پیش‌نیاز: دادهٔ پیگیری در چند مقطع، نظرسنجی تکرارشونده یا مطالعهٔ معتبر. نسخهٔ فعلی مدت اثر و تنزیل را نمی‌سنجد و این نرخ را فقط به‌صورت تعدیلی ساده اعمال می‌کند.", suffix: "٪" },
 } satisfies Record<keyof Form, { label: string; help: string; suffix: string }>;
 
+const enFields = {
+  budget: { label: "Project budget or investment", help: "Enter the cash spent on this project during the assessment period. Do not add an annual budget to a multi-year total. Use approved budgets or project financial records.", suffix: "USD" },
+  volunteerHours: { label: "Volunteer hours", help: "Enter the hours volunteers actually contributed during the assessment period. This is a project resource, not a headcount. Use timesheets, attendance logs, or another reliable record.", suffix: "hours" },
+  hourlyRate: { label: "Value per volunteer hour", help: "Use a documented rate that reflects the work and local context. Record the local wage benchmark or written valuation method; do not choose an arbitrary figure.", suffix: "USD / hour" },
+  beneficiaries: { label: "People directly supported", help: "Count unique people who received direct support; do not count repeat visits as additional people. Use deduplicated service records and consult participants about the changes they experienced.", suffix: "people" },
+  jobs: { label: "Sustained jobs created", help: "Count jobs the project helped create or retain, not temporary roles or announced opportunities. Define what sustained means and support the count with employer records or follow-up data.", suffix: "jobs" },
+  waste: { label: "Material recovered", help: "Enter the weight actually recovered or diverted from disposal. Keep material type and measurement period consistent, and use weighbridge tickets, recycling receipts, or operational records.", suffix: "kg" },
+  changeRate: { label: "Rate of meaningful change", help: "Estimate the share of people who experienced a defined, meaningful outcome; this is not an attendance or satisfaction rate. Define the outcome and indicator, then use credible baseline, follow-up, or participant survey data.", suffix: "%" },
+  socialProxy: { label: "Financial proxy per person", help: "Use an evidenced estimate of the financial value of a social outcome for each person. This does not put a price on a person. Record the outcome, source, year, and currency; if no credible source exists, report it without a monetary value.", suffix: "USD / person" },
+  environmentalProxy: { label: "Environmental value per kg", help: "Use a documented estimate for the environmental effect of the same material type. Do not combine different outcomes without separating them. Record the material, method, and credible source; do not invent a value.", suffix: "USD / kg" },
+  economicProxy: { label: "Economic value per job", help: "Use a documented estimate of the employment outcome; do not treat it as the person's annual salary unless your method supports that. Define job duration, unit, and source, and avoid counting the same income benefit twice.", suffix: "USD / job" },
+  deadweight: { label: "Deadweight: change that would happen anyway", help: "Estimate the share of change likely to occur without the project. A higher deadweight means less change can be attributed to the intervention. Use baseline or comparison data, or ask participants about the counterfactual.", suffix: "%" },
+  attribution: { label: "Attribution to other factors", help: "Estimate the share of change caused by other organisations or external factors. Discuss contributions with participants and partners, review concurrent services, and document how you divided the contribution.", suffix: "%" },
+  displacement: { label: "Displacement", help: "Estimate the share of benefit accompanied by a loss or reduced benefit elsewhere. Missing data does not mean displacement is zero. Review relevant markets or services and consult affected people or groups.", suffix: "%" },
+  dropoff: { label: "Annual drop-off in outcomes", help: "Estimate how much the outcome's intensity declines in each year after the first. This is different from how long an outcome lasts. Use repeated follow-up data or credible research; this version applies only a simple adjustment.", suffix: "%" },
+} satisfies Record<keyof Form, { label: string; help: string; suffix: string }>;
+
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
 
   :root {
     --social: #86e0cd;
@@ -1450,21 +1507,12 @@ function scenario(form: Form, mode: "low" | "high") {
 
 function stageTitle(stage: Stage, locale: Locale = "en") {
   if (locale === "fa") return faCopy.stages[stage];
-  if (stage === "financial") return "Financial inputs";
-  if (stage === "outputs") return "Direct outputs";
-  if (stage === "outcomes") return "Outcomes & values";
-  if (stage === "adjustments") return "Adjustments";
-  return "Results";
+  return enCopy.stages[stage];
 }
 
 function stageGuide(stage: Stage, locale: Locale = "en") {
   if (locale === "fa") return faCopy.guides[stage];
-  if (stage === "financial") return "Use cash actually committed to the programme. Include volunteer time only when you can explain the hourly rate and measurement period.";
-  if (stage === "outputs") return "Count direct, verifiable reach: people supported, jobs created, and materials recovered. Avoid forecasts or numbers that cannot be evidenced.";
-  if (stage === "outcomes") return "Estimate the value of meaningful change, not activity alone. Record the source of each proxy and use a conservative change rate when evidence is limited.";
-  if (stage === "adjustments") return "Reduce overclaiming by accounting for change that would happen anyway, other contributors, unintended harm, and the expected drop-off over time.";
-  if (stage === "results") return "Review the ratio alongside the assumptions behind it. Compare scenarios, record your evidence, and treat this result as a screening estimate rather than an audited valuation.";
-  return "Start with the assumptions you can support, then refine each input with local evidence. The estimate updates as you move through the workspace.";
+  return enCopy.guides[stage];
 }
 
 function PersianMethodology() {
@@ -1537,6 +1585,79 @@ function PersianMethodology() {
   );
 }
 
+function EnglishMethodology() {
+  return (
+    <section className="methodology-overview" aria-labelledby="methodology-title">
+      <header className="methodology-intro">
+        <span className="methodology-kicker">A practical introduction to Social Return on Investment (SROI)</span>
+        <h2 id="methodology-title">What is social impact assessment?</h2>
+        <p>
+          Social impact assessment helps identify and understand the changes a project creates in people&apos;s lives and in the environment. The indicators and methods used depend on the project and the resources involved. Social Return on Investment (SROI) is one approach: it brings evidence about outcomes together with defensible financial estimates to compare the value created with the resources invested.
+        </p>
+      </header>
+
+      <div className="methodology-concepts">
+        <article><span>01 · Project resources</span><h3>What resources did the project use?</h3><p>Resources include the project budget and the time contributed by paid staff and volunteers.</p></article>
+        <article><span>02 · Activities and outputs</span><h3>What did the project do, and what did it deliver?</h3><p>Activities may be educational, productive, cultural, or digital. Outputs are direct, countable results, such as people taking part or products made.</p></article>
+        <article><span>03 · Outcomes</span><h3>What changed for the people involved?</h3><p>Outcomes are positive or negative changes in people&apos;s lives. For example, skills or job satisfaction may improve, while a project ending may lead to jobs being lost.</p></article>
+        <article><span>04 · Impact</span><h3>How much of that change can be linked to the project?</h3><p>Not every observed change results from the project. Consider what would have happened anyway and the contribution of other organisations before estimating impact.</p></article>
+      </div>
+
+      <div className="methodology-preparation">
+        <div>
+          <span className="methodology-kicker">Before you begin</span>
+          <h3>What information should you prepare?</h3>
+          <ul>
+            <li><b>Resources and outputs:</b> Gather budgets, staff records, employment data, and waste-weighing records where relevant.</li>
+            <li><b>Evidence of change:</b> Define the outcomes you want to assess, then use surveys or interviews to understand the type and extent of change experienced by participants.</li>
+            <li><b>Financial records:</b> Keep records of the resources used across the full project period.</li>
+          </ul>
+        </div>
+        <aside>
+          <strong>How should I interpret this dashboard?</strong>
+          <p>
+            This dashboard is informed by published SROI guidance, including work associated with the{" "}
+            <a href="https://andeglobal.org/writer/the-sroi-network/" target="_blank" rel="noopener noreferrer">
+              SROI Network
+            </a>
+            , the UK Cabinet Office, the New Economics Foundation, and research consortia. The guidance is published through the global SROI community, with support from the United Nations Development Programme (UNDP). Use local evidence and professional judgement when applying the method.
+          </p>
+        </aside>
+      </div>
+
+      <div className="methodology-formula">
+        <h3>What does the SROI ratio mean?</h3>
+        <p>
+          SROI compares the social value created with the resources used by a project. It starts by identifying who experienced change and what changed for them. Evidence is then used to assess those outcomes and, where appropriate, a <b>financial proxy</b> is used to estimate their monetary value. The estimate is adjusted for factors such as change that would have happened anyway and the contribution of others. A full SROI analysis compares the present value of social outcomes with the present value of investment.
+        </p>
+        <p>
+          For example, a ratio of <bdi dir="ltr"><b>3:1</b></bdi> means that each unit invested is associated with an estimated three units of social value. SROI is not just a financial ratio; it is a structured process for understanding, measuring, valuing, and reporting social impact.
+        </p>
+        <p>
+          For further reading, see this review of 284 academic papers on SROI: {" "}
+          <a href="https://www.sciencedirect.com/org/science/article/pii/S2049372X22000107?utm_source=chatgpt.com" target="_blank" rel="noopener noreferrer">
+            Read the research
+          </a>
+        </p>
+        <p className="sroi-formula-label">Standard SROI ratio</p>
+        <div className="sroi-equation" dir="ltr" aria-label="SROI equals present value of social outcomes divided by present value of investment">
+          <span>SROI</span><span>=</span>
+          <span className="sroi-fraction"><span>PV (Social Outcomes)</span><span>PV (Investment)</span></span>
+        </div>
+        <p className="sroi-formula-label">Outcome valuation and adjustments</p>
+        <div className="sroi-equation sroi-equation-detail" dir="ltr">
+          <span>Gross Outcome Value<sub>i,t</sub> = Quantity<sub>i,t</sub> × Financial Proxy<sub>i</sub></span>
+          <span>Adjusted Outcome Value<sub>i,t</sub> = Gross Outcome Value<sub>i,t</sub> × (1 − Deadweight<sub>i</sub>) × (1 − Attribution<sub>i</sub>) × (1 − Displacement<sub>i</sub>) × Drop-off Factor<sub>i,t</sub></span>
+          <span>Drop-off Factor<sub>i,t</sub> = ∏<sub>k=1</sub><sup>t</sup> (1 − Drop-off Rate<sub>i,k</sub>)</span>
+          <span>PV (Social Outcomes) = ∑<sub>i=1</sub><sup>n</sup> ∑<sub>t=0</sub><sup>T</sup> Adjusted Outcome Value<sub>i,t</sub> / (1 + r)<sup>t</sup></span>
+          <span>PV (Investment) = ∑<sub>t=0</sub><sup>T</sup> Investment<sub>t</sub> / (1 + r)<sup>t</sup></span>
+        </div>
+        <p className="sroi-implementation-note">These equations describe the broader SROI framework. This calculator does not discount future outcomes or calculate multi-year present values, so its ratio is a screening estimate rather than a complete SROI valuation.</p>
+      </div>
+    </section>
+  );
+}
+
 function Overview({ form, result, locale }: { form: Form; result: Result; locale: Locale }) {
   const fa = locale === "fa";
   const total = result.total;
@@ -1549,20 +1670,20 @@ function Overview({ form, result, locale }: { form: Form; result: Result; locale
     <div className="overview-grid">
       <section className="panel glass value-panel">
         <div className="panel-head">
-          <span>{fa ? faCopy.valueMix : "Value mix"}</span>
-          <small>{fa ? faCopy.currentEstimate : "Current estimate"}</small>
+          <span>{fa ? faCopy.valueMix : enCopy.valueMix}</span>
+          <small>{fa ? faCopy.currentEstimate : enCopy.currentEstimate}</small>
         </div>
         <div className="value-layout">
           <div className="donut" style={{ background: ring(result) }}>
             <div className="center">
               <strong>{money(result.total, true, locale)}</strong>
-              <span>{fa ? faCopy.netValue : "Net value"}</span>
+              <span>{fa ? faCopy.netValue : enCopy.netValue}</span>
             </div>
           </div>
           <div className="bar-list">
             <div className="bar-item">
               <div className="bar-item-header">
-                <span className="bar-item-label"><span className="dot social" />{fa ? faCopy.social : "Social"}</span>
+                <span className="bar-item-label"><span className="dot social" />{fa ? faCopy.social : enCopy.social}</span>
                 <b>{formatNumber(Math.round(socialShare), locale)}{fa ? "٪" : "%"}</b>
               </div>
               <div className="bar-track"><span className="bar-fill social" style={{ width: `${socialShare}%` }} /></div>
@@ -1572,7 +1693,7 @@ function Overview({ form, result, locale }: { form: Form; result: Result; locale
             </div>
             <div className="bar-item">
               <div className="bar-item-header">
-                <span className="bar-item-label"><span className="dot economic" />{fa ? faCopy.economic : "Economic"}</span>
+                <span className="bar-item-label"><span className="dot economic" />{fa ? faCopy.economic : enCopy.economic}</span>
                 <b>{formatNumber(Math.round(economicShare), locale)}{fa ? "٪" : "%"}</b>
               </div>
               <div className="bar-track"><span className="bar-fill economic" style={{ width: `${economicShare}%` }} /></div>
@@ -1582,7 +1703,7 @@ function Overview({ form, result, locale }: { form: Form; result: Result; locale
             </div>
             <div className="bar-item">
               <div className="bar-item-header">
-                <span className="bar-item-label"><span className="dot environmental" />{fa ? faCopy.environmental : "Environmental"}</span>
+                <span className="bar-item-label"><span className="dot environmental" />{fa ? faCopy.environmental : enCopy.environmental}</span>
                 <b>{formatNumber(Math.round(environmentalShare), locale)}{fa ? "٪" : "%"}</b>
               </div>
               <div className="bar-track"><span className="bar-fill environmental" style={{ width: `${environmentalShare}%` }} /></div>
@@ -1596,14 +1717,14 @@ function Overview({ form, result, locale }: { form: Form; result: Result; locale
 
       <section className="panel glass bridge-panel">
         <div className="panel-head">
-          <span>{fa ? faCopy.valueBridge : "Value bridge"}</span>
-          <small>{fa ? faCopy.netEffect : "Net effect"}</small>
+          <span>{fa ? faCopy.valueBridge : enCopy.valueBridge}</span>
+          <small>{fa ? faCopy.netEffect : enCopy.netEffect}</small>
         </div>
         <div className="bridge-rows">
           {[
-            { label: fa ? faCopy.grossOutcomes : "Gross outcomes", value: gross, color: "social" },
-            { label: fa ? faCopy.adjustments : "Adjustments", value: gross - result.total, color: "coral" },
-            { label: fa ? faCopy.netValue : "Net value", value: result.total, color: "economic" },
+            { label: fa ? faCopy.grossOutcomes : enCopy.grossOutcomes, value: gross, color: "social" },
+            { label: fa ? faCopy.adjustments : enCopy.adjustments, value: gross - result.total, color: "coral" },
+            { label: fa ? faCopy.netValue : enCopy.netValue, value: result.total, color: "economic" },
           ].map((entry) => {
             const width = gross ? (entry.value / gross) * 100 : 0;
             return (
@@ -1617,7 +1738,7 @@ function Overview({ form, result, locale }: { form: Form; result: Result; locale
             );
           })}
         </div>
-        <div className="bridge-note">{fa ? faCopy.adjustmentNote : "Adjustments reduce overclaiming."}</div>
+        <div className="bridge-note">{fa ? faCopy.adjustmentNote : enCopy.adjustmentNote}</div>
       </section>
 
       <section className="panel glass metric-strip">
@@ -1626,21 +1747,21 @@ function Overview({ form, result, locale }: { form: Form; result: Result; locale
             <div className="metric-icon social"><Users size={14} /></div>
             <div>
               <strong>{formatNumber(form.beneficiaries, locale)}</strong>
-              <small>{fa ? faCopy.peopleReached : "People reached"}</small>
+              <small>{fa ? faCopy.peopleReached : enCopy.peopleReached}</small>
             </div>
           </div>
           <div className="metric-pill">
             <div className="metric-icon economic"><BriefcaseBusiness size={14} /></div>
             <div>
               <strong>{formatNumber(form.jobs, locale)}</strong>
-              <small>{fa ? faCopy.jobsCreated : "Jobs created"}</small>
+              <small>{fa ? faCopy.jobsCreated : enCopy.jobsCreated}</small>
             </div>
           </div>
           <div className="metric-pill">
             <div className="metric-icon environmental"><Recycle size={14} /></div>
             <div>
               <strong>{`${formatNumber(form.waste, locale)} ${fa ? "کیلوگرم" : "kg"}`}</strong>
-              <small>{fa ? faCopy.wasteRecovered : "Waste recovered"}</small>
+              <small>{fa ? faCopy.wasteRecovered : enCopy.wasteRecovered}</small>
             </div>
           </div>
         </div>
@@ -1652,31 +1773,31 @@ function Overview({ form, result, locale }: { form: Form; result: Result; locale
             <div className="metric-icon social"><Users size={14} /></div>
             <div className="meta">
               <strong>{formatNumber(form.beneficiaries, locale)}</strong>
-              <small>{fa ? faCopy.peopleReached : "People reached"}</small>
+              <small>{fa ? faCopy.peopleReached : enCopy.peopleReached}</small>
             </div>
           </div>
           <div className="snapshot-item">
             <div className="metric-icon economic"><BriefcaseBusiness size={14} /></div>
             <div className="meta">
               <strong>{formatNumber(form.jobs, locale)}</strong>
-              <small>{fa ? faCopy.jobsCreated : "Jobs created"}</small>
+              <small>{fa ? faCopy.jobsCreated : enCopy.jobsCreated}</small>
             </div>
           </div>
           <div className="snapshot-item">
             <div className="metric-icon environmental"><Recycle size={14} /></div>
             <div className="meta">
               <strong>{`${formatNumber(form.waste, locale)} ${fa ? "کیلوگرم" : "kg"}`}</strong>
-              <small>{fa ? faCopy.wasteRecovered : "Waste recovered"}</small>
+              <small>{fa ? faCopy.wasteRecovered : enCopy.wasteRecovered}</small>
             </div>
           </div>
           {fa ? (
             <p className="estimate-integrity-note">این برآورد فقط به اندازهٔ کیفیت ورودی‌ها و منابعِ پشت آن قابل اتکاست؛ سناریوی خوش‌بینانه یا دادهٔ ساختگی به‌عنوان نتیجه نمایش داده نمی‌شود.</p>
           ) : (
             <div className="scenario-box">
-              <span className="label">Scenario</span>
-              <span className="scenario-pill">Conservative {formatNumber(scenario(form, "low"), locale, 2)}</span>
-              <span className="scenario-pill primary">Expected {formatNumber(result.ratio, locale, 2)}</span>
-              <span className="scenario-pill">Optimistic {formatNumber(scenario(form, "high"), locale, 2)}</span>
+              <span className="label">{enCopy.scenario}</span>
+              <span className="scenario-pill">{enCopy.conservative} {formatNumber(scenario(form, "low"), locale, 2)}</span>
+              <span className="scenario-pill primary">{enCopy.expected} {formatNumber(result.ratio, locale, 2)}</span>
+              <span className="scenario-pill">{enCopy.optimistic} {formatNumber(scenario(form, "high"), locale, 2)}</span>
             </div>
           )}
         </div>
@@ -1714,7 +1835,7 @@ function Inputs({ stage, form, update, locale }: { stage: Stage; form: Form; upd
             ];
   const displayedFields = locale === "fa"
     ? fields.map((field) => ({ ...field, ...faFields[field.key], prefix: undefined }))
-    : fields;
+    : fields.map((field) => ({ ...field, ...enFields[field.key], prefix: undefined }));
   const guide = stageGuide(stage, locale);
 
   return (
@@ -1722,7 +1843,7 @@ function Inputs({ stage, form, update, locale }: { stage: Stage; form: Form; upd
       <div className="panel glass input-panel">
       <div className="panel-head">
         <span>{stageTitle(stage, locale)}</span>
-        <small>{locale === "fa" ? faCopy.assumptions : "Assumptions"}</small>
+        <small>{locale === "fa" ? faCopy.assumptions : enCopy.assumptions}</small>
       </div>
       <div className="input-grid">
         {displayedFields.map((field) => (
@@ -1760,15 +1881,15 @@ function Results({ result, exportPdf, locale }: { result: Result; exportPdf: () 
     <div className="result-stage">
       <div className="panel glass results-panel">
       <div className="panel-head">
-        <span>{fa ? faCopy.stages.results : "Final review"}</span>
-        <small>{fa ? faCopy.readyToExport : "Ready to export"}</small>
+        <span>{fa ? faCopy.stages.results : enCopy.finalReview}</span>
+        <small>{fa ? faCopy.readyToExport : enCopy.readyToExport}</small>
       </div>
       <div className="result-summary">
         <div className="result-card"><span>{fa ? faCopy.netSocialValue : "Net social value"}</span><strong>{money(result.total, false, locale)}</strong></div>
         <div className="result-card"><span>{fa ? faCopy.totalInvestment : "Total investment"}</span><strong>{money(result.investment, false, locale)}</strong></div>
         <div className="result-card"><span>{fa ? "نسبت SROI" : "SROI ratio"}</span><strong>{formatNumber(result.ratio, locale, 2)} : 1</strong></div>
       </div>
-      <button className="download-btn" type="button" onClick={exportPdf}><Download size={14} /> {fa ? faCopy.downloadPdf : "Download PDF report"}</button>
+      <button className="download-btn" type="button" onClick={exportPdf}><Download size={14} /> {fa ? faCopy.downloadPdf : enCopy.downloadPdf}</button>
       </div>
       <p className="stage-guide">{stageGuide("results", locale)}</p>
     </div>
@@ -1823,13 +1944,63 @@ function printPersianReport(form: Form, result: Result) {
   });
 }
 
+function printEnglishReport(form: Form, result: Result) {
+  const printWindow = window.open("", "_blank");
+  if (!printWindow) return;
+
+  const escapeHtml = (value: string) => value.replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  })[character]!);
+  const results: [string, string][] = [
+    ["SROI ratio", `${formatNumber(result.ratio, "en", 2)} : 1`],
+    ["Net social value", money(result.total, false, "en")],
+    ["Total investment", money(result.investment, false, "en")],
+    ["Social value", money(result.values.social, false, "en")],
+    ["Economic value", money(result.values.economic, false, "en")],
+    ["Environmental value", money(result.values.environmental, false, "en")],
+  ];
+  const assumptions: [string, string][] = [
+    [enFields.budget.label, money(form.budget, false, "en")],
+    [enFields.volunteerHours.label, `${formatNumber(form.volunteerHours, "en")} hours`],
+    [enFields.hourlyRate.label, money(form.hourlyRate, false, "en")],
+    [enFields.beneficiaries.label, formatNumber(form.beneficiaries, "en")],
+    [enFields.jobs.label, formatNumber(form.jobs, "en")],
+    [enFields.waste.label, `${formatNumber(form.waste, "en")} kg`],
+    [enFields.changeRate.label, `${formatNumber(form.changeRate, "en")}%`],
+    [enFields.socialProxy.label, money(form.socialProxy, false, "en")],
+    [enFields.environmentalProxy.label, money(form.environmentalProxy, false, "en")],
+    [enFields.economicProxy.label, money(form.economicProxy, false, "en")],
+    [enFields.deadweight.label, `${formatNumber(form.deadweight, "en")}%`],
+    [enFields.attribution.label, `${formatNumber(form.attribution, "en")}%`],
+    [enFields.displacement.label, `${formatNumber(form.displacement, "en")}%`],
+    [enFields.dropoff.label, `${formatNumber(form.dropoff, "en")}%`],
+  ];
+  const tableRows = (items: [string, string][]) => items
+    .map(([label, value]) => `<tr><th>${escapeHtml(label)}</th><td>${escapeHtml(value)}</td></tr>`)
+    .join("");
+
+  printWindow.document.write(`<!doctype html><html lang="en" dir="ltr"><head><meta charset="utf-8"><title>Social Impact Assessment Report</title><style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+    *{box-sizing:border-box}body{margin:0;padding:36px;color:#26332f;font-family:'DM Sans',Arial,sans-serif;line-height:1.65}main{max-width:820px;margin:auto}h1{margin:0 0 6px;font-size:28px}p{margin:0 0 20px;color:#53635d}h2{margin:28px 0 8px;font-size:17px}table{width:100%;border-collapse:collapse}th,td{padding:9px 12px;border-bottom:1px solid #dce5de;text-align:left}th{font-weight:500}td{font-weight:700}.equation{padding:12px 14px;border:1px solid #dce5de;border-radius:8px;background:#f5f8f5}.notice{margin-top:24px;padding:12px 14px;border-left:3px solid #43836a;background:#f1f7f1;color:#52666d;font-size:13px}@media print{body{padding:0}main{max-width:none}h2{break-after:avoid}tr{break-inside:avoid}}
+    </style></head><body><main><h1>Social Impact Assessment Report</h1><p>Estimate based on the assumptions entered in the Social Impact Assessment workspace.</p><h2>Assessment summary</h2><table><tbody>${tableRows(results)}</tbody></table><h2>Calculation assumptions</h2><table><tbody>${tableRows(assumptions)}</tbody></table><h2>Method and limitations</h2><p class="equation">SROI = Present value of social outcomes ÷ Present value of investment</p><div class="notice">This is a screening estimate, not an audited valuation. This calculator does not discount future outcomes or calculate multi-year present values. Review every input and its evidence before using the result to make decisions.</div></main></body></html>`);
+  printWindow.document.close();
+  void printWindow.document.fonts.ready.then(() => {
+    printWindow.focus();
+    printWindow.print();
+  });
+}
+
 export default function ImpactConsoleDashboard({ locale = "en" }: { locale?: Locale }) {
   const fa = locale === "fa";
   const [stage, setStage] = useState<Stage>("overview");
-  const [form, setForm] = useState<Form>(fa ? persianInitial : initial);
+  const [form, setForm] = useState<Form>(initial);
   const [railOpen, setRailOpen] = useState(false);
   const result = useMemo(() => calculate(form), [form]);
-  const localizedStages = stages.map((item) => ({ ...item, label: fa ? faCopy.stages[item.id] : item.label }));
+  const localizedStages = stages.map((item) => ({ ...item, label: fa ? faCopy.stages[item.id] : enCopy.stages[item.id] }));
 
   const update = (key: keyof Form, value: string) => {
     const parsed = Math.max(0, number(value));
@@ -1844,21 +2015,14 @@ export default function ImpactConsoleDashboard({ locale = "en" }: { locale?: Loc
       printPersianReport(form, result);
       return;
     }
-    const document = new jsPDF();
-    document.setFontSize(20);
-    document.text("Social Impact Assessment Report", 20, 24);
-    document.setFontSize(11);
-    document.text(`SROI ratio: ${result.ratio.toFixed(2)} : 1`, 20, 40);
-    document.text(`Net social value: ${money(result.total)}`, 20, 50);
-    document.text(`Total investment: ${money(result.investment)}`, 20, 60);
-    document.save("social-impact-assessment.pdf");
+    printEnglishReport(form, result);
   };
 
   const currentStage = localizedStages.find((item) => item.id === stage)!;
 
   return (
-    <main className={`er-console${fa ? " is-persian" : ""}`} dir={fa ? "rtl" : "ltr"}>
-      <style>{styles + fidelityStyles + (fa ? persianStyles + lightPersianStyles : "")}</style>
+    <main className={`er-console${fa ? " is-persian" : " is-english"}`} lang={locale} dir={fa ? "rtl" : "ltr"}>
+      <style>{styles + fidelityStyles + (fa ? persianStyles + lightPersianStyles : englishStyles)}</style>
       <div className="er-overlay" />
       <div className="er-shell">
         <header className="er-topbar">
@@ -1866,14 +2030,14 @@ export default function ImpactConsoleDashboard({ locale = "en" }: { locale?: Loc
             <Menu size={16} />
           </button>
           <Link href={fa ? "/fa" : "/en"} className="er-brand" aria-label="SSE Impact Lab">
-            <Image src={fa ? "/homepage/persian-logo-2.png" : "/homepage/logo-2-w.png"} alt={fa ? "دانشنامه اقتصاد اجتماعی و همبستگی" : "SSE Impact Lab"} width={160} height={28} priority />
+            <Image src={fa ? "/homepage/persian-logo-2.png" : "/homepage/logo-2.png"} alt={fa ? "دانشنامه اقتصاد اجتماعی و همبستگی" : "SSE Knowledge Platform"} width={160} height={28} priority />
           </Link>
 
           <div className="er-status">
             <span className="dot" />
-            <span>{fa ? faCopy.status : "Assessment in progress"}</span>
+            <span>{fa ? faCopy.status : enCopy.status}</span>
             <span className="divider">•</span>
-            <span>{fa ? faCopy.updated : "Updated just now"}</span>
+            <span>{fa ? faCopy.updated : enCopy.updated}</span>
           </div>
 
           <div className="er-topbar-actions">
@@ -1882,7 +2046,7 @@ export default function ImpactConsoleDashboard({ locale = "en" }: { locale?: Loc
             </button>
             <Link href={fa ? "/fa" : "/en"} aria-label={fa ? "بازگشت به دانشنامه" : "Back to encyclopedia"}>
               {fa ? <ArrowRight size={13} /> : <ArrowLeft size={13} />}
-              <span>{fa ? faCopy.encyclopedia : "Encyclopedia"}</span>
+              <span>{fa ? faCopy.encyclopedia : enCopy.encyclopedia}</span>
             </Link>
           </div>
         </header>
@@ -1890,7 +2054,7 @@ export default function ImpactConsoleDashboard({ locale = "en" }: { locale?: Loc
         <div className="er-body">
           <aside className={`er-rail ${railOpen ? "open" : ""}`}>
             <div className="er-rail-head">
-              <span>{fa ? faCopy.workspace : "Workspace"}</span>
+              <span>{fa ? faCopy.workspace : enCopy.workspace}</span>
               <button type="button" aria-label={fa ? "بستن منو" : "Close menu"} onClick={() => setRailOpen(false)}>
                 <X size={14} />
               </button>
@@ -1909,7 +2073,7 @@ export default function ImpactConsoleDashboard({ locale = "en" }: { locale?: Loc
                   <span className="icon-shell"><Icon size={15} /></span>
                   <span className="copy">
                     <strong>{label}</strong>
-                    <small>{stage === id ? (fa ? id === "overview" ? faCopy.dashboardGuide : faCopy.activeView : "Active view") : (fa ? faCopy.ready : "Ready")}</small>
+                    <small>{stage === id ? (fa ? id === "overview" ? faCopy.dashboardGuide : faCopy.activeView : id === "overview" ? enCopy.dashboardGuide : enCopy.activeView) : (fa ? faCopy.ready : enCopy.ready)}</small>
                   </span>
                   <span className="state-mark"><Check size={13} /></span>
                 </button>
@@ -1946,8 +2110,9 @@ export default function ImpactConsoleDashboard({ locale = "en" }: { locale?: Loc
               <div className="rail-tip">
                 <CircleHelp size={14} />
                 <div>
-                  <strong>Data tip</strong>
-                  Use measured evidence before proxies.
+                  <strong>{enCopy.dataTip}</strong>
+                  <p>Use measured evidence where possible. Financial proxies are estimates, not observed cash returns.</p>
+                  <a href="https://www.socialvalueint.org/s/The-SROI-Guide-2012.pdf" target="_blank" rel="noopener noreferrer">{enCopy.referenceGuide}</a>
                 </div>
               </div>
             )}
@@ -1972,16 +2137,16 @@ export default function ImpactConsoleDashboard({ locale = "en" }: { locale?: Loc
               </div>
 
               <div className="total-value glass">
-                <span className="total-value-label">{fa ? faCopy.totalValue : "Total social value"}</span>
-                <span className="value-pill">◈ {fa ? faCopy.valueCreated : "Value created"}</span>
+                <span className="total-value-label">{fa ? faCopy.totalValue : enCopy.totalValue}</span>
+                <span className="value-pill">◈ {fa ? faCopy.valueCreated : enCopy.valueCreated}</span>
                 <strong dir={fa ? "rtl" : "ltr"}>{money(result.total, true, locale)}</strong>
-                <small>{fa ? faCopy.netValue : "Net value"} <b>{fa ? "برآورد زنده" : "↗ +12%"}</b></small>
+                <small>{fa ? faCopy.netValue : enCopy.netValue} <b>{fa ? "برآورد زنده" : "Live estimate"}</b></small>
               </div>
             </div>
 
             {stage === "overview" ? (
               <>
-                {fa && <PersianMethodology />}
+                {fa ? <PersianMethodology /> : <EnglishMethodology />}
                 <Overview form={form} result={result} locale={locale} />
               </>
             ) : stage === "results" ? <Results result={result} exportPdf={exportPdf} locale={locale} /> : <Inputs stage={stage} form={form} update={update} locale={locale} />}
@@ -1989,11 +2154,11 @@ export default function ImpactConsoleDashboard({ locale = "en" }: { locale?: Loc
 
           <div className="er-right-column">
           <aside className="er-result glass">
-            <div className="result-head"><span className="dot" /> {fa ? faCopy.liveResult : "Live result"}</div>
+            <div className="result-head"><span className="dot" /> {fa ? faCopy.liveResult : enCopy.liveResult}</div>
             <small>{fa ? "نسبت بازگشت اجتماعی سرمایه‌گذاری" : "SROI ratio"}</small>
             <div className="ratio-row">
               <strong dir="ltr">{formatNumber(result.ratio, locale, 2)}</strong>
-              <span>{fa ? "برآورد فعلی" : "↗ +0.12"}</span>
+              <span>{fa ? "برآورد فعلی" : "At current inputs"}</span>
             </div>
             <p>
               {fa ? <>{faCopy.ratioSentenceBefore} <b dir="rtl">{formatNumber(result.ratio, locale, 2)} تومان</b> {faCopy.ratioSentenceAfter}</> : <>Every $1 invested creates an estimated <b>${result.ratio.toFixed(2)}</b> in social value.</>}
@@ -2002,30 +2167,30 @@ export default function ImpactConsoleDashboard({ locale = "en" }: { locale?: Loc
             <div className="result-donut" style={{ background: ring(result) }}>
               <div className="center">
                 <strong>{money(result.total, true, locale)}</strong>
-                <span>{fa ? faCopy.netValue : "Net value"}</span>
+                <span>{fa ? faCopy.netValue : enCopy.netValue}</span>
               </div>
             </div>
 
             <div className="legend-list">
               <div className="legend-item">
-                <span className="label"><span className="dot social" />{fa ? faCopy.social : "Social"}</span>
+                <span className="label"><span className="dot social" />{fa ? faCopy.social : enCopy.social}</span>
                 <span className="amount">{money(result.values.social, true, locale)}</span>
                 <span className="pct">{formatNumber(Math.round((result.values.social / result.total) * 100) || 0, locale)}{fa ? "٪" : "%"}</span>
               </div>
               <div className="legend-item">
-                <span className="label"><span className="dot economic" />{fa ? faCopy.economic : "Economic"}</span>
+                <span className="label"><span className="dot economic" />{fa ? faCopy.economic : enCopy.economic}</span>
                 <span className="amount">{money(result.values.economic, true, locale)}</span>
                 <span className="pct">{formatNumber(Math.round((result.values.economic / result.total) * 100) || 0, locale)}{fa ? "٪" : "%"}</span>
               </div>
               <div className="legend-item">
-                <span className="label"><span className="dot environmental" />{fa ? faCopy.environmental : "Environmental"}</span>
+                <span className="label"><span className="dot environmental" />{fa ? faCopy.environmental : enCopy.environmental}</span>
                 <span className="amount">{money(result.values.environmental, true, locale)}</span>
                 <span className="pct">{formatNumber(Math.round((result.values.environmental / result.total) * 100) || 0, locale)}{fa ? "٪" : "%"}</span>
               </div>
             </div>
 
             <button className="download-btn" type="button" onClick={exportPdf}><Download size={14} /> {fa ? "چاپ / ذخیرهٔ گزارش PDF" : "Download report"}</button>
-            <div className="result-disclaimer">{fa ? faCopy.screeningEstimate : "Screening estimate, not an audited valuation."}</div>
+            <div className="result-disclaimer">{fa ? faCopy.screeningEstimate : enCopy.screeningEstimate}</div>
           </aside>
           </div>
         </div>
@@ -2615,4 +2780,40 @@ const lightPersianStyles = `
     text-align: justify;
     text-justify: inter-word;
   }
+`;
+
+const englishStyles = `
+  ${[persianStyles, lightPersianStyles]
+    .map((style) =>
+      style
+        .replace(/\.is-persian/g, ".is-english")
+        .replace(/\b(?:left|right|rtl|ltr)\b/g, (value) =>
+          ({ left: "right", right: "left", rtl: "ltr", ltr: "rtl" })[value]!,
+        ),
+    )
+    .join("\n")}
+  .er-console.is-english,
+  .er-console.is-english * {
+    font-family: "DM Sans", Inter, "Segoe UI", Arial, sans-serif;
+    letter-spacing: 0;
+  }
+  .er-console.is-english { direction: ltr; text-align: left; }
+  .er-console.is-english .er-brand { justify-content: flex-start; }
+  .er-console.is-english .er-brand img { object-position: left center; filter: none; }
+  .er-console.is-english .er-topbar-actions a { padding: 0 12px 0 10px; }
+  .er-console.is-english .methodology-preparation ul { padding: 0 0 0 18px; }
+  .er-console.is-english .er-foot { padding: 0 6px 0 2px; }
+  .er-console.is-english .field input:not([type="range"]),
+  .er-console.is-english .ratio-row strong,
+  .er-console.is-english .result-card strong,
+  .er-console.is-english .legend-item .amount,
+  .er-console.is-english .legend-item .pct,
+  .er-console.is-english .sroi-equation,
+  .er-console.is-english .sroi-equation-detail {
+    direction: ltr;
+    text-align: left;
+    unicode-bidi: isolate;
+  }
+  .er-console.is-english .bar-fill { inset: 0 auto 0 0; }
+  .er-console.is-english .sroi-equation-detail { overflow-x: auto; }
 `;
